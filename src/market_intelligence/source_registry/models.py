@@ -6,6 +6,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import (
     AfterValidator,
+    AnyHttpUrl,
     BaseModel,
     ConfigDict,
     Field,
@@ -123,6 +124,7 @@ class AcquisitionConfig(RegistryModel):
     """Static instructions for acquiring one source."""
 
     method: AcquisitionMethod
+    endpoint_url: AnyHttpUrl
     poll_interval_minutes: PositiveStrictInt
     rate_limit: RateLimitConfig | None = None
 

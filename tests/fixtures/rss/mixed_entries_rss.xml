@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Mixed RSS</title>
+    <link>https://example.org/</link>
+    <description>A feed with usable and unusable items</description>
+    <item>
+      <guid>usable-item</guid>
+      <link>https://example.org/articles/usable</link>
+      <title>Usable item</title>
+    </item>
+    <item>
+      <guid isPermaLink='false'>missing-link-item</guid>
+      <title>Missing required link</title>
+    </item>
+  </channel>
+</rss>

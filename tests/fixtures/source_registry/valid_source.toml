@@ -9,6 +9,7 @@ priority = 100
 
 [acquisition]
 method = "REST_API"
+endpoint_url = "https://www.federalregister.gov/api/v1/documents.json"
 poll_interval_minutes = 15
 
 [rights]

@@ -30,6 +30,7 @@ domains:
 
 acquisition:
   method: REST_API
+  endpoint_url: https://www.federalregister.gov/api/v1/documents.json
   poll_interval_minutes: 15
   rate_limit: null
 
@@ -70,6 +71,11 @@ Static authoring data is represented by `SourceConfig`. It groups acquisition fi
 under `acquisition` and does not contain runtime health fields. Dynamic values are
 represented separately by `SourceOperationalState` and must not be written back to
 the TOML source configuration.
+
+`AcquisitionConfig.endpoint_url` is the reviewed HTTP(S) endpoint used by the
+configured acquisition method. It is internal/static configuration so connectors do
+not accept arbitrary runtime target URLs. It is intentionally not added to the flat
+`SourceDefinition` shared wire contract.
 
 `SourceDefinition` remains the shared compatibility boundary from
 `DATA_CONTRACTS.md`. Its serialized shape keeps these fields flat:

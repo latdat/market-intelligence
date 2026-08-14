@@ -30,6 +30,7 @@ def valid_source_config_data() -> dict[str, object]:
         "domains": ["LAW_POLICY"],
         "acquisition": {
             "method": "REST_API",
+            "endpoint_url": "https://www.federalregister.gov/api/v1/documents.json",
             "poll_interval_minutes": 15,
             "rate_limit": None,
         },
@@ -108,6 +109,26 @@ def test_empty_or_duplicate_domains_are_rejected(domains: list[str]) -> None:
 def test_invalid_poll_interval_is_rejected(poll_interval: object) -> None:
     payload = valid_source_config_data()
     nested_dict(payload, "acquisition")["poll_interval_minutes"] = poll_interval
+
+    with pytest.raises(ValidationError):
+        SourceConfig.model_validate(payload)
+
+
+@pytest.mark.parametrize(
+    "endpoint_url",
+    ["", "ftp://example.org/feed.xml", "example.org/feed.xml"],
+)
+def test_invalid_acquisition_endpoint_is_rejected(endpoint_url: str) -> None:
+    payload = valid_source_config_data()
+    nested_dict(payload, "acquisition")["endpoint_url"] = endpoint_url
+
+    with pytest.raises(ValidationError):
+        SourceConfig.model_validate(payload)
+
+
+def test_missing_acquisition_endpoint_is_rejected() -> None:
+    payload = valid_source_config_data()
+    del nested_dict(payload, "acquisition")["endpoint_url"]
 
     with pytest.raises(ValidationError):
         SourceConfig.model_validate(payload)
@@ -241,6 +262,7 @@ def test_source_config_and_state_build_flat_definition() -> None:
     assert serialized["acquisition_method"] == "REST_API"
     assert serialized["poll_interval_minutes"] == 15
     assert serialized["rate_limit"] is None
+    assert "endpoint_url" not in serialized
     assert serialized["health_status"] == "HEALTHY"
     assert "acquisition" not in serialized
 

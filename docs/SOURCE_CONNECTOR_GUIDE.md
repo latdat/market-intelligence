@@ -123,6 +123,30 @@ published/updated→ published_at_raw
 
 Do not assume every feed supplies every field.
 
+### 8.1 DE-004 implementation boundary
+
+The generic `RssAtomConnector` receives validated `SourceConfig`. Its endpoint is
+`SourceConfig.acquisition.endpoint_url`, which is static internal configuration and
+is not part of the flat `SourceDefinition` shared wire contract.
+
+The connector:
+
+- accepts only `RSS` and `ATOM` acquisition methods
+- refuses a source when `rights.can_fetch` is false
+- does not automatically follow redirects away from the reviewed configured endpoint
+- uses a 10-second request timeout and at most three attempts by default
+- retries timeout/connection failures and HTTP 408, 429, 500, 502, 503, and 504
+- does not retry other HTTP 4xx responses
+- applies bounded exponential backoff with jitter
+- honors a valid `Retry-After` header for HTTP 429/503, capped by the configured maximum delay
+- returns valid entries while warning about unusable entries
+- raises `FeedParseError` when a response is not a feed or all entries are unusable
+- returns an empty list only for a valid feed that contains no entries
+
+The retry sleep function is injectable so deterministic tests do not wait in real
+time. The connector remains stateless and does not normalize, deduplicate, persist,
+classify, or emit telemetry records.
+
 ## 9. REST/API
 
 Use `httpx`.

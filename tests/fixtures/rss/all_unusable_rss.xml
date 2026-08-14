@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Unusable RSS</title>
+    <link>https://example.org/</link>
+    <description>A feed whose items have no usable URL</description>
+    <item>
+      <guid isPermaLink='false'>missing-link-1</guid>
+      <title>First unusable item</title>
+    </item>
+    <item>
+      <guid isPermaLink='false'>missing-link-2</guid>
+      <title>Second unusable item</title>
+    </item>
+  </channel>
+</rss>
