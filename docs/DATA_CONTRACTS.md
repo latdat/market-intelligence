@@ -108,6 +108,17 @@ Rules:
 - `retrieved_at` is not `published_at`
 - connector-specific fields may live in `raw_metadata`
 
+Field presence and defaults:
+
+- required: `source_id`, `url`, `retrieved_at`
+- nullable with a default of `null`: `source_item_id`, `title`, `description`, `published_at_raw`, `language_hint`
+- `raw_metadata` defaults to a new empty object for each record
+
+Timestamp policy:
+
+- `retrieved_at` must include timezone information and is normalized to UTC
+- `published_at_raw` remains an unparsed source value at this boundary
+
 ---
 
 # 4. CanonicalArticle
@@ -138,6 +149,19 @@ Required semantics:
 - `canonical_url`: normalized URL used for deduplication
 - `article_id`: stable across repeated ingestion when possible
 - `content_hash`: deterministic input for deduplication
+
+Field presence and defaults:
+
+- required: `article_id`, `source_id`, `url`, `canonical_url`, `title`, `language`, `market`, `discovered_at`, `content_hash`
+- nullable with a default of `null`: `source_item_id`, `description`, `published_at`
+
+Timestamp policy:
+
+- parsed timestamps must include timezone information and are normalized to UTC
+- when source publication time is unavailable, `published_at` remains `null`; it must not fall back to `discovered_at`
+- the model does not enforce `published_at <= discovered_at`; timestamp anomaly handling belongs to a later pipeline or data-quality stage
+
+Validation at this boundary does not perform URL normalization or generate `article_id` or `content_hash`. Those transformations belong to the normalization stage.
 
 Do not overwrite `published_at` with retrieval time.
 
