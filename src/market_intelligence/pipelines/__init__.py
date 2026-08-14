@@ -1,0 +1,19 @@
+"""Public pipeline composition helpers."""
+
+from market_intelligence.pipelines.rss_to_supabase import (
+    BatchDuplicateMatch,
+    IngestionRunResult,
+    SourceIngestionResult,
+    SourcePreflightResult,
+    preflight_rss_sources,
+    run_rss_ingestion,
+)
+
+__all__ = [
+    "BatchDuplicateMatch",
+    "IngestionRunResult",
+    "SourceIngestionResult",
+    "SourcePreflightResult",
+    "preflight_rss_sources",
+    "run_rss_ingestion",
+]

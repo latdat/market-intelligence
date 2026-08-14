@@ -1,5 +1,10 @@
 """Public Source Registry models."""
 
+from market_intelligence.source_registry.loader import (
+    SourceConfigLoadError,
+    load_source_config,
+    load_source_configs,
+)
 from market_intelligence.source_registry.models import (
     AcquisitionConfig,
     AcquisitionMethod,
@@ -33,7 +38,10 @@ __all__ = [
     "RightsDecision",
     "RightsReviewStatus",
     "SourceConfig",
+    "SourceConfigLoadError",
     "SourceDefinition",
     "SourceOperationalState",
     "SourceType",
+    "load_source_config",
+    "load_source_configs",
 ]

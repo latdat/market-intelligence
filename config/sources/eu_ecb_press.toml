@@ -1,0 +1,26 @@
+source_id = "eu_ecb_press"
+name = "European Central Bank — Press and News"
+market = "EU"
+language = "en"
+source_type = "REGULATOR"
+authority_level = "PRIMARY"
+domains = ["FINANCE", "LAW_POLICY"]
+priority = 100
+
+[acquisition]
+method = "RSS"
+endpoint_url = "https://www.ecb.europa.eu/rss/press.html"
+poll_interval_minutes = 15
+
+[rights]
+can_fetch = true
+can_store_metadata = true
+can_store_full_text = false
+can_ai_process = false
+can_show_snippet = false
+can_redistribute_full_text = false
+rights_review_status = "PENDING"
+
+[cost]
+type = "FREE"
+monthly_fixed_usd = 0

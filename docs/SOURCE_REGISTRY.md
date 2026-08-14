@@ -64,8 +64,9 @@ source under:
 config/sources/<source_id>.toml
 ```
 
-DE-002 defines the validated models and a test fixture only. It does not create a
-production registry or loader.
+DE-002 defined the validated models and a test fixture. SO-001 adds the first
+production registry plus a deterministic TOML loader. Each filename must equal its
+source_id, and unknown or invalid fields fail before any network request.
 
 Static authoring data is represented by `SourceConfig`. It groups acquisition fields
 under `acquisition` and does not contain runtime health fields. Dynamic values are
@@ -103,6 +104,29 @@ No burst, concurrency, quota, or rate-limit framework is part of DE-002.
 current contract example. New operational state defaults to `UNKNOWN`. Business
 enablement `status` remains conceptually separate from health but is not implemented
 in DE-002.
+
+### 2.2 SO-001 pilot registry
+
+The first production registry contains four official RSS sources:
+
+| Source ID | Market | Coverage |
+|---|---|---|
+| vn_mst_news_events | VN | Ministry of Science and Technology news/events |
+| us_fed_press_releases | US | Federal Reserve press releases |
+| eu_ecb_press | EU | ECB press and news |
+| cn_nbs_latest_releases | CN | NBS latest releases |
+
+All four pilot records use conservative metadata-only rights with
+rights_review_status = "PENDING". This permits fetch and metadata persistence but
+does not approve full-text storage, AI processing, snippet display, or redistribution.
+
+vn_moc_direction is intentionally not in the pilot registry. Its upstream HTTP URL
+redirects to an HTTPS endpoint whose certificate chain could not be verified by the
+Python connector during SO-001 inspection. TLS verification must not be disabled to
+work around that source.
+
+The NBS feed publishes timezone-naive timestamp strings. Existing normalization keeps
+published_at = null and never substitutes discovered_at.
 
 ## 3. Suggested enums
 

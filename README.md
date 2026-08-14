@@ -107,6 +107,24 @@ macOS/Linux:
 Mypy strict mode hiện chỉ áp dụng cho `src/market_intelligence`. Tests không bị ép
 strict trong DE-001.
 
+## SO-001 source onboarding
+
+Production source configuration nằm trong config/sources/, mỗi source có một file
+TOML và filename phải khớp source_id.
+
+Chạy live preflight giới hạn 20 entries/source mà không ghi Supabase:
+
+    .\.venv\Scripts\python.exe scripts\run_source_onboarding.py --preflight --max-items 20
+
+Sau khi preflight thành công, chạy bounded ingestion:
+
+    .\.venv\Scripts\python.exe scripts\run_source_onboarding.py --max-items 20
+
+--max-items là runtime safety bound bắt buộc, không phải field của SourceConfig.
+Runner thực hiện RSS → normalization → batch-local deterministic deduplication →
+Supabase. Duplicate decisions được báo cáo nhưng mọi source-local record có quyền lưu
+metadata vẫn được persist; DE-007 first-write-wins giữ repeated ingestion idempotent.
+
 ## Supabase configuration
 
 Persistence MVP đọc hai biến trực tiếp từ environment:

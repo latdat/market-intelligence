@@ -1,0 +1,26 @@
+source_id = "vn_mst_news_events"
+name = "Vietnam Ministry of Science and Technology — News and Events"
+market = "VN"
+language = "vi"
+source_type = "GOVERNMENT"
+authority_level = "PRIMARY"
+domains = ["TECHNOLOGY", "LAW_POLICY"]
+priority = 100
+
+[acquisition]
+method = "RSS"
+endpoint_url = "https://mst.gov.vn/rss/tin-tuc-su-kien.rss"
+poll_interval_minutes = 15
+
+[rights]
+can_fetch = true
+can_store_metadata = true
+can_store_full_text = false
+can_ai_process = false
+can_show_snippet = false
+can_redistribute_full_text = false
+rights_review_status = "PENDING"
+
+[cost]
+type = "FREE"
+monthly_fixed_usd = 0
