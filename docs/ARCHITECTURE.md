@@ -198,6 +198,23 @@ The MVP has one `articles` table and does not add source state, classification, 
 relationships, matching, or notification persistence. It does not choose a canonical
 winner for cross-source duplicates.
 
+### 7.2 DE-008 classification boundary
+
+DE-008 is implemented as a standalone, rights-gated adapter:
+
+```text
+CanonicalArticle + SourceConfig
+        -> RightsGate
+        -> ClassificationInput
+        -> DeepSeek V4 Flash
+        -> strict semantic validation
+        -> ClassifiedArticle + internal ClassificationResult metadata
+```
+
+It is not wired into the ingestion runner and has no persistence. DE-009 remains planned
+and will use `(article_id, classifier_version)` as the classification identity. Durable
+attempt lifecycle and cross-run idempotency belong to DE-009, not this in-memory adapter.
+
 ## 8. AI usage
 
 Model:
@@ -208,11 +225,16 @@ DeepSeek V4 Flash
 
 Purpose:
 
-- market verification
+- content-mentioned markets (distinct from source provenance market)
 - category
-- topics
+- controlled topics
 - confidence
-- basic relevance metadata
+- basic article relevance decision
+
+The adapter sends metadata only, enforces explicit source AI-processing rights before
+prompt construction, requests JSON output, strictly validates it, and bounds one
+invocation to at most three provider calls. It captures observed usage/cost internally;
+these provider-specific details are not part of the shared `ClassifiedArticle` contract.
 
 Avoid:
 

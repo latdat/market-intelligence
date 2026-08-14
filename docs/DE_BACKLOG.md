@@ -91,6 +91,8 @@ Goal:
 
 ### DE-008 DeepSeek V4 Flash classification adapter
 
+Status: implemented as a standalone, offline-tested adapter; not wired or persisted.
+
 Goal:
 
 - minimal structured input
@@ -100,10 +102,13 @@ Goal:
 
 ### DE-009 Classification persistence
 
+Status: planned only.
+
 Goal:
 
 - associate classification with article
-- avoid uncontrolled repeated classifications
+- use `(article_id, classifier_version)` identity
+- own durable attempt lifecycle and cross-run idempotency
 - preserve `classified_at`
 
 ## Phase 3 — Matching

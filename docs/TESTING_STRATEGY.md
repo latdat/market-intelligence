@@ -133,16 +133,33 @@ Mock the LLM API.
 Test:
 
 - valid structured output
+- strict field/type validation and rejection of unknown fields
+- valid unsorted markets/topics normalize without another provider call
+- duplicate and unsupported controlled codes fail validation
+- relevant/irrelevant cross-field invariants
+- confidence finite/range boundaries and rejection of numeric strings/booleans
+- rights denial and source mismatch produce zero prompt/HTTP calls
+- provider prompt excludes IDs, URLs, raw/full content, and credentials
 - invalid JSON
 - missing required field
 - unknown category
 - confidence outside expected range
-- timeout
-- 429
-- 5xx
+- connect/read/write timeout and connection failure
+- 429 plus bounded `Retry-After`
+- generic transient 500/502/503/504
+- `insufficient_system_resource` retries
+- `content_filter`, `length`, and unexpected `tool_calls` do not retry
 - retry exhaustion
-- repeated classification does not create uncontrolled duplicates
-- cost/telemetry record emitted when expected
+- provider attempt count includes every actual call
+- observed usage and cost aggregate across failed and successful attempts
+- invalid/negative/inconsistent provider usage is rejected
+- timeout/lost-response attempts do not invent usage
+- errors/logs do not leak keys, prompts, article content, or raw responses
+- effective-date and UTC peak/off-peak pricing boundaries
+
+Cross-run duplicate prevention, durable retry lifecycle, and persistence idempotency are
+DE-009 tests. DE-008 tests only bounded retries within one invocation and use mocked HTTP;
+normal CI must not call the live provider.
 
 ## 8. Matching cases
 

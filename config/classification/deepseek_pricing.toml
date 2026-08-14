@@ -1,0 +1,64 @@
+[[schedules]]
+pricing_id = "deepseek-v4-flash-usd-2026-04-24"
+model = "deepseek-v4-flash"
+currency = "USD"
+source_url = "https://api-docs.deepseek.com/quick_start/pricing/"
+verified_at = 2026-08-15T00:00:00Z
+effective_from = 2026-04-24T00:00:00Z
+effective_until = 2026-08-16T16:00:00Z
+
+[[schedules.windows]]
+name = "ALL_DAY"
+start_minute_utc = 0
+end_minute_utc = 1440
+input_cache_hit_usd_per_million = "0.0028"
+input_cache_miss_usd_per_million = "0.14"
+output_usd_per_million = "0.28"
+
+[[schedules]]
+pricing_id = "deepseek-v4-flash-usd-2026-08-16"
+model = "deepseek-v4-flash"
+currency = "USD"
+source_url = "https://api-docs.deepseek.com/quick_start/pricing/"
+verified_at = 2026-08-15T00:00:00Z
+effective_from = 2026-08-16T16:00:00Z
+
+[[schedules.windows]]
+name = "OFF_PEAK_00_01"
+start_minute_utc = 0
+end_minute_utc = 60
+input_cache_hit_usd_per_million = "0.007"
+input_cache_miss_usd_per_million = "0.22"
+output_usd_per_million = "0.66"
+
+[[schedules.windows]]
+name = "PEAK_01_04"
+start_minute_utc = 60
+end_minute_utc = 240
+input_cache_hit_usd_per_million = "0.014"
+input_cache_miss_usd_per_million = "0.44"
+output_usd_per_million = "1.32"
+
+[[schedules.windows]]
+name = "OFF_PEAK_04_06"
+start_minute_utc = 240
+end_minute_utc = 360
+input_cache_hit_usd_per_million = "0.007"
+input_cache_miss_usd_per_million = "0.22"
+output_usd_per_million = "0.66"
+
+[[schedules.windows]]
+name = "PEAK_06_10"
+start_minute_utc = 360
+end_minute_utc = 600
+input_cache_hit_usd_per_million = "0.014"
+input_cache_miss_usd_per_million = "0.44"
+output_usd_per_million = "1.32"
+
+[[schedules.windows]]
+name = "OFF_PEAK_10_24"
+start_minute_utc = 600
+end_minute_utc = 1440
+input_cache_hit_usd_per_million = "0.007"
+input_cache_miss_usd_per_million = "0.22"
+output_usd_per_million = "0.66"

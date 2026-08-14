@@ -125,6 +125,18 @@ Runner thực hiện RSS → normalization → batch-local deterministic dedupli
 Supabase. Duplicate decisions được báo cáo nhưng mọi source-local record có quyền lưu
 metadata vẫn được persist; DE-007 first-write-wins giữ repeated ingestion idempotent.
 
+## Classification configuration
+
+DE-008 reads `DEEPSEEK_API_KEY` directly from the environment. Pricing defaults to
+`config/classification/deepseek_pricing.toml`; use `DEEPSEEK_PRICING_CONFIG_PATH` only
+when a deployment needs another path. Pricing is effective-dated and is never fetched
+from the internet at runtime.
+
+The adapter is standalone: it is not wired into onboarding, does not persist results,
+and must not classify production articles whose source lacks both
+`rights_review_status=APPROVED` and `can_ai_process=true`. Unit and integration tests use
+mocked HTTP and do not need or use a real API key.
+
 ## Supabase configuration
 
 Persistence MVP đọc hai biến trực tiếp từ environment:
