@@ -165,6 +165,65 @@ Validation at this boundary does not perform URL normalization or generate `arti
 
 Do not overwrite `published_at` with retrieval time.
 
+## 4.1 DE-005 normalization policy
+
+The normalization boundary accepts one `RawArticle` and its validated static
+`SourceConfig`. The two `source_id` values must match.
+
+Field derivation:
+
+- `url` preserves the original raw URL
+- `canonical_url` uses the deterministic policy below
+- `market` comes from source configuration
+- `language` uses a non-empty normalized `language_hint`, otherwise source configuration
+- `source_item_id` is normalized to NFC and trimmed; an empty result becomes `null`
+- `discovered_at` is the raw `retrieved_at`
+- missing source publication time never falls back to `retrieved_at`
+
+Canonical URL policy:
+
+- require an absolute HTTP(S) URL with a hostname and without userinfo
+- lowercase scheme and hostname
+- remove default HTTP/HTTPS ports
+- remove the fragment
+- normalize an empty path to `/`
+- preserve a non-empty path and its trailing slash
+- remove query names beginning with `utm_`, plus `gclid`, `dclid`, `fbclid`, `msclkid`, `mc_cid`, and `mc_eid`, matched case-insensitively
+- preserve the raw representation, ordering, duplicates, blank values, and percent encoding of every retained query segment
+- do not sort retained query parameters or remove generic names such as `id`, `source`, or `ref`
+
+Text policy:
+
+- decode HTML character references exactly once while extracting visible text
+- discard markup and `script`/`style` content
+- normalize Unicode to NFC
+- collapse Unicode whitespace and trim
+- reject a missing/empty normalized title
+- represent an empty normalized description as `null`
+
+Publication timestamp policy:
+
+- parse supported timezone-aware ISO-8601 and RFC 822/2822 values
+- normalize a parsed timestamp to UTC
+- map a missing, invalid, or timezone-naive value to `null`
+- surface invalid/naive timestamp input as a normalization warning
+- do not enforce publication/discovery ordering at this boundary
+
+`article_id` is the lowercase SHA-256 hexadecimal digest of compact UTF-8 JSON.
+With `source_item_id`, the JSON array is
+`["v1","source_item_id",source_id,normalized_source_item_id]`.
+Without `source_item_id`, it is
+`["v1","canonical_url",source_id,canonical_url]`.
+
+The URL fallback includes `source_id` because `article_id` represents source-local
+record identity. Cross-source duplicate detection belongs to the deduplication stage.
+
+`content_hash` is the lowercase SHA-256 hexadecimal digest of compact UTF-8 JSON:
+`["v1",normalized_title,normalized_description]`.
+
+It intentionally excludes source, URL, language, and timestamps so exact normalized
+content can be compared across sources in the later deduplication stage.
+
 ---
 
 # 5. ClassifiedArticle
