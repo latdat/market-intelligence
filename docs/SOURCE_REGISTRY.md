@@ -53,6 +53,51 @@ last_success_at: null
 last_failure_at: null
 ```
 
+### 2.1 DE-002 implementation boundary
+
+The YAML above is a conceptual registry record, not the selected production file
+format. Static source configuration is intended to be authored as one TOML file per
+source under:
+
+```text
+config/sources/<source_id>.toml
+```
+
+DE-002 defines the validated models and a test fixture only. It does not create a
+production registry or loader.
+
+Static authoring data is represented by `SourceConfig`. It groups acquisition fields
+under `acquisition` and does not contain runtime health fields. Dynamic values are
+represented separately by `SourceOperationalState` and must not be written back to
+the TOML source configuration.
+
+`SourceDefinition` remains the shared compatibility boundary from
+`DATA_CONTRACTS.md`. Its serialized shape keeps these fields flat:
+
+```text
+acquisition_method
+poll_interval_minutes
+rate_limit
+health_status
+last_success_at
+last_failure_at
+```
+
+The internal non-null `rate_limit` representation is provisional because the shared
+contract currently defines the field but not its non-null shape:
+
+```text
+max_requests: positive integer
+period_seconds: positive integer
+```
+
+No burst, concurrency, quota, or rate-limit framework is part of DE-002.
+
+`ACTIVE` remains an accepted health value only for backward compatibility with the
+current contract example. New operational state defaults to `UNKNOWN`. Business
+enablement `status` remains conceptually separate from health but is not implemented
+in DE-002.
+
 ## 3. Suggested enums
 
 These are implementation proposals and may be adjusted with tests/migrations.
