@@ -104,6 +104,11 @@ For ingestion paths:
 - use unique constraints to make invariants enforceable
 - keep migrations reviewable
 
+For the DE-007 persistence MVP, `article_id` is the enforced identity. Article writes use
+first-write-wins semantics: a primary-key conflict is ignored and never updates
+`discovered_at` or another article field. Other deduplication signals are not storage
+uniqueness invariants.
+
 ## 8. Rights-aware storage
 
 Default to metadata-first.

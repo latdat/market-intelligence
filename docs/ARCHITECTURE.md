@@ -187,6 +187,17 @@ Relevant data-side entities:
 
 BigQuery is for lightweight telemetry, not serving the website.
 
+### 7.1 DE-007 article persistence MVP
+
+For the current pipeline-validation phase, Supabase PostgreSQL stores first-seen
+`CanonicalArticle` snapshots. Pipeline code depends on the small `ArticleRepository`
+boundary; only its adapter depends on the Supabase Python client. This keeps connector,
+normalization, and deduplication code independent of the current backend.
+
+The MVP has one `articles` table and does not add source state, classification, duplicate
+relationships, matching, or notification persistence. It does not choose a canonical
+winner for cross-source duplicates.
+
 ## 8. AI usage
 
 Model:

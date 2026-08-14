@@ -224,6 +224,28 @@ record identity. Cross-source duplicate detection belongs to the deduplication s
 It intentionally excludes source, URL, language, and timestamps so exact normalized
 content can be compared across sources in the later deduplication stage.
 
+## 4.2 DE-007 persistence MVP
+
+The `articles` table stores one first-seen snapshot of the fields in `CanonicalArticle`.
+It does not add fields to the shared wire model.
+
+Persistence semantics:
+
+- `article_id` is the primary key and the only conflict target
+- the first successful insert wins; a later write with the same `article_id` is ignored
+- therefore `discovered_at` remains the first discovery timestamp from the persisted
+  snapshot and is never overwritten by a retry
+- all other `CanonicalArticle` fields are also immutable in this MVP because update
+  semantics have not been defined
+- `canonical_url`, `(source_id, source_item_id)`, and `content_hash` are not unique
+  storage constraints; they remain deduplication signals
+- persistence does not choose a canonical winner or store cross-source duplicate
+  relationships
+
+This policy makes retries of the same source-local record idempotent without changing
+DE-006 duplicate semantics. A later task must explicitly define provenance and update
+semantics before this insert-only snapshot policy is expanded.
+
 ---
 
 # 5. ClassifiedArticle

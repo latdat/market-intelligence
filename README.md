@@ -1,8 +1,9 @@
 # Market Intelligence — Data Engineer Workspace
 
 Repository này chứa phần Data Engineer của Market & Regulatory Intelligence
-Platform. DE-001 mới chỉ thiết lập Python package và development tooling; chưa có
-pipeline hoặc business logic chạy production.
+Platform. Các thành phần hiện tại bao gồm source models, ingestion/normalization,
+deterministic deduplication và persistence MVP cho `CanonicalArticle`; chưa có một
+pipeline production hoàn chỉnh.
 
 ## Yêu cầu
 
@@ -106,13 +107,27 @@ macOS/Linux:
 Mypy strict mode hiện chỉ áp dụng cho `src/market_intelligence`. Tests không bị ép
 strict trong DE-001.
 
-## Configuration và secrets
+## Supabase configuration
 
-DE-001 chưa yêu cầu environment variable. Khi configuration được thêm ở task sau:
+Persistence MVP đọc hai biến trực tiếp từ environment:
 
-- nhận giá trị theo environment thay vì hard-code;
-- không commit `.env` hoặc secret thật;
-- thêm `.env.example` với tên biến và placeholder an toàn;
-- không ghi credentials, token hoặc authorization header vào logs.
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_KEY`
+
+Sao chép `.env.example` thành `.env` nếu muốn quản lý giá trị local, nhưng project
+không tự động load file `.env`. Trước khi chạy code dùng persistence, export các biến
+vào process hiện tại. Ví dụ trên Windows PowerShell:
+
+```powershell
+$env:SUPABASE_URL = 'https://your-project.supabase.co'
+$env:SUPABASE_SERVICE_KEY = 'your-service-key'
+```
+
+Không commit `.env` hoặc secret thật và không ghi service key, token hay authorization
+header vào logs. `SUPABASE_SERVICE_KEY` có đặc quyền cao, vì vậy chỉ dùng trong backend
+trusted environment, không đưa vào frontend.
+
+Migration đề xuất nằm trong `supabase/migrations/`. Migration phải được review và áp
+dụng riêng trước khi persistence code được chạy với Supabase thật.
 
 Đọc `AGENTS.md` và các tài liệu trong `docs/` trước khi thay đổi code hoặc contract.
