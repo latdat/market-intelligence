@@ -74,6 +74,25 @@ Order:
 
 The system should explain why two records were considered duplicates where practical.
 
+For the current deterministic implementation:
+
+- canonical URL equality applies across sources;
+- source item ID equality applies only within the same `source_id`;
+- content hash equality applies across sources;
+- normalized-title similarity is evaluated only after all exact checks fail;
+- the title comparison key uses NFC, case folding, and collapsed whitespace while
+  preserving punctuation and numbers;
+- title similarity uses `SequenceMatcher(autojunk=False)` and is a hard duplicate only
+  when the score is at least `0.98`, both comparison keys are at least 30 characters,
+  both articles have the same market, and their effective timestamps differ by no more
+  than 24 hours;
+- effective time is `published_at` when available, otherwise `discovered_at`;
+- numeric tokens are ordered contiguous digit runs; when both titles contain numeric
+  tokens and their sequences differ, title similarity cannot decide a hard duplicate.
+
+The deduplication decision identifies the matched existing article and the first matching
+reason. It does not choose a canonical winner or perform persistence.
+
 ## 7. Database writes
 
 For ingestion paths:
