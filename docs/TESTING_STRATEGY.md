@@ -1,0 +1,206 @@
+# Testing Strategy — Data Engineer Scope
+
+## 1. Testing goals
+
+Tests should protect the properties most likely to damage this product:
+
+- missed information
+- duplicate information
+- wrong timestamps
+- repeated side effects
+- bad source parsing
+- broken classification output
+- incorrect matching
+- silent pipeline failure
+
+## 2. Test levels
+
+### Unit tests
+
+Use for:
+
+- URL normalization
+- timestamp parsing
+- content hashing
+- source-specific mapping
+- classification output validation
+- matching rules
+- dedup helpers
+
+### Connector tests
+
+Use fixtures/mocked HTTP responses.
+
+Do not require live public internet for normal CI.
+
+### Integration tests
+
+Use for:
+
+- connector → normalization
+- normalization → persistence
+- persistence → classification
+- classification → matching
+- idempotent repeated runs
+
+### End-to-end smoke tests
+
+Use a small controlled source/fixture path to validate the critical pipeline.
+
+Do not make production third-party services mandatory for every local test run.
+
+## 3. Required connector cases
+
+Every connector family should test representative cases:
+
+- HTTP 200
+- timeout
+- connection failure
+- 429 rate limit
+- 500/502/503 transient error
+- malformed response
+- empty response/feed
+- missing title
+- missing description
+- missing publication time
+- unexpected encoding when relevant
+- duplicate source item
+- repeated run
+
+RSS/Atom additionally:
+
+- malformed XML
+- feed with different date formats
+- entries without GUID/source item ID
+
+REST additionally:
+
+- pagination
+- empty page
+- changed/missing optional field
+- rate-limit response
+
+HTML additionally:
+
+- target element missing
+- layout change fixture
+- relative URL resolution
+- duplicate links
+
+## 4. Normalization cases
+
+Test:
+
+- tracking parameter removal
+- canonical URL stability
+- Unicode title normalization where used
+- whitespace normalization
+- timezone conversion
+- missing timezone policy
+- description cleanup
+- deterministic content hash
+- repeated normalization gives same result
+
+## 5. Deduplication cases
+
+Test each layer separately:
+
+```text
+same canonical URL → duplicate
+same source item ID → duplicate
+same deterministic hash → duplicate
+similar normalized title → policy-dependent duplicate
+different real article → not duplicate
+```
+
+Also test order of operations so expensive similarity checks are avoided when a cheap exact check succeeds.
+
+## 6. Persistence/idempotency cases
+
+Required:
+
+- first insert succeeds
+- repeated identical ingestion does not create a second logical article
+- `discovered_at` preserves first discovery
+- changed allowed metadata can update safely
+- transaction rollback does not leave partial critical state
+- duplicate classification side effect is prevented where applicable
+
+## 7. Classification cases
+
+Mock the LLM API.
+
+Test:
+
+- valid structured output
+- invalid JSON
+- missing required field
+- unknown category
+- confidence outside expected range
+- timeout
+- 429
+- 5xx
+- retry exhaustion
+- repeated classification does not create uncontrolled duplicates
+- cost/telemetry record emitted when expected
+
+## 8. Matching cases
+
+Test combinations:
+
+- market match only
+- category match
+- topic match
+- muted source
+- muted topic
+- stale article
+- breaking disabled
+- hourly disabled
+- multiple matching reasons
+- same article/user pair processed twice
+
+Matching output should remain explainable.
+
+## 9. Freshness/telemetry cases
+
+Ensure stage timestamps are not conflated.
+
+At minimum verify:
+
+```text
+published_at <= discovered_at
+discovered_at <= classified_at
+classified_at <= matched_at
+```
+
+Do not force these inequalities when source data is known to be inconsistent without defining a policy; surface the anomaly instead.
+
+## 10. Test data
+
+Prefer small deterministic fixtures.
+
+Recommended structure:
+
+```text
+tests/
+├── fixtures/
+│   ├── rss/
+│   ├── rest/
+│   └── html/
+├── unit/
+├── integration/
+└── e2e/
+```
+
+Never put secrets or copyrighted full-text datasets into test fixtures without explicit approval.
+
+## 11. Completion report
+
+Codex should finish a task by reporting:
+
+```text
+Tests added:
+Tests run:
+Result:
+Known gaps:
+```
