@@ -1,5 +1,11 @@
 """Public article persistence API."""
 
+from market_intelligence.persistence.alert_candidates import (
+    AlertCandidatePersistenceError,
+    AlertCandidateRepository,
+    AlertCandidateSaveOutcome,
+    AlertCandidateSaveResult,
+)
 from market_intelligence.persistence.articles import (
     ArticlePersistenceError,
     ArticleRepository,
@@ -29,6 +35,10 @@ from market_intelligence.persistence.classifications import (
     FailureResult,
     LeaseRenewalOutcome,
     LeaseRenewalResult,
+)
+from market_intelligence.persistence.supabase_alert_candidate_repository import (
+    SupabaseAlertCandidateRepository,
+    create_alert_candidate_repository_from_environment,
 )
 from market_intelligence.persistence.supabase_classification_repository import (
     SupabaseClassificationRepository,
@@ -82,4 +92,10 @@ __all__ = [
     "SupabaseClassificationRepository",
     "create_article_repository_from_environment",
     "create_classification_repository_from_environment",
+    "AlertCandidatePersistenceError",
+    "AlertCandidateRepository",
+    "AlertCandidateSaveOutcome",
+    "AlertCandidateSaveResult",
+    "SupabaseAlertCandidateRepository",
+    "create_alert_candidate_repository_from_environment",
 ]

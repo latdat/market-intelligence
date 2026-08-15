@@ -909,3 +909,310 @@ def test_expired_exhausted_recovery_is_bounded_to_one_locked_candidate(
         )
         == "1|1|1"
     )
+
+
+# Append these DE-012 tests to tests/integration/test_classification_persistence.py.
+# Reuse the existing PostgresHarness and classification_database fixture.
+#
+# Also add:
+#     from concurrent.futures import ThreadPoolExecutor
+# to that file's imports if it is not already present.
+
+
+def _insert_de012_article(
+    database: PostgresHarness,
+    article_id: str,
+) -> None:
+    database.run(
+        f"""
+        insert into public.articles (
+            article_id,
+            source_id,
+            url,
+            canonical_url,
+            title,
+            language,
+            market,
+            discovered_at,
+            content_hash
+        ) values (
+            '{article_id}',
+            'de012_source',
+            'https://example.test/{article_id}',
+            'https://example.test/{article_id}',
+            'DE-012 integration article',
+            'en',
+            'US',
+            '2026-08-15T08:00:00Z',
+            'de012-content-hash-{article_id}'
+        )
+        on conflict (article_id) do nothing;
+        """
+    )
+
+
+def _save_de012_candidate_sql(
+    *,
+    candidate_id: str,
+    user_id: str,
+    article_id: str,
+    matched_at: str = "2026-08-15T08:05:00Z",
+    reasons: str = "array['market:US','category:TECHNOLOGY']::text[]",
+    importance: str = "HIGH",
+    score: str = "0.95",
+    breaking: str = "true",
+) -> str:
+    return f"""
+        select public.save_alert_candidate(
+            '{candidate_id}',
+            '{user_id}',
+            '{article_id}',
+            '{matched_at}'::timestamptz,
+            {reasons},
+            '{importance}',
+            {score}::double precision,
+            {breaking}
+        )::text;
+    """
+
+
+def test_alert_candidate_schema_identity_and_access_boundary(
+    classification_database: PostgresHarness,
+) -> None:
+    database = classification_database
+
+    assert (
+        database.scalar(
+            """
+            select pg_get_constraintdef(oid)
+            from pg_constraint
+            where conrelid = 'public.alert_candidates'::regclass
+              and contype = 'p';
+            """
+        )
+        == "PRIMARY KEY (candidate_id)"
+    )
+    assert (
+        database.scalar(
+            """
+            select pg_get_constraintdef(oid)
+            from pg_constraint
+            where conname = 'alert_candidates_user_article_uidx';
+            """
+        )
+        == "UNIQUE (user_id, article_id)"
+    )
+    assert (
+        database.scalar(
+            """
+            select pg_get_constraintdef(oid)
+            from pg_constraint
+            where conname = 'alert_candidates_article_fk';
+            """
+        )
+        == "FOREIGN KEY (article_id) REFERENCES articles(article_id) ON DELETE RESTRICT"
+    )
+    assert (
+        database.scalar(
+            """
+            select relrowsecurity
+            from pg_class
+            where oid = 'public.alert_candidates'::regclass;
+            """
+        )
+        == "t"
+    )
+    assert (
+        database.scalar(
+            """
+            select
+                has_table_privilege('service_role', 'public.alert_candidates', 'SELECT'),
+                has_table_privilege('service_role', 'public.alert_candidates', 'INSERT'),
+                has_table_privilege('service_role', 'public.alert_candidates', 'UPDATE'),
+                has_table_privilege('service_role', 'public.alert_candidates', 'DELETE'),
+                has_table_privilege('anon', 'public.alert_candidates', 'SELECT'),
+                has_table_privilege('authenticated', 'public.alert_candidates', 'SELECT');
+            """
+        )
+        == "t|f|f|f|f|f"
+    )
+    assert (
+        database.scalar(
+            """
+            select
+                has_function_privilege(
+                    'service_role',
+                    'public.save_alert_candidate(text,text,text,timestamptz,text[],text,double precision,boolean)',
+                    'EXECUTE'
+                ),
+                has_function_privilege(
+                    'anon',
+                    'public.save_alert_candidate(text,text,text,timestamptz,text[],text,double precision,boolean)',
+                    'EXECUTE'
+                ),
+                has_function_privilege(
+                    'authenticated',
+                    'public.save_alert_candidate(text,text,text,timestamptz,text[],text,double precision,boolean)',
+                    'EXECUTE'
+                );
+            """
+        )
+        == "t|f|f"
+    )
+
+
+def test_alert_candidate_save_is_first_write_wins_and_idempotent(
+    classification_database: PostgresHarness,
+) -> None:
+    database = classification_database
+    _insert_de012_article(database, "de012-article-first-write")
+
+    first = database.scalar(
+        _save_de012_candidate_sql(
+            candidate_id="de012-candidate-first-write",
+            user_id="de012-user-first-write",
+            article_id="de012-article-first-write",
+        )
+    )
+    second = database.scalar(
+        _save_de012_candidate_sql(
+            candidate_id="de012-candidate-first-write",
+            user_id="de012-user-first-write",
+            article_id="de012-article-first-write",
+            matched_at="2026-08-15T09:05:00Z",
+            reasons="array['topic:AI']::text[]",
+            importance="NORMAL",
+            score="0.8",
+            breaking="false",
+        )
+    )
+
+    assert '"outcome": "CREATED"' in first
+    assert '"outcome": "ALREADY_EXISTS"' in second
+    assert (
+        database.scalar(
+            """
+            select count(*)
+            from public.alert_candidates
+            where user_id = 'de012-user-first-write'
+              and article_id = 'de012-article-first-write';
+            """
+        )
+        == "1"
+    )
+    assert (
+        database.scalar(
+            """
+            select
+                (matched_at at time zone 'UTC')::text || '+00|' ||
+                array_to_string(match_reasons, ',') || '|' ||
+                importance || '|' ||
+                relevance_score::text || '|' ||
+                breaking_eligible::text
+            from public.alert_candidates
+            where candidate_id = 'de012-candidate-first-write';
+            """
+        )
+        == "2026-08-15 08:05:00+00|market:US,category:TECHNOLOGY|HIGH|0.95|true"
+    )
+
+
+def test_alert_candidate_concurrent_replay_creates_exactly_one_row(
+    classification_database: PostgresHarness,
+) -> None:
+    database = classification_database
+    _insert_de012_article(database, "de012-article-concurrent")
+    sql = _save_de012_candidate_sql(
+        candidate_id="de012-candidate-concurrent",
+        user_id="de012-user-concurrent",
+        article_id="de012-article-concurrent",
+    )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        outputs = list(executor.map(lambda _: database.scalar(sql), range(2)))
+
+    assert sum('"outcome": "CREATED"' in output for output in outputs) == 1
+    assert sum('"outcome": "ALREADY_EXISTS"' in output for output in outputs) == 1
+    assert (
+        database.scalar(
+            """
+            select count(*)
+            from public.alert_candidates
+            where user_id = 'de012-user-concurrent'
+              and article_id = 'de012-article-concurrent';
+            """
+        )
+        == "1"
+    )
+
+
+def test_alert_candidate_same_pair_with_different_candidate_id_is_rejected(
+    classification_database: PostgresHarness,
+) -> None:
+    database = classification_database
+    _insert_de012_article(database, "de012-article-pair-conflict")
+    database.run(
+        _save_de012_candidate_sql(
+            candidate_id="de012-candidate-pair-original",
+            user_id="de012-user-pair-conflict",
+            article_id="de012-article-pair-conflict",
+        )
+    )
+
+    conflict = database.run(
+        _save_de012_candidate_sql(
+            candidate_id="de012-candidate-pair-other",
+            user_id="de012-user-pair-conflict",
+            article_id="de012-article-pair-conflict",
+        ),
+        check=False,
+    )
+
+    assert conflict.returncode != 0
+    assert (
+        database.scalar(
+            """
+            select count(*)
+            from public.alert_candidates
+            where user_id = 'de012-user-pair-conflict'
+              and article_id = 'de012-article-pair-conflict';
+            """
+        )
+        == "1"
+    )
+
+
+def test_alert_candidate_same_candidate_id_for_different_pair_is_rejected(
+    classification_database: PostgresHarness,
+) -> None:
+    database = classification_database
+    _insert_de012_article(database, "de012-article-id-collision-a")
+    _insert_de012_article(database, "de012-article-id-collision-b")
+    database.run(
+        _save_de012_candidate_sql(
+            candidate_id="de012-candidate-id-collision",
+            user_id="de012-user-id-collision-a",
+            article_id="de012-article-id-collision-a",
+        )
+    )
+
+    conflict = database.run(
+        _save_de012_candidate_sql(
+            candidate_id="de012-candidate-id-collision",
+            user_id="de012-user-id-collision-b",
+            article_id="de012-article-id-collision-b",
+        ),
+        check=False,
+    )
+
+    assert conflict.returncode != 0
+    assert (
+        database.scalar(
+            """
+            select count(*)
+            from public.alert_candidates
+            where candidate_id = 'de012-candidate-id-collision';
+            """
+        )
+        == "1"
+    )

@@ -126,6 +126,22 @@ Required:
 - transaction rollback does not leave partial critical state
 - duplicate classification side effect is prevented where applicable
 
+DE-012 Alert Candidate persistence cases:
+
+- first save => CREATED;
+- repeated save => ALREADY_EXISTS;
+- first-write-wins fields are preserved;
+- concurrent same-pair saves create one row;
+- same pair / different candidate ID is rejected;
+- same candidate ID / different pair is rejected;
+- article FK enforced;
+- candidate schema constraints and RLS are verified;
+- service_role SELECT=true and INSERT/UPDATE/DELETE=false;
+- service_role RPC EXECUTE=true;
+- anon/authenticated table/RPC access=false;
+- malformed Supabase payload and transport failures remain sanitized;
+- no remote Supabase or notification side effect in normal tests.
+
 ## 7. Classification cases
 
 Mock the LLM API.

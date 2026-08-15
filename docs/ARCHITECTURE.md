@@ -334,6 +334,28 @@ preference writes, UI behavior, or persistence. No user-preference table, Supaba
 RLS policy, RPC, or migration is introduced until an authoritative product/SWE persistence
 contract exists.
 
+### 7.7 DE-012 alert-candidate persistence
+
+- DE-011 remains pure matching and creates in-memory `AlertCandidate`.
+- DE-012 persists immutable first-seen candidate snapshots in Supabase PostgreSQL.
+- Logical identity is `(user_id, article_id)`.
+- `candidate_id` is the stable public/shared identifier produced by DE-011.
+- Database defense-in-depth uses:
+  - primary key `(candidate_id)`;
+  - unique `(user_id, article_id)`;
+  - FK `article_id -> articles(article_id) ON DELETE RESTRICT`.
+- `save_alert_candidate` is a transactional SECURITY DEFINER RPC.
+- repeated identical logical work returns `ALREADY_EXISTS` and the original first-seen snapshot;
+  it never rewrites `matched_at`, reasons, importance, score, or breaking eligibility.
+- concurrent saves for the same logical pair create exactly one row.
+- same pair with a different candidate ID and same candidate ID used for a different pair are
+  treated as persistence errors rather than silently merged.
+- RLS is enabled.
+- `service_role` has table SELECT and RPC EXECUTE only; no direct INSERT/UPDATE/DELETE.
+- `anon` and `authenticated` have no table access and no RPC execution.
+- No user/user-preference FK is introduced because DE does not own authoritative preference persistence.
+- Delivery, batching, cooldowns, and email side effects remain outside DE-012.
+
 ## 8. AI usage
 
 Model:

@@ -175,6 +175,9 @@ Output:
 
 ### DE-012 Alert candidate idempotency
 
+Status: implemented and offline-tested; alert-candidate migration verified on isolated local
+PostgreSQL. Remote Supabase migration has not been applied.
+
 Goal:
 
 - repeated pipeline runs must not produce duplicate logical alert candidates
