@@ -133,20 +133,24 @@ DE-008 reads `DEEPSEEK_API_KEY` directly from the environment. Pricing defaults 
 when a deployment needs another path. Pricing is effective-dated and is never fetched
 from the internet at runtime.
 
-The adapter is standalone: it is not wired into onboarding, does not persist results,
-and must not classify production articles whose source lacks both
+The DeepSeek adapter remains a standalone provider boundary and is not wired into RSS
+onboarding. Current classification behavior is `classification-v2`: deterministic rules
+run first, and only `AMBIGUOUS` articles may reach the rights-gated DeepSeek fallback.
+No provider request is permitted unless the source has both
 `rights_review_status=APPROVED` and `can_ai_process=true`. Unit and integration tests use
 mocked HTTP and do not need or use a real API key.
 
 DE-009 adds `ClassificationRepository`, additive migrations for
 `public.article_classifications`, transactional claim/lease/fencing RPCs, and offline
-PostgreSQL integration/concurrency tests. Both migrations are applied to and verified on
-the linked production Supabase project.
+PostgreSQL integration/concurrency tests. The original DE-009 migrations and
+`20260817000000_add_classification_method.sql` are applied to and verified on the linked
+remote Supabase project.
 
-DE-009B adds a separate bounded classification runner. It discovers only articles from
-sources with explicit approved AI-processing rights, enqueues/claims through DE-009,
-rechecks rights, invokes DE-008, and persists the fenced success/failure outcome. It is
-not wired into RSS onboarding.
+The separate bounded classification runner defaults to hybrid `classification-v2`. It
+discovers articles from sources with metadata-storage rights, runs deterministic
+classification, and checks AI rights immediately before any DeepSeek fallback. Historical
+`classification-v1` remains DeepSeek-first and discovers only AI-approved sources. The
+classification runner is not wired into RSS onboarding.
 
 The manual entrypoint requires explicit acknowledgement because it may call DeepSeek:
 
@@ -155,9 +159,25 @@ The manual entrypoint requires explicit acknowledgement because it may call Deep
 ```
 
 Do not run it against production until source rights and the separate live-smoke gate are
-approved. Current production source configs are not AI eligible, so DE-009B discovery
-returns zero without issuing its PostgREST anti-join. Normal tests remain fully offline
-and require no DeepSeek key.
+approved. Current production source configs are not AI eligible: deterministic v2 work may
+still be discovered, while an `AMBIGUOUS` result is quarantined as
+`AI_FALLBACK_NOT_ALLOWED` without a provider call. Normal tests remain fully offline and
+require no DeepSeek key.
+
+## SWE Data Ready v1
+
+Linked synthetic shared-contract data is available in `swe_handoff/`. It supports SWE
+read-side development without claiming that production matching or preference persistence
+exists. `UserPreference` persistence belongs to Product/SWE; DE consumes the shared
+contract and does not create a substitute schema. The missing production matching runner
+blocks real `alert_candidates` population, not SWE Data Ready v1.
+
+The only documented remote migration drift is the two DE-012 alert-candidate migrations:
+
+- `20260818000000_create_alert_candidates.sql`
+- `20260818000001_grant_alert_candidates_service_role.sql`
+
+DE-013 pipeline telemetry remains `PAUSED`.
 
 ## Supabase configuration
 

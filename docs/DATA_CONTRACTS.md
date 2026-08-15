@@ -489,10 +489,10 @@ All lifecycle writes use transactional PostgreSQL RPCs. RLS is enabled with no
 access to lifecycle RPCs, but no direct insert/update/delete grants. Terminal mutation
 guards and constraints remain database-side defense in depth.
 
-The original DE-009 migrations have been applied to and verified on the linked production
-Supabase project. The additive DE-009C `classification_method` migration is locally
-verified on PostgreSQL 17 and has not been applied remotely. No taxonomy, history, or
-telemetry table is created.
+The original DE-009 migrations and the additive DE-009C
+`20260817000000_add_classification_method.sql` migration have been applied to and verified
+on the linked remote Supabase project. Current remote migration drift is limited to the
+two DE-012 alert-candidate migrations. No taxonomy, history, or telemetry table is created.
 
 Classification should not require storing full article body by default.
 
@@ -526,8 +526,9 @@ writes; provider work may still be repeated after a crash or lost claim.
 
 # 6. UserPreference — shared contract
 
-Owned primarily by product/SWE, consumed by DE matching. DE validates and reads this
-contract but does not own the UI, preference-writing flow, or product-side persistence.
+Owned by Product/SWE and consumed by DE matching. DE validates and reads this shared
+contract but does not own the UI, preference-writing flow, schema, or product-side
+persistence. DE must not create a fake or parallel persistence model to unblock matching.
 
 Recommended minimal shape:
 
@@ -571,6 +572,10 @@ create a preference table, migration, write API, or Supabase adapter because no
 authoritative product/SWE preference persistence contract exists yet.
 
 Do not expand this contract without coordinating with SWE.
+
+The synthetic examples in `swe_handoff/user_preferences.sample.json` are contract fixtures
+only. They do not demonstrate that a production `UserPreference` table exists and must not
+be used as authority for creating one.
 
 ---
 
@@ -620,6 +625,11 @@ Persistence semantics (DE-012):
 - save outcomes are `CREATED` and `ALREADY_EXISTS`;
 - `created_at` is DB-internal and is not added to the shared AlertCandidate contract;
 - article FK exists; no user-preference FK exists.
+
+The two DE-012 migrations exist in the repository and have been verified on isolated local
+PostgreSQL, but have not been applied to the linked remote Supabase project. A missing
+production matching runner does not block SWE Data Ready v1 contract/mock consumption; it
+does block population of real `alert_candidates` rows.
 
 ---
 

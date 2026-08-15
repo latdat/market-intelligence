@@ -1,0 +1,214 @@
+{
+  "sample_notice": "Synthetic shared-contract examples only. This file neither proves nor creates a production UserPreference table; authoritative persistence belongs to Product/SWE.",
+  "records": [
+    {
+      "user_id": "user-1-vn-ai",
+      "markets": [
+        "VN"
+      ],
+      "categories": [
+        "TECHNOLOGY"
+      ],
+      "topics": [
+        "AI"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": false
+    },
+    {
+      "user_id": "user-2-us-fin",
+      "markets": [
+        "US"
+      ],
+      "categories": [
+        "FINANCE"
+      ],
+      "topics": [
+        "BANKING",
+        "INTEREST_RATES"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-3-eu-reg",
+      "markets": [
+        "EU"
+      ],
+      "categories": [
+        "LAW_POLICY"
+      ],
+      "topics": [
+        "REGULATION"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": false,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-4-cn-semi",
+      "markets": [
+        "CN"
+      ],
+      "categories": [
+        "TECHNOLOGY"
+      ],
+      "topics": [
+        "SEMICONDUCTORS"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-5-energy",
+      "markets": [
+        "US",
+        "EU",
+        "CN"
+      ],
+      "categories": [
+        "ENERGY"
+      ],
+      "topics": [
+        "OIL_GAS",
+        "RENEWABLE_ENERGY"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-6-re",
+      "markets": [
+        "VN",
+        "CN"
+      ],
+      "categories": [
+        "REAL_ESTATE"
+      ],
+      "topics": [
+        "REAL_ESTATE"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": false,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-7-broad-reg",
+      "markets": [],
+      "categories": [
+        "LAW_POLICY"
+      ],
+      "topics": [
+        "REGULATION"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-8-muted-src",
+      "markets": [
+        "US"
+      ],
+      "categories": [
+        "FINANCE"
+      ],
+      "topics": [
+        "BANKING"
+      ],
+      "muted_source_ids": [
+        "synthetic_bad_source"
+      ],
+      "muted_topics": [],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-9-muted-topic",
+      "markets": [
+        "US"
+      ],
+      "categories": [
+        "TECHNOLOGY"
+      ],
+      "topics": [],
+      "muted_source_ids": [],
+      "muted_topics": [
+        "AI"
+      ],
+      "breaking_alert_enabled": true,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-10-no-break",
+      "markets": [
+        "EU"
+      ],
+      "categories": [
+        "LAW_POLICY"
+      ],
+      "topics": [
+        "REGULATION"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": false,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": true
+    },
+    {
+      "user_id": "user-11-hourly-only",
+      "markets": [
+        "VN"
+      ],
+      "categories": [
+        "TECHNOLOGY"
+      ],
+      "topics": [
+        "SEMICONDUCTORS"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": false,
+      "hourly_update_enabled": true,
+      "daily_digest_enabled": false
+    },
+    {
+      "user_id": "user-12-daily-only",
+      "markets": [
+        "CN"
+      ],
+      "categories": [
+        "ENERGY"
+      ],
+      "topics": [
+        "RENEWABLE_ENERGY"
+      ],
+      "muted_source_ids": [],
+      "muted_topics": [],
+      "breaking_alert_enabled": false,
+      "hourly_update_enabled": false,
+      "daily_digest_enabled": true
+    }
+  ]
+}

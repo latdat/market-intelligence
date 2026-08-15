@@ -1,0 +1,2385 @@
+[
+  {
+    "candidate_id": "bfb2d3680c0bf2aa8e41b77fdccec495fb6cbde895ad7d0b843bc8c2722238d5",
+    "user_id": "user-1-vn-ai",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:AI"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "727ff98278ddb94cda1aa0765248f4484c4f17218f584524bd9aad9308fa7336",
+    "user_id": "user-2-us-fin",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6c99b124325daea8e84faac6a99a82744e1dad5db15fb91f761d8bc7d4a83a91",
+    "user_id": "user-3-eu-reg",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY",
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "e4db66b735258e2137af43da04a8413cfe9df9e8cd797c1826943c18d5f35dcf",
+    "user_id": "user-4-cn-semi",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "7476bc70632b20542a726058895fdee15c5987f5486032550f7595167f36c5c4",
+    "user_id": "user-5-energy",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "872e8bcfdd0b343bb8a1ed78d1cea99b349f25202b4e6780ffd43f328c146261",
+    "user_id": "user-6-re",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "4d0ff713cdea9b759d2f17b2b56f83fa4c788387560d3ebf6a614a93abc35c29",
+    "user_id": "user-7-broad-reg",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY",
+      "topic:REGULATION"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": true
+  },
+  {
+    "candidate_id": "a359120f79b78230e67bc6a3bfa8e9dde9a02528125a03aa300f15e2b5114814",
+    "user_id": "user-8-muted-src",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "4905409042723d0413dae0ddc13d2ac3c61aac5ab68acacaaf3e814c4627f73d",
+    "user_id": "user-10-no-break",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY",
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "9b3c3aa0eb388b5ade6c7506c8b3f5180049b9d6443ccf3b6500e2fa9de49acf",
+    "user_id": "user-12-daily-only",
+    "article_id": "2de7b5fdb9eb0387f6840ddd3cea3a9996a82137391de207ecf2d5badd1d96ce",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "70d5a5b0205d226c529826f64246054b045c24c0a9b69240345ca5295787fc49",
+    "user_id": "user-1-vn-ai",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "cdcd7e22b688aebecf7df38fe6a16a555f23e70980619871affaf9fe86d27a15",
+    "user_id": "user-3-eu-reg",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "2d76fc4a5e034d8f35d9488609fe3db91edc98d4da55297c58ca808c6c82f526",
+    "user_id": "user-4-cn-semi",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:TECHNOLOGY",
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "a8efe502a11cf50d7ce8ff1b08b29487483dc29e013a68007523c5b862f7f604",
+    "user_id": "user-5-energy",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "93117f81695611ab0249a033f3e0c57263441f28f4c7941101fd5cba1296291c",
+    "user_id": "user-6-re",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "0eddb382f41cc656767f42d39a0a0850b72e826fcf633dfab690dc2ecc2c24cc",
+    "user_id": "user-7-broad-reg",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "630f21249d213f5c6db968ff9a6efabec643d3673e3b37d5efb9223b2d61d5aa",
+    "user_id": "user-9-muted-topic",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "3005a3a21814d261c60e4309abbd4c6a3fd666b59b4aedcc2df2872bebaf1562",
+    "user_id": "user-10-no-break",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "250e62902eb8cfc0a5669b88a196f8f9cd7e4eaa9606bce697aa87f2ee1774b4",
+    "user_id": "user-11-hourly-only",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY",
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "ebb80bd5abec1c603ef188be5b66f65f234aa04d2da2940d86624869e1426d91",
+    "user_id": "user-12-daily-only",
+    "article_id": "d7a8acf9194bb4caf4eb3a9bca1634ea8ca006ed739d269d7ebc3c58baf8df4d",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "92552c5de0f3677de1b462fc4b243a1740c94efe51ecfb6b72deeeba86c08c82",
+    "user_id": "user-2-us-fin",
+    "article_id": "7d276efcc07e5bb7014f7fb232eb95e5829f14f1d744e46888f0ad3495160897",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "category:FINANCE",
+      "topic:BANKING"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "10c7664e8459982a55f1f5d20ac7165fcdf07f12fa584b1aa33ba7a6de77e4d1",
+    "user_id": "user-3-eu-reg",
+    "article_id": "7d276efcc07e5bb7014f7fb232eb95e5829f14f1d744e46888f0ad3495160897",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "0d372a9aa18a4fcadc575dec1d8fc303b0aca2aab7494b2111cc6ee114e4bfb3",
+    "user_id": "user-5-energy",
+    "article_id": "7d276efcc07e5bb7014f7fb232eb95e5829f14f1d744e46888f0ad3495160897",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "5d5a384b7fecb2b514b03d9735824444ca8d47f88f359acf865664b1d51c9d74",
+    "user_id": "user-7-broad-reg",
+    "article_id": "7d276efcc07e5bb7014f7fb232eb95e5829f14f1d744e46888f0ad3495160897",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "859a222ea6b8dd034c192033a379e932de6b8d57abe074deb98672ffb2a31baa",
+    "user_id": "user-8-muted-src",
+    "article_id": "7d276efcc07e5bb7014f7fb232eb95e5829f14f1d744e46888f0ad3495160897",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "category:FINANCE",
+      "topic:BANKING"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "065360e90f057db21604d4c9ec98bf754ee77283e318817fe30ea5dcd3c0f3b4",
+    "user_id": "user-9-muted-topic",
+    "article_id": "7d276efcc07e5bb7014f7fb232eb95e5829f14f1d744e46888f0ad3495160897",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "4893ba1560e79cf70782745cd643e0bb9b0e68e56733934223044417759b2ff7",
+    "user_id": "user-10-no-break",
+    "article_id": "7d276efcc07e5bb7014f7fb232eb95e5829f14f1d744e46888f0ad3495160897",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "7392824c77a719c3b28d29a9562d701f1003fd33d4a4184b0b55110d3bd6d5ec",
+    "user_id": "user-1-vn-ai",
+    "article_id": "f7b273c46868915ff960ca8be8d8b2630e4abdf81fc57f1e57fbab00c2156298",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "3cdf1dbfd3489a40ea6327f6ebfe73c2d981d702079e1299d469096c183409c4",
+    "user_id": "user-5-energy",
+    "article_id": "f7b273c46868915ff960ca8be8d8b2630e4abdf81fc57f1e57fbab00c2156298",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:ENERGY",
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b1ee1648919dc0ad3ea3006dcbde5b6c3ef737ca45a62725f917f95de5274add",
+    "user_id": "user-6-re",
+    "article_id": "f7b273c46868915ff960ca8be8d8b2630e4abdf81fc57f1e57fbab00c2156298",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "4156edb6b12ae155283cb947b98b03f1850f049acc97079b0e79eef5420a4410",
+    "user_id": "user-11-hourly-only",
+    "article_id": "f7b273c46868915ff960ca8be8d8b2630e4abdf81fc57f1e57fbab00c2156298",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "20d319557119f49b57a771af30286dbbc4c3c587956a812c044fc3483869411a",
+    "user_id": "user-12-daily-only",
+    "article_id": "f7b273c46868915ff960ca8be8d8b2630e4abdf81fc57f1e57fbab00c2156298",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:ENERGY",
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "e708e3efc63dad46231864c560d57965e8e449b66589cc89189eea7bf309dd9c",
+    "user_id": "user-1-vn-ai",
+    "article_id": "ce58c4cd17b348ffcc18a3f59659d34b6b910b756d26e75176537ffc441ee58b",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY",
+      "topic:AI"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6a02c62ea2f8216e5a994532bcdaaa858d489c128eb79ca7bebaa389abaf681a",
+    "user_id": "user-2-us-fin",
+    "article_id": "ce58c4cd17b348ffcc18a3f59659d34b6b910b756d26e75176537ffc441ee58b",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "4f2ff45f1ca11df12ab5e36196e825b9317c3abcfd6957c4274c5020be50d1c1",
+    "user_id": "user-4-cn-semi",
+    "article_id": "ce58c4cd17b348ffcc18a3f59659d34b6b910b756d26e75176537ffc441ee58b",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "52c9f33ec7f05cec946d34715ffac654057b666d84e7fb4ba3785c10891da8a2",
+    "user_id": "user-5-energy",
+    "article_id": "ce58c4cd17b348ffcc18a3f59659d34b6b910b756d26e75176537ffc441ee58b",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "da73285c94e2427b2705c9ed0902f6a344e823163a82d6c9e8b2d05b0a0e9c65",
+    "user_id": "user-8-muted-src",
+    "article_id": "ce58c4cd17b348ffcc18a3f59659d34b6b910b756d26e75176537ffc441ee58b",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b0ae6eb28c79408a873ab35416f0303f4984166ee58a1301b9c2b94ce0ed2d23",
+    "user_id": "user-11-hourly-only",
+    "article_id": "ce58c4cd17b348ffcc18a3f59659d34b6b910b756d26e75176537ffc441ee58b",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "a853f33ecb0964dd4db396f5de46558c9881ce7448ad198733a2344fc3b2a11b",
+    "user_id": "user-3-eu-reg",
+    "article_id": "6f73e398f6b392c982d27c0a3fd7f01360f32bffdcb5ce721483db2c25796ea1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6d54770ce3c3e5181b6f2d6762b3cec0366188d117d27ad72e8efebb9e6ef094",
+    "user_id": "user-5-energy",
+    "article_id": "6f73e398f6b392c982d27c0a3fd7f01360f32bffdcb5ce721483db2c25796ea1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "category:ENERGY",
+      "topic:OIL_GAS"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "30ed0839448c4451c3fa3d2aa2c80f96672d51f3d06f7ca9a48cf3c2bd3db63b",
+    "user_id": "user-10-no-break",
+    "article_id": "6f73e398f6b392c982d27c0a3fd7f01360f32bffdcb5ce721483db2c25796ea1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b1559e0c34cdfdad8d69e019618a1f3b2ca7c65e002de61d9698f3dd237d477a",
+    "user_id": "user-12-daily-only",
+    "article_id": "6f73e398f6b392c982d27c0a3fd7f01360f32bffdcb5ce721483db2c25796ea1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "4d0b1a03ddfe5c5ffbbdc0211ef0aa6ccb341814a09008f7b42e126a56030026",
+    "user_id": "user-4-cn-semi",
+    "article_id": "c84acd32cca3e96a10fe3c093092e215eb4fc301015a2419626ab838ec1550f1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "38492cc69ccf623e70cd1ae088e8057482748a0ed49dc38cb8e04da57b9a48dd",
+    "user_id": "user-5-energy",
+    "article_id": "c84acd32cca3e96a10fe3c093092e215eb4fc301015a2419626ab838ec1550f1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:ENERGY",
+      "topic:OIL_GAS"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "e1b4da7362ee2ffc56dae29db236fee94d70c62df8e5c5760aa58cb76a2f4828",
+    "user_id": "user-6-re",
+    "article_id": "c84acd32cca3e96a10fe3c093092e215eb4fc301015a2419626ab838ec1550f1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "df0b09ed23396dda21c19427591bb0007e7bfb594666378f56f1c2d25a7e0c52",
+    "user_id": "user-12-daily-only",
+    "article_id": "c84acd32cca3e96a10fe3c093092e215eb4fc301015a2419626ab838ec1550f1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "0367602111428f1ba17664d08ac17d8c45a78f9d31ef7cd9b72ddbc454625a7d",
+    "user_id": "user-2-us-fin",
+    "article_id": "dfb9b1f9f5a2f12db04a7a0e45fe0ba45e85773a177238579c2a6ed1b3448bfb",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE",
+      "topic:INTEREST_RATES"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "37c181178504c84721dc0852b0776ceb782816c673d95383ae52c7bf739d3d11",
+    "user_id": "user-3-eu-reg",
+    "article_id": "dfb9b1f9f5a2f12db04a7a0e45fe0ba45e85773a177238579c2a6ed1b3448bfb",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "f5375b050f8459fbc43f982a31e81a6661f9e69701b06c79168eb7d2a623a0fd",
+    "user_id": "user-5-energy",
+    "article_id": "dfb9b1f9f5a2f12db04a7a0e45fe0ba45e85773a177238579c2a6ed1b3448bfb",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "5c29f045028a44e47ea1f37e126f77c147f863b8789d178729e6dae46a85c15c",
+    "user_id": "user-8-muted-src",
+    "article_id": "dfb9b1f9f5a2f12db04a7a0e45fe0ba45e85773a177238579c2a6ed1b3448bfb",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "db3e977a2cb37e86d9d5c2e393757e2cfaf678f3609954df5c587f709a0991a6",
+    "user_id": "user-10-no-break",
+    "article_id": "dfb9b1f9f5a2f12db04a7a0e45fe0ba45e85773a177238579c2a6ed1b3448bfb",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "d7f86952c4332753fa238bebde844c0fd0866f38c549f148c563abe5317e8b9a",
+    "user_id": "user-4-cn-semi",
+    "article_id": "d645eab759668caf1edd6dd233c435861f484695d6c20ba9c4f1808cee5a5934",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "0d02f22fd37e5db16b149a64fca8f68cb3381e4a87b47edf250da26d72842697",
+    "user_id": "user-5-energy",
+    "article_id": "d645eab759668caf1edd6dd233c435861f484695d6c20ba9c4f1808cee5a5934",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:ENERGY",
+      "topic:OIL_GAS"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "2b66e6c081c64e0ed53ea3d68756078e2261b3e01e12cc5e2145c846c759a680",
+    "user_id": "user-6-re",
+    "article_id": "d645eab759668caf1edd6dd233c435861f484695d6c20ba9c4f1808cee5a5934",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "92ba1b65c6f7b509298505bcc426555dc7089ca20d658633df4daac8b1a7655c",
+    "user_id": "user-12-daily-only",
+    "article_id": "d645eab759668caf1edd6dd233c435861f484695d6c20ba9c4f1808cee5a5934",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "33f56b92a2e5cf25a252ec2ab7b8a04a3fa0864028036ca905ab78cf1e9d667a",
+    "user_id": "user-1-vn-ai",
+    "article_id": "d9a63d0b1bc62bdae77f432a4b817ff1267876f10166cd9cd4b95e4750394ed6",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "7df1f2be11813156fb8febc5ce25c02bc462617e6ba9dda3d0a5c472a3806aa2",
+    "user_id": "user-4-cn-semi",
+    "article_id": "d9a63d0b1bc62bdae77f432a4b817ff1267876f10166cd9cd4b95e4750394ed6",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "7c98679c26cbd6125e4ec29a7626fc1cb273f9e8f7fda56f54d10eea1ec96a79",
+    "user_id": "user-6-re",
+    "article_id": "d9a63d0b1bc62bdae77f432a4b817ff1267876f10166cd9cd4b95e4750394ed6",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "topic:REAL_ESTATE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "02b6a24cac490209c376e1f9dd8ba980ffc53085f8ad4c6b2ce99dfa477ec88c",
+    "user_id": "user-9-muted-topic",
+    "article_id": "d9a63d0b1bc62bdae77f432a4b817ff1267876f10166cd9cd4b95e4750394ed6",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "9695af0b2290c3298a1f731f948b336ad2956a336d8ff001c016ddfe5cd41082",
+    "user_id": "user-11-hourly-only",
+    "article_id": "d9a63d0b1bc62bdae77f432a4b817ff1267876f10166cd9cd4b95e4750394ed6",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "7306b5787ccb36f9e7368133088095e2d354c52ffc212ae45b092dc2243e33c1",
+    "user_id": "user-2-us-fin",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "a051e4bbe54c2b579fe7e7de147ca7dfa975685e3a19ad5bd99232dbc190799a",
+    "user_id": "user-3-eu-reg",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "aff00b79fd674dc1943e99cb685aa18c28c44f84ac36318bdd7f92c925c88bea",
+    "user_id": "user-5-energy",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "df2a0c2ccbc64b223cd6b7ca52a20af6cc431ddbe68e1766688ce8c0b2f4aaee",
+    "user_id": "user-6-re",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:REAL_ESTATE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b46489b7680c2ec206840b2d321e58f6828511e4870017f3b7d9ebf315415d7f",
+    "user_id": "user-7-broad-reg",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "60d297b9f9e03501f248f165fd51e912d93f988934aaae65b496dcc5fb6ed7ae",
+    "user_id": "user-8-muted-src",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c1fac5c679feb0c7b590d7d1b0dea14eac987333e1cd3163bcee69df959f032a",
+    "user_id": "user-9-muted-topic",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "bf8e4a8b471cb98745e4c91302807a52bf0085e15778e2779ff8bf838150f3c2",
+    "user_id": "user-10-no-break",
+    "article_id": "acacb1487aac80bd710655a85582eac0817cbadbc5f8a32e70f33d9357f8102a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "79db50631022957d4dcef7ab6b050a7cd85b4aaca825912ac192fd2e98fe2313",
+    "user_id": "user-2-us-fin",
+    "article_id": "ab3e2f158dc0440413b7da81ce5f356c04b9196f9a46d10635086c378c969bc9",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "7c7351db55485d53a84d688f1c74dcd91524a57720be419556ae8518e3312b69",
+    "user_id": "user-3-eu-reg",
+    "article_id": "ab3e2f158dc0440413b7da81ce5f356c04b9196f9a46d10635086c378c969bc9",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "14031ea2284805a9be6cc98f1e6ea3c263a06aec1066df9eba3a33a8b5dff25e",
+    "user_id": "user-5-energy",
+    "article_id": "ab3e2f158dc0440413b7da81ce5f356c04b9196f9a46d10635086c378c969bc9",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "ef1a6308b5527d17ce4d5cafd9558044aff40135cf70783b16eac94ebe40b2ed",
+    "user_id": "user-8-muted-src",
+    "article_id": "ab3e2f158dc0440413b7da81ce5f356c04b9196f9a46d10635086c378c969bc9",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "a8d9c4d4cdd482b3621028a4d1ed17c295ecb0ec7c2c4769059ac8225d82f1f1",
+    "user_id": "user-10-no-break",
+    "article_id": "ab3e2f158dc0440413b7da81ce5f356c04b9196f9a46d10635086c378c969bc9",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "7dea6a0a4d39351664535fdf5123451296bb1d4bebaf047924af0c2ca72dfe84",
+    "user_id": "user-12-daily-only",
+    "article_id": "ab3e2f158dc0440413b7da81ce5f356c04b9196f9a46d10635086c378c969bc9",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "f7ca2ca6671c80a56ded58852cfbc5acebdff84bfcc6897727fd93e6d8e1aec5",
+    "user_id": "user-3-eu-reg",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "fa6580a518a5b9d752d90e8ab521cfe680c368fb82f9c0064c80b677465431c9",
+    "user_id": "user-4-cn-semi",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "cd7b59921729d0cfa7255f60487d98a6d7b3674d139f261a2bc3f68dc99f6eb7",
+    "user_id": "user-5-energy",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6bc90d6791a71a1649c9ee86a1ab0484b4680d9a7e8a9e1c5b1088ffe6d7875a",
+    "user_id": "user-6-re",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "52808053a4610ba884ede41b7f8111b9e8392fe2ea884ce9d1edeb654ccd580e",
+    "user_id": "user-7-broad-reg",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "8f125045a96b8d63edd169659d39a2632e5e1cb082eda2a4e71412e803f9819c",
+    "user_id": "user-10-no-break",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c0c91471ae8140ab9c052417b04f6a1076989436c48e8f47ec2b3deea4016279",
+    "user_id": "user-11-hourly-only",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6bffe8526b8f1a3ecf18823ff916691d063c8c6cd6f363fe5f593e50f6ac2a2f",
+    "user_id": "user-12-daily-only",
+    "article_id": "ab0926491344f8e7850a9462ce25ec8aed0e379e0d80c3125f3b6a85ced23083",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "38f11da9c50d37d7c8a7bc9b3c0f6b59e9db6b37df51ab8ae4e3791e8c7b0d68",
+    "user_id": "user-1-vn-ai",
+    "article_id": "d733f93a847a902762b2d01bd958ee8dd2d93603ca0b52443aabb95d95ab45ea",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "topic:AI"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "a52b22ffa32efc68178c46b42ae553dcd94f8e1da7821066ef09c2d4ccd628c2",
+    "user_id": "user-5-energy",
+    "article_id": "d733f93a847a902762b2d01bd958ee8dd2d93603ca0b52443aabb95d95ab45ea",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "4d9416eb44abc3640f6e4485ad96380b14aa8f96c95a7dcc8e9f73501a281514",
+    "user_id": "user-6-re",
+    "article_id": "d733f93a847a902762b2d01bd958ee8dd2d93603ca0b52443aabb95d95ab45ea",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "827ea9cf66b69ac3549ec5d26b33953d3c2f2ab8f620bb8b669faeda0b00009f",
+    "user_id": "user-11-hourly-only",
+    "article_id": "d733f93a847a902762b2d01bd958ee8dd2d93603ca0b52443aabb95d95ab45ea",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "efed90f4b9595776a0aedcf183a17a004da9efe91829f7abb73a1064e7e29447",
+    "user_id": "user-12-daily-only",
+    "article_id": "d733f93a847a902762b2d01bd958ee8dd2d93603ca0b52443aabb95d95ab45ea",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "1d70da142e283e48bbf3c31f2afe852d53be37d9ee53b05bcbf97fe4e7fff5cf",
+    "user_id": "user-1-vn-ai",
+    "article_id": "1dbcc297ca9e3539eaa625001d8021ee91b2320f319f2ac2bb84dc37dd50c092",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "de9d978e7519395dc591c98d4a379a63d1b2bb57ec05be3e590a9f91c8076c92",
+    "user_id": "user-2-us-fin",
+    "article_id": "1dbcc297ca9e3539eaa625001d8021ee91b2320f319f2ac2bb84dc37dd50c092",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "56619074c695ff76f7da9d99085ba159ab5673617f7b748981f4414b5e24f366",
+    "user_id": "user-4-cn-semi",
+    "article_id": "1dbcc297ca9e3539eaa625001d8021ee91b2320f319f2ac2bb84dc37dd50c092",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6f790210b352096ea05d34a525e665604094248fb576a6c8f1fa094e0f4967ce",
+    "user_id": "user-5-energy",
+    "article_id": "1dbcc297ca9e3539eaa625001d8021ee91b2320f319f2ac2bb84dc37dd50c092",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6b197db8880bda2a038e4ff3cc50afaff02d02898967236cae7e8ec53f7c5192",
+    "user_id": "user-8-muted-src",
+    "article_id": "1dbcc297ca9e3539eaa625001d8021ee91b2320f319f2ac2bb84dc37dd50c092",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "883e2dedc1462fb33c26eb22297d9cd197d379f749699f125849cb08d8068624",
+    "user_id": "user-9-muted-topic",
+    "article_id": "1dbcc297ca9e3539eaa625001d8021ee91b2320f319f2ac2bb84dc37dd50c092",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "category:TECHNOLOGY"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "bedccb0b4e3ad28ea0e11261b0feff3e123d44843098cff3180fa1ce865d4855",
+    "user_id": "user-11-hourly-only",
+    "article_id": "1dbcc297ca9e3539eaa625001d8021ee91b2320f319f2ac2bb84dc37dd50c092",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "be571d89c59a727b5b2f4287acdfdf99219e9ce6eae4ac52ff76f122aa4ab9e0",
+    "user_id": "user-2-us-fin",
+    "article_id": "53953eefe67411ead91e05e0bf493caa780746175111b8dac64df3304c4ff862",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:INTEREST_RATES"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c881801fe64c491eb386dd0aa9b42009ee1b4f280bd136093394e41d7408fc29",
+    "user_id": "user-3-eu-reg",
+    "article_id": "53953eefe67411ead91e05e0bf493caa780746175111b8dac64df3304c4ff862",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "700172c72773eb739705c3a2013c35cdbde4174fd319fb1feae2810ee43b83c8",
+    "user_id": "user-5-energy",
+    "article_id": "53953eefe67411ead91e05e0bf493caa780746175111b8dac64df3304c4ff862",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "93f7ee400933b708aa8438a64d07066c8ff86233f0221b956432afd3371f9919",
+    "user_id": "user-6-re",
+    "article_id": "53953eefe67411ead91e05e0bf493caa780746175111b8dac64df3304c4ff862",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:REAL_ESTATE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "8d6e3ede957fccf5c58fa29d5be38060eaa6763f28706953069fd0612427a4a9",
+    "user_id": "user-10-no-break",
+    "article_id": "53953eefe67411ead91e05e0bf493caa780746175111b8dac64df3304c4ff862",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "9dd43747183ef817d08f916cfb548cc2e6db6d8cb2f336c34b1580234ec25ba7",
+    "user_id": "user-2-us-fin",
+    "article_id": "7aafaefbf81d4bf19e4f1dcb5253795bc8b26676e7e7689902f90637a3a5e39f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "f6320f3bc167ba11935910b492263f49ff808b3b1e917fd1ff69680b49cdc62d",
+    "user_id": "user-4-cn-semi",
+    "article_id": "7aafaefbf81d4bf19e4f1dcb5253795bc8b26676e7e7689902f90637a3a5e39f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "50346540da0a12676aa04cf5d55df90f5f1f2230210595a612cad2b6497e1bf6",
+    "user_id": "user-5-energy",
+    "article_id": "7aafaefbf81d4bf19e4f1dcb5253795bc8b26676e7e7689902f90637a3a5e39f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "topic:OIL_GAS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "fe328471499f28ece77abb0be5430315a8a176c44ca3d3886fd6a81569c9f320",
+    "user_id": "user-6-re",
+    "article_id": "7aafaefbf81d4bf19e4f1dcb5253795bc8b26676e7e7689902f90637a3a5e39f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "75db7d1c932337c2b12afee3f92116c585c66b6f00721ff34a4c9e73118865c1",
+    "user_id": "user-8-muted-src",
+    "article_id": "7aafaefbf81d4bf19e4f1dcb5253795bc8b26676e7e7689902f90637a3a5e39f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "70ea478f69accc978b31b4ab64235c0e751bc3bb0c3db93b35b15bcdeb9b7e5b",
+    "user_id": "user-12-daily-only",
+    "article_id": "7aafaefbf81d4bf19e4f1dcb5253795bc8b26676e7e7689902f90637a3a5e39f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "54a601cc874acfd9ac02291915dc091731be1fa4bb31339c433c69ae93ddab63",
+    "user_id": "user-1-vn-ai",
+    "article_id": "42973c0e12340b19f4eab31a8946da904cbb127c6913933e37c5b43d6d494d29",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c40c869974f7a35c52283c89ed81a29d32568f79ac2436210ba7c6d3846045eb",
+    "user_id": "user-3-eu-reg",
+    "article_id": "42973c0e12340b19f4eab31a8946da904cbb127c6913933e37c5b43d6d494d29",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "125bf1193f6a7b3e738339a0720ecc640018111d6fbf908b10704759b72a2d50",
+    "user_id": "user-6-re",
+    "article_id": "42973c0e12340b19f4eab31a8946da904cbb127c6913933e37c5b43d6d494d29",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "topic:REAL_ESTATE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "e81e9b5e1751078e63cdca769a4e45b5cafb77b2edc16579da7bf3aa9b2c3639",
+    "user_id": "user-7-broad-reg",
+    "article_id": "42973c0e12340b19f4eab31a8946da904cbb127c6913933e37c5b43d6d494d29",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "70024e9994d44a39d49c36b5adf471cf0419cd99220554a8ebe19ec4fa96a0a5",
+    "user_id": "user-10-no-break",
+    "article_id": "42973c0e12340b19f4eab31a8946da904cbb127c6913933e37c5b43d6d494d29",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b81da0366dc135b0dda955391006a93854768ab0dccd48ff384fd35955b046cd",
+    "user_id": "user-11-hourly-only",
+    "article_id": "42973c0e12340b19f4eab31a8946da904cbb127c6913933e37c5b43d6d494d29",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "83f51d40d54948d46873a993b7f41339c1cf2e8848c6953c7125e94e19c53a76",
+    "user_id": "user-2-us-fin",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "17cc965fe3aca990d48c01cbc54905d7ffae33140b0a3b246b045e0b99fc711f",
+    "user_id": "user-3-eu-reg",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "204d8b6bea5334dbf7f86c70824c14fc7a743d15f7633b8708af78d2765b3ed8",
+    "user_id": "user-5-energy",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "943820d9960bee285846e5e22f0fd7765c238cf2faf9a88e1d583ec68cae86b5",
+    "user_id": "user-7-broad-reg",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "f8b97ff634ee07425863c777ecf7ae3a00f598ad0a19ff31baac38a58d80ca33",
+    "user_id": "user-8-muted-src",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b4a392a37d8e9e231b24c7ec4f19e421f3be73f865c8e7f1bbc504e8170c9bd9",
+    "user_id": "user-9-muted-topic",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "88eef6bf6ddbc946b50b62bf432fb581759978d870ae0b1055e8929f94ce4fa7",
+    "user_id": "user-10-no-break",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b67f49f8d20d2c58de41ade4ed491007888e0f647a81fdd557302be1bcbf29ad",
+    "user_id": "user-12-daily-only",
+    "article_id": "1b9b0073f8446a1d9ae3015b904d1ad25c8376efb585936e40b24ca6dafa7956",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "1ed487303a0245b846020977f3b74a5cea008078f09cb484e603d2ce3ad3e5e0",
+    "user_id": "user-1-vn-ai",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "5e836d8d4081b405e7028fc0be6619aaabe8ef5023e76a96b8064e4d0e37f48a",
+    "user_id": "user-3-eu-reg",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "b2d4589098fcabb9ea9eaf69bcde715a83f610c2b2da597816bfe7901a920fdf",
+    "user_id": "user-4-cn-semi",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "f0932ac0771b43f707f24a0771363d2cf94eb1d3a10ae3a3170fa21f3dc74e23",
+    "user_id": "user-5-energy",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "01ffd33017e547d20c4cb9e2b46852f9ec1cdb97f64933ba7a7e6770e5605c63",
+    "user_id": "user-9-muted-topic",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "04ec872d04dab402fa7e6962a073317821f36d32cf2ac4512fb93854a760c69c",
+    "user_id": "user-10-no-break",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "d34866df04cc89ecbd4b8c547ad15e29b782caed80e686e8ecd689e872d0981a",
+    "user_id": "user-11-hourly-only",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c4e5da7b99484f4252891b8e926f1e6d79a1454dd356fff397eba73196920a24",
+    "user_id": "user-12-daily-only",
+    "article_id": "1233e371ab46e64090b58e5bb514905036f6aee5e4b1d53e829cf02118a8e51f",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "564967032aa3c0103c6fbbe33716f09dfc089283bbb0065e3f6e214ce6cd5b1f",
+    "user_id": "user-4-cn-semi",
+    "article_id": "e1c646d6ba0a93d6dbe11a147fdcaadcdb97915dec56933c9f08e435c992322c",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "1b3681ea8765f024b67179fbfc651864d20a3c905fc92e7375cee975c331fc78",
+    "user_id": "user-5-energy",
+    "article_id": "e1c646d6ba0a93d6dbe11a147fdcaadcdb97915dec56933c9f08e435c992322c",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "45eb13e1401c8126b72873e0e9709d6494c936ce7d4e9e12e7cfa254e8fe5380",
+    "user_id": "user-6-re",
+    "article_id": "e1c646d6ba0a93d6dbe11a147fdcaadcdb97915dec56933c9f08e435c992322c",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:REAL_ESTATE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c9fd6255e13fca0cdb4a5c15ea0422fdb35ce046d96b38cb6e283ae7c9cc89e1",
+    "user_id": "user-11-hourly-only",
+    "article_id": "e1c646d6ba0a93d6dbe11a147fdcaadcdb97915dec56933c9f08e435c992322c",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "dceee7c4230f22a7561a0f8bf37f45cd2ab047b332d64b76ae3628ae6957001a",
+    "user_id": "user-12-daily-only",
+    "article_id": "e1c646d6ba0a93d6dbe11a147fdcaadcdb97915dec56933c9f08e435c992322c",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c2b5c144a3bc0e44cdcf8e166ac65814a6e5308af744337073b9e98415e90bb8",
+    "user_id": "user-1-vn-ai",
+    "article_id": "78c8c4422d58f89608d734f23fef3fa8a08eb5d4ca65ed92026565c65fc8bf13",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "topic:AI"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "0e7284ccc1d840976540b74ed0abf73670db7afe05117efb683ab4833b645bb8",
+    "user_id": "user-2-us-fin",
+    "article_id": "78c8c4422d58f89608d734f23fef3fa8a08eb5d4ca65ed92026565c65fc8bf13",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "2d5bf33125fa7f70399670bfa79a5266c8a9c87fa9b2f5f5a8535d90534ef4e8",
+    "user_id": "user-6-re",
+    "article_id": "78c8c4422d58f89608d734f23fef3fa8a08eb5d4ca65ed92026565c65fc8bf13",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "44abeb90a68eb9f5268af565410e9fcfe823570001edd21594cbe44ef9556b06",
+    "user_id": "user-8-muted-src",
+    "article_id": "78c8c4422d58f89608d734f23fef3fa8a08eb5d4ca65ed92026565c65fc8bf13",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "73461c716553cc70f704a8097040f00d63da59b1421500b2e53594d95187b651",
+    "user_id": "user-11-hourly-only",
+    "article_id": "78c8c4422d58f89608d734f23fef3fa8a08eb5d4ca65ed92026565c65fc8bf13",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "a836ff67ac810987021747652a26ac53ae2f4eba63e3c9b3fd337fe3fb2a62b8",
+    "user_id": "user-2-us-fin",
+    "article_id": "c75759b00506998ccc9493fc67d3e015079af862ea55eab3ac4b23a2ee6c07cc",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "800f3b5eb3a0f6ff900426a7ec2644e7685b001f81b76d21700201ec71e0048d",
+    "user_id": "user-3-eu-reg",
+    "article_id": "c75759b00506998ccc9493fc67d3e015079af862ea55eab3ac4b23a2ee6c07cc",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "04dc2f65c66215633bb6dd57381306cf892939cedfe9232c99f728cdcbca6648",
+    "user_id": "user-5-energy",
+    "article_id": "c75759b00506998ccc9493fc67d3e015079af862ea55eab3ac4b23a2ee6c07cc",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "1f265098fa1f0e0199ba53a7d5fac1d7a1957fdb80edc05759e34e8c379abf0f",
+    "user_id": "user-7-broad-reg",
+    "article_id": "c75759b00506998ccc9493fc67d3e015079af862ea55eab3ac4b23a2ee6c07cc",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6c328176c2f41de56a3a2ee75fbba2d778bf9692804c02b52c2e6827bb791dfc",
+    "user_id": "user-8-muted-src",
+    "article_id": "c75759b00506998ccc9493fc67d3e015079af862ea55eab3ac4b23a2ee6c07cc",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "3eb5d0c34d8f777bf7294568ef0cc971ab734be08aed683ae66b3bb15edd224f",
+    "user_id": "user-9-muted-topic",
+    "article_id": "c75759b00506998ccc9493fc67d3e015079af862ea55eab3ac4b23a2ee6c07cc",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "5a11edbe39faa82d84243f7af8e22e0e91bd122a88d84d13acde76d3a0569b01",
+    "user_id": "user-10-no-break",
+    "article_id": "c75759b00506998ccc9493fc67d3e015079af862ea55eab3ac4b23a2ee6c07cc",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "bb3ab97ec5d11124d694c0944e4d948471f72e65fe510eb0395d1250fd9c1206",
+    "user_id": "user-2-us-fin",
+    "article_id": "8995ea213a210a42fece67f9f5d441de417bbbf4d63a1add41482d71f84d9212",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:INTEREST_RATES"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "1b083399db93eecf028745c022e762045d86e682f9668f59397cba1bb636744c",
+    "user_id": "user-3-eu-reg",
+    "article_id": "8995ea213a210a42fece67f9f5d441de417bbbf4d63a1add41482d71f84d9212",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "0ce15512c7664509f9130955fc92ead0e87e3b6dd79b0d805b2a3aacdf6efeb7",
+    "user_id": "user-5-energy",
+    "article_id": "8995ea213a210a42fece67f9f5d441de417bbbf4d63a1add41482d71f84d9212",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "5b5d70dd7bf7a628a678bfa2cc447893f6b036f9732fd7fdb7a32fd4b22ca767",
+    "user_id": "user-10-no-break",
+    "article_id": "8995ea213a210a42fece67f9f5d441de417bbbf4d63a1add41482d71f84d9212",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "ef666466a596ceb431181f9074fbc76cff5865e6b1921816327c39b8056a77f0",
+    "user_id": "user-12-daily-only",
+    "article_id": "8995ea213a210a42fece67f9f5d441de417bbbf4d63a1add41482d71f84d9212",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "19b311c95f727a8fd99448a4341ba47cd188b4c696224623b9a4670e2216f1a1",
+    "user_id": "user-1-vn-ai",
+    "article_id": "47bdc6e2e8e40c9a4ca5b9294e472c26642de224028b40999d6fd8f191c34ee7",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "00c6884f59c0e54fb7f40e8dddc4e07867a08333a1b98dd192087e22e9aa8b21",
+    "user_id": "user-4-cn-semi",
+    "article_id": "47bdc6e2e8e40c9a4ca5b9294e472c26642de224028b40999d6fd8f191c34ee7",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "728b27ef84a8a34bbf4aeaebff715e3dd1d3e33bb3c99a73618cbeb5dbfaac27",
+    "user_id": "user-5-energy",
+    "article_id": "47bdc6e2e8e40c9a4ca5b9294e472c26642de224028b40999d6fd8f191c34ee7",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "topic:OIL_GAS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6c04acae419645e650d11ebf5c1ddaf1ca881e1d29c6b3963cb03e308b61fb61",
+    "user_id": "user-6-re",
+    "article_id": "47bdc6e2e8e40c9a4ca5b9294e472c26642de224028b40999d6fd8f191c34ee7",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "9477e8f5d977f9db6468748dccab0576074e002d36d2d09099c5ea2a1ee77da3",
+    "user_id": "user-9-muted-topic",
+    "article_id": "47bdc6e2e8e40c9a4ca5b9294e472c26642de224028b40999d6fd8f191c34ee7",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "23cf82d7528c23fb5ec65c5bd25375c808a8865a16305fe1415bdeb546e6be4b",
+    "user_id": "user-11-hourly-only",
+    "article_id": "47bdc6e2e8e40c9a4ca5b9294e472c26642de224028b40999d6fd8f191c34ee7",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "787c4437cc6803806675d6de432655a8b3480db4dc78e5cf13baf5a14412884f",
+    "user_id": "user-12-daily-only",
+    "article_id": "47bdc6e2e8e40c9a4ca5b9294e472c26642de224028b40999d6fd8f191c34ee7",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "3e71840a754bc68ce052534e3c67f168133a8a5d6ec394d3910cfe79e7786bd5",
+    "user_id": "user-1-vn-ai",
+    "article_id": "e8bc225a41e830fcc25bf67ee405f05ee72fbc23236171bf7620edc3d5077e93",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "e6216d004250ddd14e541667d685f41caf23a537deca57f1a6f966054b3b8da2",
+    "user_id": "user-6-re",
+    "article_id": "e8bc225a41e830fcc25bf67ee405f05ee72fbc23236171bf7620edc3d5077e93",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "category:REAL_ESTATE",
+      "topic:REAL_ESTATE"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "40b728f44fe5dc34974f27430c89592cf120e925e795e04964696eb122b7c956",
+    "user_id": "user-11-hourly-only",
+    "article_id": "e8bc225a41e830fcc25bf67ee405f05ee72fbc23236171bf7620edc3d5077e93",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "bab192baf24cd3b0ca6c0512d75d3d57b167afd8a6924d2707d4faffc164bcf4",
+    "user_id": "user-2-us-fin",
+    "article_id": "dbfb2228cf1a2ec3b666f68f646927e42a446d40bd8dd3d221b793bfbddd308a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "cdf53d25c77811b668565cab2dab64f606f1b6c492354bf976c099c094e3c77a",
+    "user_id": "user-3-eu-reg",
+    "article_id": "dbfb2228cf1a2ec3b666f68f646927e42a446d40bd8dd3d221b793bfbddd308a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c060735bdd178944eec5983ef3b9de6d3892655820a84b526b965c0a1785981a",
+    "user_id": "user-5-energy",
+    "article_id": "dbfb2228cf1a2ec3b666f68f646927e42a446d40bd8dd3d221b793bfbddd308a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "fe1c14ae0d716590cc28b16c4532e75eea10a5b2611a14d6dbd8b28ba2fbbf6e",
+    "user_id": "user-7-broad-reg",
+    "article_id": "dbfb2228cf1a2ec3b666f68f646927e42a446d40bd8dd3d221b793bfbddd308a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "43451539d42ff6df2f5234f21a753a319748a9f9ed2d4feb13eb164212ae6eae",
+    "user_id": "user-8-muted-src",
+    "article_id": "dbfb2228cf1a2ec3b666f68f646927e42a446d40bd8dd3d221b793bfbddd308a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "bd93863a4079fa56eac5a9cb397b9d42b0053f0ddf51081919c49ed91b0c79b2",
+    "user_id": "user-9-muted-topic",
+    "article_id": "dbfb2228cf1a2ec3b666f68f646927e42a446d40bd8dd3d221b793bfbddd308a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "d3569612ba8187050ee31a9c8ba7c8107b6a5153f974a98fcf2b2643c43469bf",
+    "user_id": "user-10-no-break",
+    "article_id": "dbfb2228cf1a2ec3b666f68f646927e42a446d40bd8dd3d221b793bfbddd308a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:REGULATION"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "f82a76d73acd2d151cf92fc8040d1651c6c52aebeca8cb27b908ed90df2b7036",
+    "user_id": "user-3-eu-reg",
+    "article_id": "67c49a92f394928c7c107763ce98461b6cba5bf1d7357cfd53e4f675ecd5c06a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "96ac1783774e1c50c3579aa8af5485ae84877681acb57234a756fff5d9beccb0",
+    "user_id": "user-5-energy",
+    "article_id": "67c49a92f394928c7c107763ce98461b6cba5bf1d7357cfd53e4f675ecd5c06a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "06a8d31961ab53ff36f8fb01a6c03b5dc52152b5556a961e1b283ee6775a1379",
+    "user_id": "user-7-broad-reg",
+    "article_id": "67c49a92f394928c7c107763ce98461b6cba5bf1d7357cfd53e4f675ecd5c06a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "97979bf2bfa6c75b93728581e7090d0d3f79f6b636251c57b2038fcd38f474fb",
+    "user_id": "user-10-no-break",
+    "article_id": "67c49a92f394928c7c107763ce98461b6cba5bf1d7357cfd53e4f675ecd5c06a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU",
+      "category:LAW_POLICY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "6c452a8efb550bf36ffe1c383451f878e40fd7e3fc6718719201ded09967e431",
+    "user_id": "user-12-daily-only",
+    "article_id": "67c49a92f394928c7c107763ce98461b6cba5bf1d7357cfd53e4f675ecd5c06a",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:RENEWABLE_ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "01ca29f62ee74bb148aa11471ee3b9ff090082d760725a1d86458d8e944e33cc",
+    "user_id": "user-4-cn-semi",
+    "article_id": "520926bb38e07f5aed8e94aadb8a468b3ee3a4c289d9c105947f3ae89ed19fa5",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "5e75f3efbad4e72a73fa0554199c6a4af20413ad007cb9a674604667b2dc956c",
+    "user_id": "user-5-energy",
+    "article_id": "520926bb38e07f5aed8e94aadb8a468b3ee3a4c289d9c105947f3ae89ed19fa5",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "38e2719f0d7795ef1c398fa38fbf913eec775d767f00083bf3b654d7a753d8b0",
+    "user_id": "user-6-re",
+    "article_id": "520926bb38e07f5aed8e94aadb8a468b3ee3a4c289d9c105947f3ae89ed19fa5",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "0e37b16d914879403a8a830305164332ace52d7b5dd6357eb64fadf86b391d69",
+    "user_id": "user-11-hourly-only",
+    "article_id": "520926bb38e07f5aed8e94aadb8a468b3ee3a4c289d9c105947f3ae89ed19fa5",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "topic:SEMICONDUCTORS"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "73cf4109fafd12912894eb2e2bb5c8d5170591b2bd3aafb03b59ca66d66303e7",
+    "user_id": "user-12-daily-only",
+    "article_id": "520926bb38e07f5aed8e94aadb8a468b3ee3a4c289d9c105947f3ae89ed19fa5",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:CN",
+      "category:ENERGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "960b35c5d9716c221c50027fa27a3a0aea493c176b5f120f7e4d1206e19db1d7",
+    "user_id": "user-1-vn-ai",
+    "article_id": "343c163b2efba94c85b8ff64b4c19a145bcfc9d4b25602a05292d21bfc7f50a1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "category:TECHNOLOGY",
+      "topic:AI"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "9a80d2d9642617f248db8145317d5d18573b2bc26e66c66cd80ecaf67de9fbc3",
+    "user_id": "user-4-cn-semi",
+    "article_id": "343c163b2efba94c85b8ff64b4c19a145bcfc9d4b25602a05292d21bfc7f50a1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "cfd1d965d70f9400757efec2b04515946989e410bcd37b0e570693b6c4893e0a",
+    "user_id": "user-6-re",
+    "article_id": "343c163b2efba94c85b8ff64b4c19a145bcfc9d4b25602a05292d21bfc7f50a1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "250aef892b85d5473ad011c4f7f45a942cbdc4a128dbe88c294c5ac916f596e9",
+    "user_id": "user-11-hourly-only",
+    "article_id": "343c163b2efba94c85b8ff64b4c19a145bcfc9d4b25602a05292d21bfc7f50a1",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:VN",
+      "category:TECHNOLOGY"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "bcf733372d1bd520e9b091fce18410980ccbd407a1bae48bc5c0e3adefe13cba",
+    "user_id": "user-2-us-fin",
+    "article_id": "36e0a178f7c0bcc542db5dc90c3ebe6626c5a29aa6c013406afb0a4b4a17345e",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "e5d6e5bcef5261a112d4a4ab5dabb8942cd91bf991f6a513aeee5dc6e945b6eb",
+    "user_id": "user-5-energy",
+    "article_id": "36e0a178f7c0bcc542db5dc90c3ebe6626c5a29aa6c013406afb0a4b4a17345e",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "69aee951793428cdc6adece1dbd28bd6487be94b5e74fa6a81185332d50e64ab",
+    "user_id": "user-6-re",
+    "article_id": "36e0a178f7c0bcc542db5dc90c3ebe6626c5a29aa6c013406afb0a4b4a17345e",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:REAL_ESTATE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "38a22ae16055572902461c2c78e5bcd92b3ffd8a9069ba07743bf20d74176def",
+    "user_id": "user-8-muted-src",
+    "article_id": "36e0a178f7c0bcc542db5dc90c3ebe6626c5a29aa6c013406afb0a4b4a17345e",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "719165086392d2dfa796184c516ee04672873990020b069132d6e04786f91c36",
+    "user_id": "user-9-muted-topic",
+    "article_id": "36e0a178f7c0bcc542db5dc90c3ebe6626c5a29aa6c013406afb0a4b4a17345e",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "1a8f8d4e58e6c09e1c5867d6837188ba7ed12ba41a209c5aa74c05883566d900",
+    "user_id": "user-2-us-fin",
+    "article_id": "6c009c5823985d95a138653c8d8c67cfc1155e1497b8d68087c7ce69d6321bab",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE",
+      "topic:INTEREST_RATES"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.633333,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "c40ef16415080a69c779c2a795fb7307bf213e1a654fcdd7a06bdd619a1b79d3",
+    "user_id": "user-3-eu-reg",
+    "article_id": "6c009c5823985d95a138653c8d8c67cfc1155e1497b8d68087c7ce69d6321bab",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "96d85abdbb0b8c8f33348d6618ebb9c64643d6c71081a34642c77cef4e9aaaf7",
+    "user_id": "user-5-energy",
+    "article_id": "6c009c5823985d95a138653c8d8c67cfc1155e1497b8d68087c7ce69d6321bab",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "1d3515455bb1ab27f1330b08a81defc9b84eea3e098e0abf50b7eda1cc68b626",
+    "user_id": "user-8-muted-src",
+    "article_id": "6c009c5823985d95a138653c8d8c67cfc1155e1497b8d68087c7ce69d6321bab",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "category:FINANCE"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "f0df1aa11fcde7b61c9b0dd8469e7761477ab155edbeb2c6b1a7334c27ef9efa",
+    "user_id": "user-10-no-break",
+    "article_id": "6c009c5823985d95a138653c8d8c67cfc1155e1497b8d68087c7ce69d6321bab",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:EU"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "97053504296dab2112b0d85d90ab44c88712ab6d279b1a82712cb7351066c4a5",
+    "user_id": "user-2-us-fin",
+    "article_id": "805ebf2435303d8142d1bf000f8ddfdd7b31959aeba0431ff0c7f9cf7b343b10",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US",
+      "category:FINANCE",
+      "topic:BANKING"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.95,
+    "breaking_eligible": true
+  },
+  {
+    "candidate_id": "0de1f0aa2428f278562d526658d80e6a54541f61ddb3a26010ac5746a726ac7c",
+    "user_id": "user-5-energy",
+    "article_id": "805ebf2435303d8142d1bf000f8ddfdd7b31959aeba0431ff0c7f9cf7b343b10",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.316667,
+    "breaking_eligible": false
+  },
+  {
+    "candidate_id": "49ea8717d55d4ddf05c28b604f68b617e30b2cccb4b54c59de8a4af431bc4269",
+    "user_id": "user-9-muted-topic",
+    "article_id": "805ebf2435303d8142d1bf000f8ddfdd7b31959aeba0431ff0c7f9cf7b343b10",
+    "matched_at": "2026-08-15T12:00:00Z",
+    "match_reasons": [
+      "market:US"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.475,
+    "breaking_eligible": false
+  }
+]

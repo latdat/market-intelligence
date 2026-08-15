@@ -274,7 +274,8 @@ Discovery uses a bounded, version-scoped PostgREST anti-join. Historical
 `classification-v2` includes sources whose metadata may be stored, because local
 deterministic code is not AI processing. AI rights are enforced only before fallback.
 
-The v1 runner processes sequentially with bounded enqueue/process/run limits. It renews a
+The shared classification runner processes sequentially with bounded enqueue/process/run
+limits. It renews a
 lease before provider access and maintains a heartbeat while DE-008 runs. A lost claim
 cancels in-flight classification where possible and can never persist a stale result.
 Systemic provider/configuration failures durably reschedule the current item when possible
@@ -311,11 +312,13 @@ result and not a reason to weaken thresholds.
 Successful rows store DE-internal `classification_method` as `DETERMINISTIC` or
 `DEEPSEEK`; this field is intentionally absent from shared `ClassifiedArticle`.
 Deterministic success has zero provider calls, tokens, and cost. The additive DE-009C
-migration has been verified locally on PostgreSQL 17 but has not been applied to remote
-Supabase.
+migration `20260817000000_add_classification_method.sql` has been applied to and verified
+on the linked remote Supabase project. The current remote migration drift is limited to
+the two DE-012 alert-candidate migrations.
 
-The arrow to matching shows the approved downstream architecture. Matching remains
-planned under DE-010/DE-011 and was not implemented by DE-009C.
+The arrow to matching shows the approved downstream architecture. DE-011 later implemented
+the pure matching component, but no production runner currently wires classification,
+Product/SWE-owned preferences, matching, and candidate persistence end to end.
 
 ### 7.6 DE-010 user preference read boundary
 
@@ -331,8 +334,9 @@ Product/SWE preference state
 `UserPreference` is a shared Product/SWE -> DE contract. DE-010 validates the shared
 taxonomies and exposes `get` plus bounded `user_id`-ordered keyset pages, but does not own
 preference writes, UI behavior, or persistence. No user-preference table, Supabase adapter,
-RLS policy, RPC, or migration is introduced until an authoritative product/SWE persistence
-contract exists.
+RLS policy, RPC, or migration is introduced by DE. Product/SWE owns the authoritative
+preference persistence contract; DE consumes that contract and must not create a fake or
+parallel preference schema for matching.
 
 ### 7.7 DE-012 alert-candidate persistence
 
@@ -355,6 +359,24 @@ contract exists.
 - `anon` and `authenticated` have no table access and no RPC execution.
 - No user/user-preference FK is introduced because DE does not own authoritative preference persistence.
 - Delivery, batching, cooldowns, and email side effects remain outside DE-012.
+- The repository migrations exist and were verified on isolated local PostgreSQL, but
+  `20260818000000_create_alert_candidates.sql` and
+  `20260818000001_grant_alert_candidates_service_role.sql` have not been applied to the
+  linked remote Supabase project.
+
+### 7.8 SWE Data Ready v1 boundary
+
+SWE Data Ready v1 uses synthetic, linked shared-contract examples from `swe_handoff/` so
+SWE can build and validate read-side integration without waiting for production matching
+or notification orchestration. The missing production matching runner does not block this
+contract-data handoff; it blocks only real `alert_candidates` population.
+
+Synthetic `UserPreference` examples demonstrate the shared Product/SWE -> DE contract.
+They neither prove nor create a production preference table. Real candidate population
+must wait for Product/SWE-owned preference persistence, a concrete read adapter, the
+production matching runner, and the two DE-012 remote migrations.
+
+DE-013 pipeline telemetry remains `PAUSED` and is not part of SWE Data Ready v1.
 
 ## 8. AI usage
 

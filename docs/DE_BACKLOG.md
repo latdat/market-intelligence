@@ -91,7 +91,8 @@ Goal:
 
 ### DE-008 DeepSeek V4 Flash classification adapter
 
-Status: implemented as a standalone, offline-tested adapter; not wired or persisted.
+Status: implemented as a standalone, offline-tested provider adapter. DE-009B/DE-009C later
+wired it as the rights-gated fallback; DE-009 owns durable persistence.
 
 Goal:
 
@@ -128,9 +129,9 @@ Goal:
 
 ### DE-009C Deterministic / Hybrid Classification
 
-Status: implemented and offline-tested locally. The additive migration is verified on
-PostgreSQL 17 but is not applied to remote Supabase; no production articles were
-classified by this task.
+Status: implemented and offline-tested locally. The additive
+`20260817000000_add_classification_method.sql` migration has been applied to and verified
+on remote Supabase; no production articles were classified by the implementation task.
 
 Goal:
 
@@ -176,7 +177,15 @@ Output:
 ### DE-012 Alert candidate idempotency
 
 Status: implemented and offline-tested; alert-candidate migration verified on isolated local
-PostgreSQL. Remote Supabase migration has not been applied.
+PostgreSQL. Remote migration drift is exactly:
+
+- `20260818000000_create_alert_candidates.sql`
+- `20260818000001_grant_alert_candidates_service_role.sql`
+
+The missing production matching runner does not block SWE Data Ready v1 synthetic contract
+data. It blocks real `alert_candidates` population. Product/SWE owns authoritative
+`UserPreference` persistence; DE consumes the shared contract and must not create a fake
+preference schema or adapter as production state.
 
 Goal:
 
@@ -185,6 +194,8 @@ Goal:
 ## Phase 4 — Telemetry and operations
 
 ### DE-013 Pipeline telemetry
+
+Status: `PAUSED`. Do not start DE-013 until it is explicitly resumed.
 
 Track:
 
