@@ -145,9 +145,16 @@ Goal:
 
 ### DE-010 User preference read contract
 
+Status: implemented as a strict model and protocol boundary; offline-tested locally. No concrete persistence adapter is provided.
+
 Goal:
 
-- consume shared user preference contract without owning UI
+- implement/reuse the strict shared `UserPreference` model without owning UI or writes
+- expose a backend-neutral read boundary for DE-011 matching
+- preserve shared classification taxonomy codes for market/category/topic preferences
+- define bounded deterministic `user_id`-ordered keyset page semantics
+- do not invent preference persistence/schema before product/SWE provides an authoritative
+  persistence contract
 
 ### DE-011 Rule-based matching
 

@@ -317,6 +317,23 @@ Supabase.
 The arrow to matching shows the approved downstream architecture. Matching remains
 planned under DE-010/DE-011 and was not implemented by DE-009C.
 
+### 7.6 DE-010 user preference read boundary
+
+DE-010 introduces the backend-neutral read boundary consumed by DE-011:
+
+```text
+Product/SWE preference state
+        -> UserPreferenceReader
+        -> validated UserPreference
+        -> DE-011 rule-based matching
+```
+
+`UserPreference` is a shared Product/SWE -> DE contract. DE-010 validates the shared
+taxonomies and exposes `get` plus bounded `user_id`-ordered keyset pages, but does not own
+preference writes, UI behavior, or persistence. No user-preference table, Supabase adapter,
+RLS policy, RPC, or migration is introduced until an authoritative product/SWE persistence
+contract exists.
+
 ## 8. AI usage
 
 Model:

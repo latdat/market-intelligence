@@ -42,11 +42,19 @@ from market_intelligence.persistence.supabase_repository import (
     SupabaseArticleRepository,
     create_article_repository_from_environment,
 )
+from market_intelligence.persistence.user_preferences import (
+    UserPreferencePage,
+    UserPreferenceReader,
+    UserPreferenceReadError,
+)
 
 __all__ = [
     "ClassificationWorkReadError",
     "ClassificationWorkReader",
     "DiscoveryScope",
+    "UserPreferencePage",
+    "UserPreferenceReadError",
+    "UserPreferenceReader",
     "SupabaseClassificationWorkReader",
     "create_classification_work_reader_from_environment",
     "ArticlePersistenceError",

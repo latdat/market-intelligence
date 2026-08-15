@@ -526,7 +526,8 @@ writes; provider work may still be repeated after a crash or lost claim.
 
 # 6. UserPreference — shared contract
 
-Owned primarily by product/SWE, consumed by DE matching.
+Owned primarily by product/SWE, consumed by DE matching. DE validates and reads this
+contract but does not own the UI, preference-writing flow, or product-side persistence.
 
 Recommended minimal shape:
 
@@ -535,7 +536,7 @@ Recommended minimal shape:
   "user_id": "user-id",
   "markets": ["VN", "US"],
   "categories": ["TECHNOLOGY", "FINANCE"],
-  "topics": ["AI", "Banking"],
+  "topics": ["AI", "BANKING"],
   "muted_source_ids": [],
   "muted_topics": [],
   "breaking_alert_enabled": true,
@@ -543,6 +544,28 @@ Recommended minimal shape:
   "daily_digest_enabled": true
 }
 ```
+
+Contract rules:
+
+- all nine fields are required; unknown fields are rejected;
+- `user_id` and every `muted_source_ids` value must be non-blank strings;
+- `markets` uses the same `VN`, `US`, `EU`, `CN` codes as classification;
+- `categories` uses the same `LAW_POLICY`, `ENERGY`, `TECHNOLOGY`, `REAL_ESTATE`,
+  `FINANCE` codes as classification;
+- `topics` and `muted_topics` use the same controlled topic codes as `ClassifiedArticle`;
+- collection values must be unique; input order is preserved and carries no DE matching
+  precedence in DE-010;
+- empty interest/mute collections are valid; the meaning of an empty preference is handled
+  by later matching/product behavior rather than rejected by the shared contract;
+- notification flags are strict booleans.
+
+DE-010 defines a backend-neutral `UserPreferenceReader` with `get(user_id)` and bounded
+`list_page(after_user_id, limit)` operations. The limit semantics are strictly defined:
+a default of 100, and a valid range of 1 to 1000 inclusive. Boolean limits are invalid.
+Concrete adapters must enforce this range. Pages are ordered by `user_id` ascending and
+use the last `user_id` as a keyset cursor when another page is available. DE-010 does not
+create a preference table, migration, write API, or Supabase adapter because no
+authoritative product/SWE preference persistence contract exists yet.
 
 Do not expand this contract without coordinating with SWE.
 

@@ -220,6 +220,23 @@ constraints, deterministic zero-attempt success, rejection of zero-attempt DeepS
 success, and null method on non-success states. PostgreSQL 17 verification remains a
 required release gate for DE-009C.
 
+DE-010 tests are offline and verify the shared `UserPreference` contract and read-page
+invariants:
+
+- all required fields and strict unknown-field rejection;
+- shared market/category/topic taxonomy compatibility with classification;
+- strict booleans, non-blank IDs, and duplicate collection rejection;
+- empty interest/mute collections remain valid;
+- input collection order is preserved;
+- page-local unique `user_id` values and deterministic ascending order;
+- empty-page/cursor consistency and cursor equality with the last returned `user_id`;
+- sanitized read errors.
+
+DE-010 does not fake a production persistence adapter merely to test pagination. Concrete
+adapter request bounds, cursor continuity across pages, backend failure mapping, and
+cross-page duplicate prevention must be tested when an authoritative preference
+persistence adapter is introduced.
+
 ## 8. Matching cases
 
 Test combinations:
