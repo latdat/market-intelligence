@@ -5,6 +5,11 @@ from market_intelligence.persistence.articles import (
     ArticleRepository,
     PersistenceConfigurationError,
 )
+from market_intelligence.persistence.classification_work import (
+    ClassificationWorkReader,
+    ClassificationWorkReadError,
+    DiscoveryScope,
+)
 from market_intelligence.persistence.classifications import (
     ClassificationClaim,
     ClassificationFailure,
@@ -29,12 +34,21 @@ from market_intelligence.persistence.supabase_classification_repository import (
     SupabaseClassificationRepository,
     create_classification_repository_from_environment,
 )
+from market_intelligence.persistence.supabase_classification_work_reader import (
+    SupabaseClassificationWorkReader,
+    create_classification_work_reader_from_environment,
+)
 from market_intelligence.persistence.supabase_repository import (
     SupabaseArticleRepository,
     create_article_repository_from_environment,
 )
 
 __all__ = [
+    "ClassificationWorkReadError",
+    "ClassificationWorkReader",
+    "DiscoveryScope",
+    "SupabaseClassificationWorkReader",
+    "create_classification_work_reader_from_environment",
     "ArticlePersistenceError",
     "ArticleRepository",
     "ClassificationClaim",

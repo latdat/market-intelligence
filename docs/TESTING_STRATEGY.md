@@ -183,6 +183,22 @@ verify:
 The PostgreSQL fixture is offline, creates no provider calls, uses no remote Supabase,
 and skips only when local PostgreSQL binaries are unavailable.
 
+DE-009B tests use fake classifiers and fake persistence/read boundaries. They verify:
+
+- a version-scoped PostgREST anti-join request and bounded deterministic ordering;
+- zero PostgREST discovery/enqueue calls when no source has approved AI rights;
+- lineage preflight and idempotent enqueue outcomes;
+- claim, article/source reload, rights recheck, success/failure persistence;
+- terminal rights-revocation quarantine without provider access or automatic reset;
+- durable retry/quarantine mapping and systemic `STOP_BATCH` behavior;
+- immediate renewal, periodic heartbeat, cancellation and stale-claim rejection;
+- sequential process/time limits and observed usage/cost propagation;
+- no article content, provider payload, or credentials in errors/logs.
+
+Normal DE-009B tests never construct the environment-based DeepSeek adapter and require
+neither a DeepSeek account nor API key. A live smoke of one to three explicit articles is
+a separate manually approved operational task.
+
 ## 8. Matching cases
 
 Test combinations:

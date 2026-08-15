@@ -102,8 +102,8 @@ Goal:
 
 ### DE-009 Classification persistence
 
-Status: implemented locally; migrations are committed but not applied to remote
-Supabase, and orchestration is not wired.
+Status: implemented and PostgreSQL 17 verified; both migrations are applied to and
+catalog-verified on remote Supabase. DE-009B orchestration is implemented separately.
 
 Goal:
 
@@ -113,6 +113,18 @@ Goal:
 - preserve `classified_at`
 - fence stale workers with `claim_token` and leases
 - reject enqueue lineage mismatch without overwriting history
+
+### DE-009B Classification runner / orchestration
+
+Status: implemented with offline fake-classifier tests; no production article has been
+classified by the implementation task.
+
+Goal:
+
+- bounded rights-aware discovery and idempotent enqueue
+- sequential claim, article/source reload, rights recheck, DE-008 invocation
+- fenced completion/failure persistence with lease heartbeat
+- systemic `STOP_BATCH` behavior without changing DE-009 lifecycle
 
 ## Phase 3 — Matching
 

@@ -252,8 +252,30 @@ most one candidate; it never performs a queue-wide sweep. All lifecycle mutation
 
 RLS is enabled. `service_role` may read the table and execute lifecycle RPCs, but receives
 no direct mutation grant; `anon` and `authenticated` receive neither table access nor RPC
-execution. This is local migration/code implementation only: remote Supabase has not
-been migrated by DE-009.
+execution. Both DE-009 migrations have been applied to and catalog-verified on the linked
+production Supabase project.
+
+### 7.4 DE-009B classification orchestration
+
+DE-009B connects the existing components without joining provider I/O to a database
+transaction:
+
+```text
+eligible missing article -> enqueue -> claim -> reload article/source -> rights gate
+                         -> DE-008 -> DE-009 success/failure RPC
+```
+
+Discovery uses a bounded, version-scoped PostgREST anti-join and only includes source IDs
+whose static config has explicit approved AI-processing rights. Rights are checked again
+after claim and before the provider call. If rights were revoked after enqueue, lifecycle
+v1 quarantines that claimed identity; quarantine is terminal, is not reset automatically,
+and is never bypassed by incrementing `classifier_version`.
+
+The v1 runner processes sequentially with bounded enqueue/process/run limits. It renews a
+lease before provider access and maintains a heartbeat while DE-008 runs. A lost claim
+cancels in-flight classification where possible and can never persist a stale result.
+Systemic provider/configuration failures durably reschedule the current item when possible
+and stop the batch so one dependency problem does not consume the whole queue.
 
 ## 8. AI usage
 

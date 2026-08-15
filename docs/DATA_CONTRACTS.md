@@ -341,9 +341,9 @@ pricing fetch occurs.
 
 ### 5.3 DE-009 durable classification persistence
 
-DE-009 implements the local schema and repository contract for durable classification
-state. It remains separate from the RSS/onboarding runner: enqueueing work and invoking
-DE-008 are orchestration concerns for a later approved task.
+DE-009 implements the schema and repository contract for durable classification state.
+It remains separate from the RSS/onboarding runner. DE-009B now owns enqueueing and
+invoking DE-008 through the unchanged repository/classifier contracts.
 
 The exact logical and database identity is:
 
@@ -470,10 +470,33 @@ All lifecycle writes use transactional PostgreSQL RPCs. RLS is enabled with no
 access to lifecycle RPCs, but no direct insert/update/delete grants. Terminal mutation
 guards and constraints remain database-side defense in depth.
 
-The committed migrations are additive and local only until separately reviewed and
-applied to remote Supabase. No taxonomy, history, or telemetry table is created.
+The additive migrations have been applied to and verified on the linked production
+Supabase project. No taxonomy, history, or telemetry table is created.
 
 Classification should not require storing full article body by default.
+
+### 5.4 DE-009B internal orchestration contracts
+
+`ClassificationWorkReader` is a DE-internal read boundary. It provides bounded discovery
+of articles missing one `classifier_version`, article reload by ID, and a read-only
+lineage audit. It does not change `CanonicalArticle`, `ClassifiedArticle`, or the DE-009
+repository/lifecycle contract.
+
+The runner derives eligible source IDs only from static configs satisfying
+`rights_review_status == APPROVED` and `can_ai_process is true`. An empty eligible set
+returns zero discovery/enqueue without a PostgREST request. Every claimed article is
+reloaded and checked again with the DE-008 rights gate before provider access.
+
+If rights were revoked after enqueue, v1 records `RIGHTS_DENIED` as `QUARANTINED`. That
+identity is terminal under the current lifecycle: DE-009B does not reset quarantine and
+must not bump `classifier_version` merely because rights are later re-approved. Recovery
+would require a separately designed and approved administrative lifecycle change.
+
+`STOP_BATCH` is an in-process orchestration decision, not a database status. Systemic
+configuration/provider failures reschedule the currently claimed row when the durable
+budget permits, then stop further claims. Per-item terminal failures quarantine only that
+identity. A lease heartbeat and `claim_token` fencing prevent stale success/failure
+writes; provider work may still be repeated after a crash or lost claim.
 
 ---
 
