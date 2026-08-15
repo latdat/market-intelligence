@@ -76,8 +76,13 @@ email_sent_at
                        ↓
        Fetch → Parse → Normalize → Dedup
                        ↓
-              DeepSeek V4 Flash
-                classification
+          DETERMINISTIC CLASSIFIER
+             ↙ confident   ↘ ambiguous
+       local success      AI rights gate
+                              ↓ allowed
+                     DeepSeek V4 Flash fallback
+                       ↓
+             CLASSIFICATION PERSISTENCE
                        ↓
               SUPABASE POSTGRES
                        ↓
@@ -200,7 +205,7 @@ winner for cross-source duplicates.
 
 ### 7.2 DE-008 classification boundary
 
-DE-008 is implemented as a standalone, rights-gated adapter:
+DE-008 remains the existing standalone, rights-gated DeepSeek adapter:
 
 ```text
 CanonicalArticle + SourceConfig
@@ -211,10 +216,9 @@ CanonicalArticle + SourceConfig
         -> ClassifiedArticle + internal ClassificationResult metadata
 ```
 
-It is not wired into the ingestion runner and does not itself persist results. DE-009
-now implements a separate durable repository using
-`(article_id, classifier_version)` identity. Orchestration between the two components
-remains intentionally unwired.
+It does not itself persist results. DE-009 implements the durable repository using
+`(article_id, classifier_version)` identity; DE-009B/DE-009C orchestration invokes the
+adapter only as the rights-approved fallback.
 
 ### 7.3 DE-009 classification persistence
 
@@ -236,9 +240,9 @@ be re-enqueued when `requested_model`, `prompt_version`, and `taxonomy_version` 
 otherwise enqueue returns `LINEAGE_MISMATCH` without updating the row.
 
 `attempt_count` counts successfully claimed durable classification invocations.
-DE-008 `provider_attempts` counts HTTP calls inside one invocation. The two budgets are
-independent, and DE-009 does not reserve provider-call slots or guarantee an exact
-lifetime HTTP-call count.
+`provider_attempts` is zero for deterministic success and counts HTTP calls inside one
+DeepSeek invocation. The two budgets are independent, and DE-009 does not reserve
+provider-call slots or guarantee an exact lifetime HTTP-call count.
 
 The claim RPC uses `FOR UPDATE SKIP LOCKED LIMIT 1`, increments `attempt_count` in the
 same transaction, and assigns a unique `claim_token`. Completion, failure, and renewal
@@ -265,11 +269,10 @@ eligible missing article -> enqueue -> claim -> reload article/source -> rights 
                          -> DE-008 -> DE-009 success/failure RPC
 ```
 
-Discovery uses a bounded, version-scoped PostgREST anti-join and only includes source IDs
-whose static config has explicit approved AI-processing rights. Rights are checked again
-after claim and before the provider call. If rights were revoked after enqueue, lifecycle
-v1 quarantines that claimed identity; quarantine is terminal, is not reset automatically,
-and is never bypassed by incrementing `classifier_version`.
+Discovery uses a bounded, version-scoped PostgREST anti-join. Historical
+`classification-v1` includes only source IDs with approved AI-processing rights.
+`classification-v2` includes sources whose metadata may be stored, because local
+deterministic code is not AI processing. AI rights are enforced only before fallback.
 
 The v1 runner processes sequentially with bounded enqueue/process/run limits. It renews a
 lease before provider access and maintains a heartbeat while DE-008 runs. A lost claim
@@ -277,12 +280,49 @@ cancels in-flight classification where possible and can never persist a stale re
 Systemic provider/configuration failures durably reschedule the current item when possible
 and stop the batch so one dependency problem does not consume the whole queue.
 
+### 7.5 DE-009C deterministic / hybrid classification
+
+DE-009C reuses the DE-009B runner and the only DE-009 persistence path:
+
+```text
+articles
+  → deterministic classifier
+     ├─ CONFIDENT → fenced persistence
+     └─ AMBIGUOUS → AI rights gate
+                      ├─ allowed → existing DeepSeek classifier → fenced persistence
+                      └─ denied → AI_FALLBACK_NOT_ALLOWED / QUARANTINED
+  → matching
+```
+
+`classification-v1` is historical DeepSeek-first behavior. `classification-v2` is the
+hybrid behavior and uses `deterministic-rules-v1`. Rule changes that can alter semantic
+output require an explicit deterministic-rule version bump and, when classification
+semantics change, a classifier version review.
+
+The deterministic classifier is metadata-only, offline, and conservative. It uses NFC,
+case folding, whitespace normalization, and token-boundary matching. A category is
+confident only at score >=4 with a margin >=2; deterministic v1 never confidently marks
+an article irrelevant. Every emitted market requires title/description evidence; the
+source-market prior may support scoring but provenance alone never creates a content
+market. Confident category evidence without a confident content market is `AMBIGUOUS`.
+The 10–20% DeepSeek fallback rate is an unverified measurement target, not an achieved
+result and not a reason to weaken thresholds.
+
+Successful rows store DE-internal `classification_method` as `DETERMINISTIC` or
+`DEEPSEEK`; this field is intentionally absent from shared `ClassifiedArticle`.
+Deterministic success has zero provider calls, tokens, and cost. The additive DE-009C
+migration has been verified locally on PostgreSQL 17 but has not been applied to remote
+Supabase.
+
+The arrow to matching shows the approved downstream architecture. Matching remains
+planned under DE-010/DE-011 and was not implemented by DE-009C.
+
 ## 8. AI usage
 
 Model:
 
 ```text
-DeepSeek V4 Flash
+DeepSeek V4 Flash (hybrid fallback)
 ```
 
 Purpose:

@@ -1,0 +1,128 @@
+# Semantic changes to any rule below require an explicit version bump.
+version = "deterministic-rules-v1"
+
+[thresholds]
+min_category_score = 4
+min_category_margin = 2
+min_market_score = 2
+
+[[categories]]
+category = "LAW_POLICY"
+strong_title = ["draft law", "executive order", "dự thảo luật", "nghị định"]
+title_keywords = ["law", "policy", "regulation", "quy định", "chính sách"]
+description_keywords = ["law", "policy", "regulation", "quy định", "chính sách"]
+
+[[categories]]
+category = "ENERGY"
+strong_title = ["oil production cut", "renewable energy target"]
+title_keywords = ["energy", "oil", "gas", "solar", "wind", "điện"]
+description_keywords = ["energy", "oil", "gas", "solar", "wind", "điện"]
+
+[[categories]]
+category = "TECHNOLOGY"
+strong_title = ["artificial intelligence breakthrough", "semiconductor investment"]
+title_keywords = ["technology", "artificial intelligence", "semiconductor", "chip", "công nghệ"]
+description_keywords = [
+    "technology",
+    "artificial intelligence",
+    "semiconductor",
+    "chip",
+    "công nghệ",
+]
+
+[[categories]]
+category = "REAL_ESTATE"
+strong_title = ["housing market reform", "real estate regulation"]
+title_keywords = ["real estate", "housing", "property", "bất động sản"]
+description_keywords = ["real estate", "housing", "property", "bất động sản"]
+
+[[categories]]
+category = "FINANCE"
+strong_title = ["interest rate decision", "bank capital requirement", "quyết định lãi suất"]
+title_keywords = ["interest rate", "banking", "inflation", "financial", "lãi suất", "ngân hàng"]
+description_keywords = [
+    "interest rate",
+    "banking",
+    "inflation",
+    "financial",
+    "lãi suất",
+    "ngân hàng",
+]
+
+[[markets]]
+market = "VN"
+title_keywords = [
+    "vietnam",
+    "việt nam",
+    "hà nội",
+    "state bank of vietnam",
+    "government of vietnam",
+    "quốc hội việt nam",
+]
+description_keywords = [
+    "vietnam",
+    "việt nam",
+    "hà nội",
+    "state bank of vietnam",
+    "government of vietnam",
+    "quốc hội việt nam",
+]
+
+[[markets]]
+market = "US"
+title_keywords = ["united states", "federal reserve", "washington"]
+description_keywords = ["united states", "federal reserve", "washington"]
+
+[[markets]]
+market = "EU"
+title_keywords = [
+    "european union",
+    "euro area",
+    "european central bank",
+    "ecb",
+    "european commission",
+]
+description_keywords = [
+    "european union",
+    "euro area",
+    "european central bank",
+    "ecb",
+    "european commission",
+]
+
+[[markets]]
+market = "CN"
+title_keywords = ["china", "chinese", "trung quốc", "pboc", "people's bank of china"]
+description_keywords = ["china", "chinese", "trung quốc", "pboc", "people's bank of china"]
+
+[[topics]]
+topic = "AI"
+keywords = ["ai", "artificial intelligence", "trí tuệ nhân tạo"]
+
+[[topics]]
+topic = "BANKING"
+keywords = ["bank", "banking", "ngân hàng"]
+
+[[topics]]
+topic = "INTEREST_RATES"
+keywords = ["interest rate", "lãi suất"]
+
+[[topics]]
+topic = "OIL_GAS"
+keywords = ["oil", "gas", "dầu khí"]
+
+[[topics]]
+topic = "REAL_ESTATE"
+keywords = ["real estate", "housing", "property", "bất động sản"]
+
+[[topics]]
+topic = "REGULATION"
+keywords = ["regulation", "regulatory", "quy định"]
+
+[[topics]]
+topic = "RENEWABLE_ENERGY"
+keywords = ["renewable energy", "solar", "wind", "năng lượng tái tạo"]
+
+[[topics]]
+topic = "SEMICONDUCTORS"
+keywords = ["semiconductor", "chip", "bán dẫn"]

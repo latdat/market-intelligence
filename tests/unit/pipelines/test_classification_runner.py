@@ -3,6 +3,7 @@
 import asyncio
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from pathlib import Path
 from types import SimpleNamespace
 from typing import cast
 from unittest.mock import Mock
@@ -16,9 +17,13 @@ from market_intelligence.classification import (
     ClassificationConfigurationError,
     ClassificationError,
     ClassificationErrorCategory,
+    ClassificationMethod,
     ClassificationResult,
     ClassificationUsage,
     ClassifiedArticle,
+    DeterministicClassifier,
+    HybridArticleClassifier,
+    load_deterministic_rules,
 )
 from market_intelligence.persistence import (
     ClassificationClaim,
@@ -100,11 +105,15 @@ def lineage() -> ClassificationLineage:
     )
 
 
-def claim(*, attempt_count: int = 1) -> ClassificationClaim:
+def claim(
+    *,
+    attempt_count: int = 1,
+    classifier_version: str = "classification-v1",
+) -> ClassificationClaim:
     return ClassificationClaim(
         key=ClassificationKey(
             article_id="article-1",
-            classifier_version="classification-v1",
+            classifier_version=classifier_version,
         ),
         lineage=lineage(),
         claim_token=TOKEN,
@@ -127,6 +136,7 @@ def classification_result() -> ClassificationResult:
             confidence=0.9,
             classified_at=NOW,
         ),
+        classification_method=ClassificationMethod.DEEPSEEK,
         requested_model="deepseek-v4-flash",
         provider_model="provider-model",
         prompt_version="classification-prompt-v1",
@@ -209,7 +219,7 @@ def dependencies(
         cast(ClassificationRepository, repository),
         cast(ClassificationWorkReader, reader),
         [configured_source or source()],
-        config=config,
+        config=config or ClassificationRunnerConfig(classifier_version="classification-v1"),
         claim_token_factory=lambda: TOKEN,
         **kwargs,
     )
@@ -452,7 +462,7 @@ def test_already_succeeded_completion_replay_is_idempotent_success() -> None:
 
 def test_process_limit_keeps_v1_sequential_and_bounded() -> None:
     fake = FakeClassifier(classification_result())
-    config = ClassificationRunnerConfig(process_limit=1)
+    config = ClassificationRunnerConfig(classifier_version="classification-v1", process_limit=1)
     runner, repository, _ = dependencies(cast(ArticleClassifier, fake), config=config)
     repository.claim_next.side_effect = [claim(), claim()]
 
@@ -548,3 +558,114 @@ def test_runner_logs_never_include_article_content_or_url(caplog: pytest.LogCapt
     assert "Sensitive article title" not in rendered
     assert "Sensitive article description" not in rendered
     assert "secret=no-log" not in rendered
+
+
+def test_v2_discovery_requires_metadata_rights_not_ai_rights() -> None:
+    fake = FakeClassifier(classification_result())
+    config = ClassificationRunnerConfig(classifier_version="classification-v2")
+    runner, repository, reader = dependencies(
+        cast(ArticleClassifier, fake),
+        configured_source=source(approved=False),
+        config=config,
+    )
+
+    result = asyncio.run(runner.discover_and_enqueue())
+
+    assert result.eligible_source_count == 1
+    assert result.discovered_count == 1
+    reader.list_unclassified_articles.assert_called_once()
+    repository.enqueue.assert_called_once()
+
+
+def test_v2_runner_persists_deterministic_success_without_provider_call() -> None:
+    fallback = FakeClassifier(classification_result())
+    hybrid = HybridArticleClassifier(
+        DeterministicClassifier(
+            load_deterministic_rules(Path("config/classification/deterministic_rules.toml"))
+        ),
+        cast(ArticleClassifier, fallback),
+        clock=lambda: NOW,
+        monotonic=lambda: 1.0,
+    )
+    config = ClassificationRunnerConfig(classifier_version="classification-v2")
+    runner, repository, reader = dependencies(
+        hybrid,
+        configured_source=source(approved=False),
+        config=config,
+    )
+    confident = article().model_copy(update={"title": "Federal Reserve interest rate decision"})
+    reader.get_article.return_value = confident
+    repository.claim_next.side_effect = [
+        claim(classifier_version="classification-v2"),
+        None,
+    ]
+
+    result = asyncio.run(runner.process_claims())
+
+    assert result.succeeded_count == 1
+    assert result.provider_attempts == 0
+    assert fallback.calls == []
+    persisted = cast(ClassificationResult, repository.complete_success.call_args.args[1])
+    assert persisted.classification_method is ClassificationMethod.DETERMINISTIC
+
+
+def test_v2_ambiguous_without_ai_rights_is_quarantined_without_provider_call() -> None:
+    fallback = FakeClassifier(classification_result())
+    hybrid = HybridArticleClassifier(
+        DeterministicClassifier(
+            load_deterministic_rules(Path("config/classification/deterministic_rules.toml"))
+        ),
+        cast(ArticleClassifier, fallback),
+    )
+    config = ClassificationRunnerConfig(classifier_version="classification-v2")
+    runner, repository, _ = dependencies(
+        hybrid,
+        configured_source=source(approved=False),
+        config=config,
+    )
+    repository.claim_next.side_effect = [
+        claim(classifier_version="classification-v2"),
+        None,
+    ]
+    repository.record_failure.return_value = SimpleNamespace(outcome=FailureOutcome.QUARANTINED)
+
+    result = asyncio.run(runner.process_claims())
+
+    assert result.quarantined_count == 1
+    assert result.stop_reason is None
+    assert result.provider_attempts == 0
+    assert fallback.calls == []
+    failure = cast(ClassificationFailure, repository.record_failure.call_args.args[1])
+    assert failure.error_category == "AI_FALLBACK_NOT_ALLOWED"
+
+
+def test_v2_systemic_deepseek_fallback_failure_preserves_stop_batch() -> None:
+    fallback = FakeClassifier(
+        classifier_error(
+            ClassificationErrorCategory.RATE_LIMIT,
+            retryable=True,
+            status=429,
+        )
+    )
+    hybrid = HybridArticleClassifier(
+        DeterministicClassifier(
+            load_deterministic_rules(Path("config/classification/deterministic_rules.toml"))
+        ),
+        cast(ArticleClassifier, fallback),
+    )
+    config = ClassificationRunnerConfig(classifier_version="classification-v2")
+    runner, repository, _ = dependencies(
+        hybrid,
+        configured_source=source(approved=True),
+        config=config,
+    )
+    repository.claim_next.side_effect = [
+        claim(classifier_version="classification-v2"),
+        None,
+    ]
+
+    result = asyncio.run(runner.process_claims())
+
+    assert len(fallback.calls) == 1
+    assert result.stop_reason is BatchStopReason.SYSTEMIC_PROVIDER
+    assert result.retry_scheduled_count == 1

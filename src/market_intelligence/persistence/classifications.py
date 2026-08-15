@@ -10,6 +10,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validat
 
 from market_intelligence.classification import (
     ClassificationError,
+    ClassificationMethod,
     ClassificationResult,
     ClassificationUsage,
     ClassifiedArticle,
@@ -104,6 +105,7 @@ class ClassificationRecord(ClassificationPersistenceModel):
         pattern=r"^classification-v[1-9][0-9]*$",
     )
     status: ClassificationStatus
+    classification_method: ClassificationMethod | None = None
 
     is_relevant: bool | None
     markets: tuple[Market, ...] | None = Field(max_length=4)
@@ -163,6 +165,8 @@ class ClassificationRecord(ClassificationPersistenceModel):
             self.classified_at,
         )
         if self.status is ClassificationStatus.SUCCEEDED:
+            if self.classification_method is None:
+                raise ValueError("SUCCEEDED requires classification_method")
             if any(
                 value is None
                 for value in (
@@ -204,12 +208,33 @@ class ClassificationRecord(ClassificationPersistenceModel):
                 raise ValueError("SUCCEEDED cannot retain terminal error metadata")
         elif any(value is not None for value in semantic_values):
             raise ValueError("non-success records cannot contain semantic result fields")
+        elif self.classification_method is not None:
+            raise ValueError("non-success records cannot contain classification_method")
 
         provider_lineage = (self.provider_model, self.provider_request_id, self.system_fingerprint)
         if self.status is not ClassificationStatus.SUCCEEDED and any(
             value is not None for value in provider_lineage
         ):
             raise ValueError("non-success records cannot contain provider result lineage")
+
+        if self.status is ClassificationStatus.SUCCEEDED:
+            if self.classification_method is ClassificationMethod.DETERMINISTIC:
+                if self.last_provider_attempts != 0:
+                    raise ValueError("deterministic success requires zero provider attempts")
+                if (
+                    any(value is not None for value in provider_lineage)
+                    or self.prompt_tokens != 0
+                    or self.prompt_cache_hit_tokens != 0
+                    or self.prompt_cache_miss_tokens != 0
+                    or self.completion_tokens != 0
+                    or self.total_tokens != 0
+                    or self.estimated_cost_usd != 0
+                    or self.last_pricing_id is not None
+                    or self.last_pricing_window is not None
+                ):
+                    raise ValueError("deterministic success contains provider metadata")
+            elif self.last_provider_attempts is None or not 1 <= self.last_provider_attempts <= 3:
+                raise ValueError("DeepSeek success requires one to three provider attempts")
 
         if self.status is ClassificationStatus.PROCESSING:
             if self.claim_token is None or self.claimed_at is None or self.lease_expires_at is None:

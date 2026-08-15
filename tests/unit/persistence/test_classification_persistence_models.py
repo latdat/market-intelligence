@@ -8,6 +8,7 @@ from pydantic import ValidationError
 from market_intelligence.classification import (
     ClassificationError,
     ClassificationErrorCategory,
+    ClassificationMethod,
     ClassificationUsage,
 )
 from market_intelligence.persistence import (
@@ -28,6 +29,7 @@ def record_values(**overrides: object) -> dict[str, object]:
         "article_id": "article-1",
         "classifier_version": "classification-v1",
         "status": ClassificationStatus.RETRYABLE,
+        "classification_method": None,
         "is_relevant": None,
         "markets": None,
         "category": None,
@@ -109,6 +111,7 @@ def test_succeeded_record_maps_to_the_shared_contract() -> None:
     record = ClassificationRecord(
         **record_values(
             status=ClassificationStatus.SUCCEEDED,
+            classification_method=ClassificationMethod.DEEPSEEK,
             is_relevant=True,
             markets=(Market.US, Market.EU),
             category=Domain.FINANCE,
@@ -119,6 +122,7 @@ def test_succeeded_record_maps_to_the_shared_contract() -> None:
             provider_request_id="request-1",
             system_fingerprint="fingerprint-1",
             attempt_count=1,
+            last_provider_attempts=1,
             next_attempt_at=None,
         )
     )
@@ -145,6 +149,7 @@ def test_succeeded_record_cannot_retain_error_metadata() -> None:
         ClassificationRecord(
             **record_values(
                 status=ClassificationStatus.SUCCEEDED,
+                classification_method=ClassificationMethod.DEEPSEEK,
                 is_relevant=False,
                 markets=(),
                 category=None,
@@ -152,10 +157,53 @@ def test_succeeded_record_cannot_retain_error_metadata() -> None:
                 confidence=0.8,
                 classified_at=NOW,
                 attempt_count=1,
+                last_provider_attempts=1,
                 next_attempt_at=None,
                 last_error_category="old-error",
             )
         )
+
+
+def test_deterministic_success_requires_zero_provider_metadata() -> None:
+    record = ClassificationRecord(
+        **record_values(
+            status=ClassificationStatus.SUCCEEDED,
+            classification_method=ClassificationMethod.DETERMINISTIC,
+            is_relevant=True,
+            markets=(Market.US,),
+            category=Domain.FINANCE,
+            topics=(),
+            confidence=0.9,
+            classified_at=NOW,
+            attempt_count=1,
+            last_provider_attempts=0,
+            next_attempt_at=None,
+        )
+    )
+    assert record.classification_method is ClassificationMethod.DETERMINISTIC
+
+    with pytest.raises(ValidationError, match="contains provider metadata"):
+        ClassificationRecord(
+            **record_values(
+                status=ClassificationStatus.SUCCEEDED,
+                classification_method=ClassificationMethod.DETERMINISTIC,
+                is_relevant=True,
+                markets=(Market.US,),
+                category=Domain.FINANCE,
+                topics=(),
+                confidence=0.9,
+                classified_at=NOW,
+                provider_model="not-allowed",
+                attempt_count=1,
+                last_provider_attempts=0,
+                next_attempt_at=None,
+            )
+        )
+
+
+def test_non_success_cannot_retain_classification_method() -> None:
+    with pytest.raises(ValidationError, match="classification_method"):
+        ClassificationRecord(**record_values(classification_method=ClassificationMethod.DEEPSEEK))
 
 
 def test_quarantined_record_requires_terminal_error() -> None:

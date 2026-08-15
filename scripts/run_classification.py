@@ -6,7 +6,12 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from market_intelligence.classification import create_deepseek_classifier_from_environment
+from market_intelligence.classification import (
+    DeterministicClassifier,
+    HybridArticleClassifier,
+    create_deepseek_classifier_from_environment,
+    load_deterministic_rules,
+)
 from market_intelligence.persistence import (
     create_classification_repository_from_environment,
     create_classification_work_reader_from_environment,
@@ -50,7 +55,11 @@ def parse_args() -> argparse.Namespace:
 async def run(args: argparse.Namespace) -> object:
     sources = load_source_configs(args.config_dir)
     # Construct every secret/config-bearing dependency before discovery or claim.
-    classifier = create_deepseek_classifier_from_environment()
+    deepseek = create_deepseek_classifier_from_environment()
+    classifier = HybridArticleClassifier(
+        DeterministicClassifier(load_deterministic_rules()),
+        deepseek,
+    )
     repository = create_classification_repository_from_environment()
     work_reader = create_classification_work_reader_from_environment()
     runner = ClassificationRunner(

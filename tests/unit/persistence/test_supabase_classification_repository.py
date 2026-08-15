@@ -11,6 +11,7 @@ from supabase import Client
 
 import market_intelligence.persistence.supabase_classification_repository as repository_module
 from market_intelligence.classification import (
+    ClassificationMethod,
     ClassificationResult,
     ClassificationUsage,
     ClassifiedArticle,
@@ -40,6 +41,7 @@ def row(**overrides: object) -> dict[str, object]:
         "article_id": "article-1",
         "classifier_version": "classification-v1",
         "status": "RETRYABLE",
+        "classification_method": None,
         "is_relevant": None,
         "markets": None,
         "category": None,
@@ -127,6 +129,7 @@ def result(**overrides: object) -> ClassificationResult:
             confidence=0.9,
             classified_at=NOW,
         ),
+        "classification_method": ClassificationMethod.DEEPSEEK,
         "requested_model": "deepseek-v4-flash",
         "provider_model": "deepseek-provider-model",
         "prompt_version": "classification-prompt-v1",
@@ -239,6 +242,7 @@ def test_complete_success_persists_de008_usage_and_provider_attempts() -> None:
     claim = claim_from_repository()
     succeeded = row(
         status="SUCCEEDED",
+        classification_method="DEEPSEEK",
         is_relevant=True,
         markets=["US"],
         category="FINANCE",
@@ -267,6 +271,7 @@ def test_complete_success_persists_de008_usage_and_provider_attempts() -> None:
     assert response.outcome is CompletionOutcome.SUCCEEDED
     params = client.rpc.call_args.args[1]
     assert params["p_provider_attempts"] == 2
+    assert params["p_classification_method"] == "DEEPSEEK"
     assert params["p_prompt_tokens"] == 8
     assert params["p_estimated_cost_usd"] == "0.000004"
 
@@ -354,6 +359,7 @@ def test_get_succeeded_returns_shared_contract_only() -> None:
         data=[
             row(
                 status="SUCCEEDED",
+                classification_method="DEEPSEEK",
                 is_relevant=False,
                 markets=[],
                 category=None,
@@ -362,6 +368,7 @@ def test_get_succeeded_returns_shared_contract_only() -> None:
                 classified_at=NOW.isoformat(),
                 provider_model="deepseek-provider-model",
                 attempt_count=1,
+                last_provider_attempts=1,
                 next_attempt_at=None,
             )
         ]
@@ -373,6 +380,46 @@ def test_get_succeeded_returns_shared_contract_only() -> None:
     assert classified is not None
     assert classified.is_relevant is False
     assert not hasattr(classified, "provider_model")
+
+
+def test_complete_deterministic_success_maps_zero_provider_metadata() -> None:
+    claim = claim_from_repository()
+    deterministic = result(
+        classified_article=result().classified_article.model_copy(
+            update={"classifier_version": "classification-v1"}
+        ),
+        classification_method=ClassificationMethod.DETERMINISTIC,
+        provider_model=None,
+        usage=ClassificationUsage.zero(),
+        estimated_cost_usd=Decimal(0),
+        pricing_id=None,
+        pricing_window=None,
+        provider_attempts=0,
+        provider_request_id=None,
+        system_fingerprint=None,
+    )
+    succeeded = row(
+        status="SUCCEEDED",
+        classification_method="DETERMINISTIC",
+        is_relevant=True,
+        markets=["US"],
+        category="FINANCE",
+        topics=[],
+        confidence=0.9,
+        classified_at=NOW.isoformat(),
+        attempt_count=1,
+        last_provider_attempts=0,
+        next_attempt_at=None,
+    )
+    repository, client, _ = rpc_repository({"outcome": "SUCCEEDED", "record": succeeded})
+
+    repository.complete_success(claim, deterministic)
+
+    params = client.rpc.call_args.args[1]
+    assert params["p_classification_method"] == "DETERMINISTIC"
+    assert params["p_provider_attempts"] == 0
+    assert params["p_prompt_tokens"] == 0
+    assert params["p_estimated_cost_usd"] == "0"
 
 
 def test_repository_failure_is_sanitized() -> None:

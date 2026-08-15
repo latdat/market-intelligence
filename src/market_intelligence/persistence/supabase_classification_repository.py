@@ -194,6 +194,7 @@ class SupabaseClassificationRepository:
                 "p_topics": [value.value for value in article.topics],
                 "p_confidence": article.confidence,
                 "p_classified_at": article.classified_at.isoformat(),
+                "p_classification_method": result.classification_method.value,
                 "p_provider_model": result.provider_model,
                 "p_provider_request_id": result.provider_request_id,
                 "p_system_fingerprint": result.system_fingerprint,

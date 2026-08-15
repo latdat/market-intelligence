@@ -16,6 +16,7 @@ from market_intelligence.articles import CanonicalArticle
 from market_intelligence.classification import (
     CLASSIFIER_VERSION,
     DEEPSEEK_MODEL,
+    HYBRID_CLASSIFIER_VERSION,
     PROMPT_VERSION,
     TAXONOMY_VERSION,
     ArticleClassifier,
@@ -74,7 +75,7 @@ class ClassificationRunnerConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True, frozen=True)
 
     classifier_version: str = Field(
-        default=CLASSIFIER_VERSION,
+        default=HYBRID_CLASSIFIER_VERSION,
         pattern=r"^classification-v[1-9][0-9]*$",
         max_length=64,
     )
@@ -182,6 +183,14 @@ class ClassificationRunner:
 
     @property
     def eligible_source_ids(self) -> tuple[str, ...]:
+        if self._config.classifier_version == HYBRID_CLASSIFIER_VERSION:
+            return tuple(
+                sorted(
+                    source_id
+                    for source_id, source in self._source_by_id.items()
+                    if source.rights.can_store_metadata is True
+                )
+            )
         return tuple(
             sorted(
                 source_id
@@ -246,7 +255,7 @@ class ClassificationRunner:
         self,
         scope: DiscoveryScope | None = None,
     ) -> EnqueueBatchResult:
-        """Discover only explicitly AI-eligible source articles and enqueue idempotently."""
+        """Discover version-eligible source articles and enqueue idempotently."""
         eligible_source_ids = self._eligible_source_ids_for_scope(scope)
         if not eligible_source_ids:
             return EnqueueBatchResult()
@@ -433,12 +442,12 @@ class ClassificationRunner:
                 BatchStopReason.MISSING_SOURCE,
             )
 
-        try:
-            validate_classification_rights(article, source)
-        except ClassificationError as error:
-            # Rights revoked after enqueue are terminal for this identity in lifecycle v1.
-            # DE-009B never resets quarantine or bumps classifier_version to bypass it.
-            return await self._persist_failure(claim, self._decision_for_error(claim, error))
+        if self._config.classifier_version == CLASSIFIER_VERSION:
+            try:
+                validate_classification_rights(article, source)
+            except ClassificationError as error:
+                # Historical classification-v1 remains DeepSeek-first and rights-gated.
+                return await self._persist_failure(claim, self._decision_for_error(claim, error))
 
         try:
             renewal = await asyncio.to_thread(
@@ -579,6 +588,7 @@ class ClassificationRunner:
 
         terminal_item_categories = {
             ClassificationErrorCategory.RIGHTS_DENIED,
+            ClassificationErrorCategory.AI_FALLBACK_NOT_ALLOWED,
             ClassificationErrorCategory.INVALID_INPUT,
             ClassificationErrorCategory.CONTENT_FILTER,
             ClassificationErrorCategory.OUTPUT_TRUNCATED,

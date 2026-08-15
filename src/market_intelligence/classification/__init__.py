@@ -6,6 +6,7 @@ from market_intelligence.classification.classifier import (
     ClassificationError,
     ClassificationErrorCategory,
     build_classification_input,
+    validate_article_source,
     validate_classification_rights,
 )
 from market_intelligence.classification.deepseek import (
@@ -14,11 +15,25 @@ from market_intelligence.classification.deepseek import (
     DeepSeekV4FlashClassifier,
     create_deepseek_classifier_from_environment,
 )
+from market_intelligence.classification.deterministic import (
+    DEFAULT_DETERMINISTIC_RULES_PATH,
+    DeterministicClassifier,
+    DeterministicDisposition,
+    DeterministicResult,
+    DeterministicRules,
+    MatchedEvidence,
+    load_deterministic_rules,
+    normalize_matching_text,
+)
+from market_intelligence.classification.hybrid import HybridArticleClassifier
 from market_intelligence.classification.models import (
     CLASSIFIER_VERSION,
+    DETERMINISTIC_RULES_VERSION,
+    HYBRID_CLASSIFIER_VERSION,
     PROMPT_VERSION,
     TAXONOMY_VERSION,
     ClassificationInput,
+    ClassificationMethod,
     ClassificationResult,
     ClassificationUsage,
     ClassifiedArticle,
@@ -28,6 +43,8 @@ from market_intelligence.classification.models import (
 
 __all__ = [
     "CLASSIFIER_VERSION",
+    "DETERMINISTIC_RULES_VERSION",
+    "HYBRID_CLASSIFIER_VERSION",
     "DEEPSEEK_MODEL",
     "PROMPT_VERSION",
     "TAXONOMY_VERSION",
@@ -36,14 +53,25 @@ __all__ = [
     "ClassificationError",
     "ClassificationErrorCategory",
     "ClassificationInput",
+    "ClassificationMethod",
     "ClassificationResult",
     "ClassificationUsage",
     "ClassifiedArticle",
     "DeepSeekSettings",
     "DeepSeekV4FlashClassifier",
+    "DeterministicClassifier",
+    "DeterministicDisposition",
+    "DeterministicResult",
+    "DeterministicRules",
+    "MatchedEvidence",
+    "HybridArticleClassifier",
+    "DEFAULT_DETERMINISTIC_RULES_PATH",
     "ProviderClassificationOutput",
     "Topic",
     "build_classification_input",
     "create_deepseek_classifier_from_environment",
+    "load_deterministic_rules",
+    "normalize_matching_text",
+    "validate_article_source",
     "validate_classification_rights",
 ]

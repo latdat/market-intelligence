@@ -126,6 +126,21 @@ Goal:
 - fenced completion/failure persistence with lease heartbeat
 - systemic `STOP_BATCH` behavior without changing DE-009 lifecycle
 
+### DE-009C Deterministic / Hybrid Classification
+
+Status: implemented and offline-tested locally. The additive migration is verified on
+PostgreSQL 17 but is not applied to remote Supabase; no production articles were
+classified by this task.
+
+Goal:
+
+- run versioned conservative deterministic rules before provider access
+- route only `AMBIGUOUS` work through the existing rights-gated DE-008 adapter
+- reuse DE-009B claim/lease/fencing and the single DE-009 persistence path
+- persist DE-internal `classification_method` without changing shared `ClassifiedArticle`
+- keep `classification-v1` as historical DeepSeek-first identity and use
+  `classification-v2` with `deterministic-rules-v1`
+
 ## Phase 3 — Matching
 
 ### DE-010 User preference read contract

@@ -136,6 +136,25 @@ Rules:
 - estimate cost where practical
 - avoid duplicate calls for the same stable article/classification version
 
+### 9.1 Deterministic-first classification
+
+`classification-v2` must run `deterministic-rules-v1` before any LLM call. Matching uses
+Unicode NFC, case folding, collapsed whitespace, and token boundaries; raw substring,
+fuzzy semantic matching, embeddings, and ML models are not permitted for these rules.
+
+Category confidence requires score >=4 and a >=2 lead over the second category.
+Deterministic v1 may emit only relevant confident results; insufficient or conflicting
+evidence is `AMBIGUOUS`. AI-processing rights are checked only before DeepSeek fallback.
+
+`CanonicalArticle.market` is provenance only. A deterministic output market must have
+title/description evidence from a controlled jurisdiction name, alias, or unambiguous
+institution. The source-market prior may increase an evidence-backed score but cannot
+independently cause that market to appear in `ClassifiedArticle.markets`.
+
+Any deterministic-rule change that can alter semantic output requires an explicit rule
+version bump. The 10–20% fallback rate is a target to measure, not a threshold-tuning
+requirement.
+
 ## 10. Matching
 
 Current matching is rule-based.

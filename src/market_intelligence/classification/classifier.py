@@ -16,6 +16,7 @@ from market_intelligence.source_registry import RightsReviewStatus, SourceConfig
 class ClassificationErrorCategory(StrEnum):
     CONFIGURATION = "configuration"
     RIGHTS_DENIED = "rights_denied"
+    AI_FALLBACK_NOT_ALLOWED = "AI_FALLBACK_NOT_ALLOWED"
     INVALID_INPUT = "invalid_input"
     TIMEOUT = "timeout"
     CONNECTION = "connection"
@@ -78,11 +79,11 @@ class ArticleClassifier(Protocol):
         """Classify one article without durable or cross-run state."""
 
 
-def validate_classification_rights(
+def validate_article_source(
     article: CanonicalArticle,
     source: SourceConfig,
 ) -> None:
-    """Fail before prompt construction unless explicit AI rights are approved."""
+    """Validate local article/source identity without requiring AI-processing rights."""
     if article.source_id != source.source_id:
         raise ClassificationError(
             article.article_id,
@@ -90,6 +91,14 @@ def validate_classification_rights(
             retryable=False,
             provider_attempts=0,
         )
+
+
+def validate_classification_rights(
+    article: CanonicalArticle,
+    source: SourceConfig,
+) -> None:
+    """Fail before prompt construction unless explicit AI rights are approved."""
+    validate_article_source(article, source)
     if (
         source.rights.rights_review_status is not RightsReviewStatus.APPROVED
         or source.rights.can_ai_process is not True

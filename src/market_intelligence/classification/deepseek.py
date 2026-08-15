@@ -29,6 +29,7 @@ from market_intelligence.classification.models import (
     PROMPT_VERSION,
     TAXONOMY_VERSION,
     ClassificationInput,
+    ClassificationMethod,
     ClassificationResult,
     ClassificationUsage,
     ClassifiedArticle,
@@ -306,6 +307,7 @@ class DeepSeekV4FlashClassifier:
         )
         result = ClassificationResult(
             classified_article=classified_article,
+            classification_method=ClassificationMethod.DEEPSEEK,
             requested_model=self._settings.model,
             provider_model=envelope.model,
             prompt_version=PROMPT_VERSION,

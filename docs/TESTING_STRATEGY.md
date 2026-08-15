@@ -186,7 +186,7 @@ and skips only when local PostgreSQL binaries are unavailable.
 DE-009B tests use fake classifiers and fake persistence/read boundaries. They verify:
 
 - a version-scoped PostgREST anti-join request and bounded deterministic ordering;
-- zero PostgREST discovery/enqueue calls when no source has approved AI rights;
+- v1 makes zero PostgREST discovery/enqueue calls when no source has approved AI rights;
 - lineage preflight and idempotent enqueue outcomes;
 - claim, article/source reload, rights recheck, success/failure persistence;
 - terminal rights-revocation quarantine without provider access or automatic reset;
@@ -198,6 +198,27 @@ DE-009B tests use fake classifiers and fake persistence/read boundaries. They ve
 Normal DE-009B tests never construct the environment-based DeepSeek adapter and require
 neither a DeepSeek account nor API key. A live smoke of one to three explicit articles is
 a separate manually approved operational task.
+
+DE-009C deterministic tests are offline and cover NFC/case/whitespace normalization,
+token-boundary matching, strong-title and source-domain evidence, conflict/insufficient
+fallback, provenance/content market separation, institution aliases, controlled
+multi-market/topic output, no deterministic irrelevant decision, and reproducibility.
+
+Hybrid/runner tests verify:
+
+- confident deterministic success makes zero DeepSeek calls and has zero usage/cost;
+- ambiguous approved work invokes the existing DE-008 boundary exactly once;
+- ambiguous denied work makes zero provider calls and is terminal
+  `AI_FALLBACK_NOT_ALLOWED`;
+- `classification_method` persistence and separate v1/v2 identities;
+- v2 discovery requires metadata-storage rights rather than AI rights;
+- fallback still enforces AI rights and systemic provider failures keep `STOP_BATCH`;
+- existing claim, lease, heartbeat, replay, and fencing tests continue to pass.
+
+Migration tests apply all migrations to an isolated PostgreSQL cluster and verify method
+constraints, deterministic zero-attempt success, rejection of zero-attempt DeepSeek
+success, and null method on non-success states. PostgreSQL 17 verification remains a
+required release gate for DE-009C.
 
 ## 8. Matching cases
 

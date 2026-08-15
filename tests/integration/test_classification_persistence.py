@@ -265,6 +265,45 @@ def _complete(
     )
 
 
+def _complete_with_method(
+    database: PostgresHarness,
+    article_id: str,
+    classifier_version: str,
+    token: UUID,
+    *,
+    classification_method: str,
+    provider_attempts: int,
+) -> subprocess.CompletedProcess[str]:
+    deterministic = classification_method == "DETERMINISTIC"
+    provider_model = "null" if deterministic else "'deepseek-provider-model'"
+    provider_request_id = "null" if deterministic else "'provider-request-1'"
+    fingerprint = "null" if deterministic else "'system-fingerprint-1'"
+    prompt_tokens = 0 if deterministic else 8
+    cache_hit_tokens = 0 if deterministic else 3
+    cache_miss_tokens = 0 if deterministic else 5
+    completion_tokens = 0 if deterministic else 2
+    total_tokens = 0 if deterministic else 10
+    estimated_cost = "0" if deterministic else "0.000004"
+    pricing_id = "null" if deterministic else "'pricing-v1'"
+    pricing_window = "null" if deterministic else "'off_peak'"
+    return database.run(
+        f"""
+        select public.complete_article_classification(
+            '{article_id}', '{classifier_version}', '{token}'::uuid,
+            true, array['US']::text[], 'FINANCE', array['BANKING']::text[],
+            0.9::double precision, now(), {provider_model},
+            {provider_request_id}, {fingerprint},
+            {prompt_tokens}::bigint, {cache_hit_tokens}::bigint,
+            {cache_miss_tokens}::bigint, {completion_tokens}::bigint,
+            {total_tokens}::bigint, {estimated_cost}::numeric,
+            {pricing_id}, {pricing_window}, {provider_attempts}::smallint,
+            '{classification_method}'
+        );
+        """,
+        check=False,
+    )
+
+
 def _fail(
     database: PostgresHarness,
     article_id: str,
@@ -323,6 +362,18 @@ def test_schema_identity_constraints_indexes_and_access_boundary(
     )
 
     assert primary_key == "PRIMARY KEY (article_id, classifier_version)"
+    assert (
+        database.scalar(
+            """
+            select is_nullable
+            from information_schema.columns
+            where table_schema = 'public'
+              and table_name = 'article_classifications'
+              and column_name = 'classification_method';
+            """
+        )
+        == "YES"
+    )
     assert "attempt_count < max_attempts" in lifecycle_constraint
     assert "article_classifications_retryable_claim_idx" in indexes
     assert "article_classifications_expired_lease_idx" in indexes
@@ -346,6 +397,84 @@ def test_schema_identity_constraints_indexes_and_access_boundary(
         """
         )
         == "t|f|f"
+    )
+
+
+def test_hybrid_method_constraints_and_version_identities(
+    classification_database: PostgresHarness,
+) -> None:
+    database = classification_database
+
+    deterministic_article = "deterministic-success"
+    deterministic_version = "classification-v2"
+    deterministic_token = UUID(int=901)
+    _insert_article(database, deterministic_article)
+    _enqueue(database, deterministic_article, deterministic_version)
+    _claim(database, deterministic_version, deterministic_token)
+    deterministic = _complete_with_method(
+        database,
+        deterministic_article,
+        deterministic_version,
+        deterministic_token,
+        classification_method="DETERMINISTIC",
+        provider_attempts=0,
+    )
+    assert deterministic.returncode == 0
+    assert (
+        database.scalar(
+            f"""
+            select classification_method || '|' || last_provider_attempts::text || '|' ||
+                   total_tokens::text || '|' || estimated_cost_usd::text || '|' ||
+                   coalesce(provider_model, 'NULL')
+            from public.article_classifications
+            where article_id = '{deterministic_article}'
+              and classifier_version = '{deterministic_version}';
+            """
+        )
+        == "DETERMINISTIC|0|0|0.000000000000|NULL"
+    )
+
+    rejected_article = "deepseek-zero-attempts"
+    rejected_token = UUID(int=902)
+    _insert_article(database, rejected_article)
+    _enqueue(database, rejected_article, deterministic_version)
+    _claim(database, deterministic_version, rejected_token)
+    rejected = _complete_with_method(
+        database,
+        rejected_article,
+        deterministic_version,
+        rejected_token,
+        classification_method="DEEPSEEK",
+        provider_attempts=0,
+    )
+    assert rejected.returncode != 0
+    assert "DeepSeek success provider attempts" in rejected.stderr
+
+    invalid_non_success = database.run(
+        f"""
+        update public.article_classifications
+        set classification_method = 'DEEPSEEK'
+        where article_id = '{rejected_article}'
+          and classifier_version = '{deterministic_version}';
+        """,
+        check=False,
+    )
+    assert invalid_non_success.returncode != 0
+
+    identity_article = "hybrid-version-identity"
+    _insert_article(database, identity_article)
+    _enqueue(database, identity_article, "classification-v1")
+    _enqueue(database, identity_article, "classification-v2")
+    assert (
+        database.scalar(
+            f"""
+            select count(*)
+            from public.article_classifications
+            where article_id = '{identity_article}'
+              and classifier_version in ('classification-v1', 'classification-v2');
+            """
+        )
+        == "2"
     )
     assert (
         database.scalar(

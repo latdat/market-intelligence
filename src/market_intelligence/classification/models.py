@@ -10,6 +10,8 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, model_validat
 from market_intelligence.source_registry import AuthorityLevel, Domain, Market, SourceType
 
 CLASSIFIER_VERSION = "classification-v1"
+HYBRID_CLASSIFIER_VERSION = "classification-v2"
+DETERMINISTIC_RULES_VERSION = "deterministic-rules-v1"
 PROMPT_VERSION = "classification-prompt-v1"
 TAXONOMY_VERSION = "classification-taxonomy-v1"
 
@@ -40,6 +42,13 @@ class Topic(StrEnum):
     REGULATION = "REGULATION"
     RENEWABLE_ENERGY = "RENEWABLE_ENERGY"
     SEMICONDUCTORS = "SEMICONDUCTORS"
+
+
+class ClassificationMethod(StrEnum):
+    """DE-internal method that produced one successful classification."""
+
+    DETERMINISTIC = "DETERMINISTIC"
+    DEEPSEEK = "DEEPSEEK"
 
 
 _MARKET_ORDER = {
@@ -165,15 +174,38 @@ class ClassificationResult(ClassificationModel):
     """Shared result plus provider/operational metadata owned by DE."""
 
     classified_article: ClassifiedArticle
+    classification_method: ClassificationMethod
     requested_model: NonEmptyString
     provider_model: str | None
     prompt_version: NonEmptyString
     taxonomy_version: NonEmptyString
     usage: ClassificationUsage
     estimated_cost_usd: Decimal = Field(ge=0)
-    pricing_id: NonEmptyString
-    pricing_window: NonEmptyString
+    pricing_id: str | None
+    pricing_window: str | None
     duration_ms: int = Field(ge=0)
-    provider_attempts: int = Field(ge=1, le=3)
+    provider_attempts: int = Field(ge=0, le=3)
     provider_request_id: str | None
     system_fingerprint: str | None
+
+    @model_validator(mode="after")
+    def validate_method_metadata(self) -> "ClassificationResult":
+        provider_lineage = (
+            self.provider_model,
+            self.provider_request_id,
+            self.system_fingerprint,
+        )
+        pricing = (self.pricing_id, self.pricing_window)
+        if self.classification_method is ClassificationMethod.DETERMINISTIC:
+            if self.provider_attempts != 0:
+                raise ValueError("deterministic success requires zero provider attempts")
+            if self.usage != ClassificationUsage.zero() or self.estimated_cost_usd != 0:
+                raise ValueError("deterministic success requires zero usage and cost")
+            if any(value is not None for value in (*provider_lineage, *pricing)):
+                raise ValueError("deterministic success cannot contain provider metadata")
+        else:
+            if not 1 <= self.provider_attempts <= 3:
+                raise ValueError("DeepSeek success requires one to three provider attempts")
+            if any(value is None for value in pricing):
+                raise ValueError("DeepSeek success requires pricing metadata")
+        return self
