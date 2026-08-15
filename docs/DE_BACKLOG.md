@@ -13,15 +13,15 @@ and is not duplicated here.
 |---|---|---|
 | SO-002 | Adopt Official Source Architecture v1 in documentation | `Implemented (documentation/design only)` |
 | SO-003 | Rights-safe `SourceConfig` / content-scope contract | `Implemented` |
-| SO-004 | Low-cost/RSS official onboarding | `Planned / documented only` |
+| SO-004 | Low-cost/RSS official onboarding | `Implemented` |
 | SO-005 | Government API Connector | `Planned / documented only` |
 | SO-006 | Legal Corpus Connector | `Planned / documented only` |
 | SO-007 | Official Listing Connector | `Planned / documented only` |
 | SO-008 | Remaining MUST source onboarding | `Planned / documented only` |
 | SO-009 | Four-market production verification | `Planned / documented only` |
 
-SO-001 remains the implemented four-source RSS pilot described in
-[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--so-001-pilot-registry).
+SO-001 and SO-004 remain the implemented six-source RSS pilot described in
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--rss-source-registry).
 This roadmap does not resume or renumber DE work. DE-013 remains `PAUSED`.
 
 ## Phase 0 — Repository foundations

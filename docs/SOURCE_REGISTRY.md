@@ -117,9 +117,9 @@ current contract example. New operational state defaults to `UNKNOWN`. Business
 enablement `status` remains conceptually separate from health but is not implemented
 in DE-002.
 
-### 2.2 Current implementation — SO-001 pilot registry
+### 2.2 Current implementation — RSS source registry
 
-`CURRENT IMPLEMENTATION` contains exactly four static RSS `SourceConfig` files under
+`CURRENT IMPLEMENTATION` contains exactly six static RSS `SourceConfig` files under
 `config/sources/`:
 
 | Source ID | Market | Current role | Official v1 MUST? |
@@ -128,12 +128,14 @@ in DE-002.
 | `us_fed_press_releases` | US | Official Federal Reserve press releases | Yes |
 | `eu_ecb_press` | EU | Official ECB press/news | Yes |
 | `cn_nbs_latest_releases` | CN | Market/statistical context; narrative AI OFF/PENDING | No |
+| `us_sec_regulatory` | US | Official SEC Administrative Proceedings | Yes |
+| `eu_ec_policy_news` | EU | Official European Commission policy news | Yes |
 
-All four pilot records use conservative metadata-only rights with
+All six pilot records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
 metadata persistence but does not approve full-text storage, AI processing, snippet
-display, or redistribution. All four records have
-`content_scope = "EDITORIAL_NEWS"`; this describes their homogeneous channel class and
+display, or redistribution. All six records have
+`content_scope = "EDITORIAL_NEWS"` (except `us_sec_regulatory` which has `FORMAL_REGULATORY_LEGAL`); this describes their homogeneous channel class and
 does not change those rights decisions.
 
 This implemented list is not the 25-source target. In particular,
@@ -152,9 +154,9 @@ published_at = null and never substitutes discovered_at.
 ### 2.3 Target Official Architecture v1 — canonical matrix
 
 `TARGET OFFICIAL ARCHITECTURE v1` contains 25 MUST official core sources. `MUST` is a
-target priority, not an implementation claim. Only the two rows explicitly marked
-`Implemented (SO-001 SourceConfig)` currently have production source config records;
-the remaining 23 rows are `Planned / documented only`.
+target priority, not an implementation claim. Only the four rows explicitly marked
+`Implemented (SO-001 SourceConfig)` or `Implemented (SO-004 SourceConfig)` currently have production source config records;
+the remaining 21 rows are `Planned / documented only`.
 
 | Market | Source ID | Target role | Implementation status |
 |---|---|---|---|
@@ -167,12 +169,12 @@ the remaining 23 rows are `Planned / documented only`.
 | US | `us_federal_register` | Federal Register event spine | `Planned / documented only` |
 | US | `us_govinfo_legal` | GovInfo canonical legal corpus | `Planned / documented only` |
 | US | `us_fed_press_releases` | Federal Reserve press releases | `Implemented (SO-001 SourceConfig)` |
-| US | `us_sec_regulatory` | Securities regulation | `Planned / documented only` |
+| US | `us_sec_regulatory` | Securities regulation | `Implemented (SO-004 SourceConfig)` |
 | US | `us_ferc_regulatory` | Energy regulation | `Planned / documented only` |
 | US | `us_bis_regulatory` | Industry/security/trade-control regulation | `Planned / documented only` |
 | US | `us_fhfa_regulatory` | Housing-finance regulation | `Planned / documented only` |
 | EU | `eu_eurlex_cellar` | Canonical legal spine (EUR-Lex/CELLAR) | `Planned / documented only` |
-| EU | `eu_ec_policy_news` | European Commission policy news | `Planned / documented only` |
+| EU | `eu_ec_policy_news` | European Commission policy news | `Implemented (SO-004 SourceConfig)` |
 | EU | `eu_ecb_press` | ECB press releases | `Implemented (SO-001 SourceConfig)` |
 | EU | `eu_esma_regulatory` | Securities/markets regulation | `Planned / documented only` |
 | CN | `cn_npc_law_db` | Canonical legal spine (NPC Laws DB) | `Planned / documented only` |

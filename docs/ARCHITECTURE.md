@@ -55,11 +55,11 @@ email_sent_at
 
 ## 3. Current implementation and approved platform flow
 
-Current source-onboarding implementation is limited to four configured RSS
+Current source-onboarding implementation is limited to six configured RSS
 `SourceConfig` records. The exact implemented list and its rights state are maintained in
-[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--so-001-pilot-registry).
-Only two of those four records are members of the 25-source official-core target. The
-other 23 MUST sources, GNews, and Story/Event are not implemented by SO-002.
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--rss-source-registry).
+Only four of those six records are members of the 25-source official-core target. The
+other 21 MUST sources, GNews, and Story/Event are not implemented by SO-002.
 
 The diagram below is the approved platform flow, not evidence that every box is deployed
 or operational. Section 7 records implementation boundaries for the downstream stages.
@@ -123,7 +123,7 @@ Cloudflare Pages / Workers
 
 `CURRENT IMPLEMENTATION` and `TARGET OFFICIAL ARCHITECTURE v1` are different scopes:
 
-- `CURRENT IMPLEMENTATION`: four SO-001 RSS `SourceConfig` records and the existing
+- `CURRENT IMPLEMENTATION`: six SO-001/SO-004 RSS `SourceConfig` records and the existing
   RSS/Atom connector path;
 - `TARGET OFFICIAL ARCHITECTURE v1`: 25 MUST official core sources across VN, US, EU,
   and CN;

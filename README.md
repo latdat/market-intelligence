@@ -108,7 +108,7 @@ macOS/Linux:
 Mypy strict mode hiện chỉ áp dụng cho `src/market_intelligence`. Tests không bị ép
 strict trong DE-001.
 
-## SO-001 source onboarding
+## SO-001 / SO-004 source onboarding
 
 Production source configuration nằm trong config/sources/, mỗi source có một file
 TOML và filename phải khớp source_id. Mỗi `SourceConfig` bắt buộc khai báo một
