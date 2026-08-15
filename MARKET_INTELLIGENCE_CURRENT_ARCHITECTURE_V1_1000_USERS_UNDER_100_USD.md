@@ -1,6 +1,13 @@
 # MARKET & REGULATORY INTELLIGENCE PLATFORM
 ## Current Architecture Baseline v1.0 — 1,000 users · 4 markets · < $100/month
 
+> **Historical baseline notice (SO-002):** source-selection, source-role, GDELT, and
+> acquisition-roadmap statements in this document are superseded. Use
+> `docs/ARCHITECTURE.md` for the approved platform architecture and
+> `docs/SOURCE_REGISTRY.md` for the canonical current-source inventory and 25-source
+> Official Source Architecture v1 matrix. Future GNews is discovery/enrichment only and
+> is not currently implemented. This file remains as historical design context.
+
 **Status:** CHỐT cho giai đoạn hiện tại  
 **Verified date:** 2026-08-14  
 **Markets:** Vietnam · United States · European Union · China  
@@ -274,7 +281,7 @@ Ví dụ:
     "can_fetch": true,
     "can_store_metadata": true,
     "can_store_full_text": "REVIEWED",
-    "can_ai_process": "REVIEWED",
+    "can_ai_process": false,
     "can_show_snippet": "REVIEWED",
     "can_redistribute_full_text": false,
     "rights_review_status": "APPROVED"

@@ -52,6 +52,26 @@ Use the simplest reliable source interface:
 4. sitemap where appropriate
 5. Playwright only when static HTTP approaches do not work
 
+### 3.1 Approved acquisition abstractions
+
+Official Source Architecture v1 uses these connector-level abstractions:
+
+| Abstraction | Status | Purpose |
+|---|---|---|
+| RSS/Atom Connector | `Implemented` | Parse configured RSS/Atom channels into `RawArticle` |
+| Government API Connector | `Planned / documented only` | Acquire bounded records from official government APIs |
+| Legal Corpus Connector | `Planned / documented only` | Traverse canonical legal corpora while preserving official identity/provenance |
+| Official Listing Connector | `Planned / documented only` | Parse official publication/listing pages when no suitable feed/API exists |
+
+The future abstractions may share `httpx`, pagination, HTML parsing, or sitemap helpers.
+They are semantic connector boundaries, not separate queues or infrastructure systems.
+SO-002 implements none of the three future abstractions.
+
+Future GNews acquisition must also return `RawArticle` and then use the same normalize,
+deduplication, article persistence, and classification path as official sources. It must
+not introduce a parallel article contract or bypass official-evidence provenance. GNews
+and Story/Event remain `Planned / documented only`.
+
 ## 4. Connector inputs
 
 A connector should receive source configuration instead of hardcoding operational policy where reasonable.
@@ -184,6 +204,12 @@ Important principle:
 > Technical accessibility is not the same as permission to store or redistribute full text.
 
 Default connector output should therefore be metadata-first.
+
+Rights review must cover the configured source/channel, its content class, and explicit
+third-party exclusions. Hostname-level approval alone is insufficient. A connector must
+receive a content-homogeneous `SourceConfig`; it must not silently mix editorial news and
+formal regulatory documents from the same website. See the canonical policy in
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#6-rights).
 
 ## 12. Health metrics
 

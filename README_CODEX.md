@@ -1,5 +1,10 @@
 # Codex Starter Pack
 
+> **Historical starter-pack notice:** the task numbering below predates the current
+> backlog. Use `docs/DE_BACKLOG.md` as the task source of truth and
+> `docs/SOURCE_REGISTRY.md` for Source Onboarding. In particular, DE-013 is `PAUSED`; it
+> is not the REST connector task described by this historical list.
+
 This folder is the operating context for Codex when working on the Data Engineer side of the Market & Regulatory Intelligence Platform.
 
 ## Recommended repository placement

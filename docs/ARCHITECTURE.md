@@ -25,7 +25,8 @@ Target:
 - ~1,000 active users
 - VN / US / EU / CN
 - 5 initial domains
-- 40–60 carefully selected sources
+- broader portfolio target of 40–60 carefully selected sources, including the
+  25-source Official Source Architecture v1 core
 - polling typically every 15 minutes where practical
 - normal operating cost ~$30–60/month
 - hard ceiling < $100/month
@@ -52,17 +53,24 @@ email_queued_at
 email_sent_at
 ```
 
-## 3. Current system
+## 3. Current implementation and approved platform flow
+
+Current source-onboarding implementation is limited to four configured RSS
+`SourceConfig` records. The exact implemented list and its rights state are maintained in
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--so-001-pilot-registry).
+Only two of those four records are members of the 25-source official-core target. The
+other 23 MUST sources, GNews, and Story/Event are not implemented by SO-002.
+
+The diagram below is the approved platform flow, not evidence that every box is deployed
+or operational. Section 7 records implementation boundaries for the downstream stages.
 
 ```text
-┌─────────────────────────────────────────────┐
-│                 DATA SOURCES                │
-│ VN           US           EU          CN    │
-│ Official     Official     Official    Official
-│ RSS/API      RSS/API      RSS/API     RSS/HTML
-│ News         News         News        News   │
-│                 + GDELT                     │
-└──────────────────────┬──────────────────────┘
+┌───────────────────────────────────────────────────┐
+│                   DATA SOURCES                    │
+│ Official core: 25 MUST target; 2 current configs │
+│ Non-MUST domain/context: 2 current configs        │
+│ Future GNews: discovery/enrichment only           │
+└─────────────────────────┬─────────────────────────┘
                        ↓
                 SOURCE REGISTRY
                        ↓
@@ -109,31 +117,79 @@ Frontend:
 Cloudflare Pages / Workers
 ```
 
-## 4. Source strategy
+## 4. Official Source Architecture v1
 
-Initial target: 40–60 carefully selected sources across the four markets.
+### 4.1 Status boundary
 
-Prefer many useful primary/public sources over many paid APIs.
+`CURRENT IMPLEMENTATION` and `TARGET OFFICIAL ARCHITECTURE v1` are different scopes:
 
-Source types include:
+- `CURRENT IMPLEMENTATION`: four SO-001 RSS `SourceConfig` records and the existing
+  RSS/Atom connector path;
+- `TARGET OFFICIAL ARCHITECTURE v1`: 25 MUST official core sources across VN, US, EU,
+  and CN;
+- SO-002 adopts the target as documentation/design only. It does not create the missing
+  `SourceConfig` records, implement connectors, fetch data, or prove production readiness.
 
-- official government/regulatory sources
-- official APIs
-- RSS / Atom feeds
-- selected public/news feeds
-- HTML sources when necessary
-- GDELT as discovery / global signal / coverage benchmark
+The canonical 25-source matrix and current/target status are maintained only in
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#23-target-official-architecture-v1--canonical-matrix).
 
-Paid aggregator is OFF by default.
+### 4.2 Evidence and discovery roles
+
+- Official sources provide authoritative/canonical evidence.
+- Future GNews provides discovery, breadth, and reaction enrichment. It does not replace
+  or become canonical evidence for an official legal or regulatory record.
+- The broader 40–60 source portfolio remains a product-level direction; Official Source
+  Architecture v1 fixes its 25-source MUST core rather than claiming all 40–60 sources
+  are selected or onboarded.
+- Paid aggregators remain OFF by default unless measured coverage benefit justifies them.
+
+### 4.3 Canonical legal spines
+
+- VN: VBPL.
+- US: Federal Register as the event spine plus GovInfo as the canonical corpus.
+- EU: EUR-Lex/CELLAR.
+- CN: NPC Laws DB plus State Council formal policy documents.
+
+### 4.4 Rights and content boundaries
+
+Rights are scoped by source/channel, content class, and third-party exclusions—not by
+hostname alone. A `SourceConfig` must be content-homogeneous: when one website publishes
+both editorial news and formal regulatory documents, those channels require separate
+configs. The target keeps `can_ai_process` boolean and does not add values such as
+`restricted`. Detailed rights-safe content-scope design belongs to SO-003; SO-002 does
+not change existing configs or runtime validation.
+
+### 4.5 One pipeline for official and future GNews inputs
+
+Future GNews must enter through the same acquisition and article contracts as official
+sources:
+
+```text
+Official ─┐
+          ├→ Acquisition → RawArticle → Normalize → Dedup → articles
+GNews ────┘                                             ↓
+                                                  Classification
+                                                        ↓
+                                                   Story/Event
+```
+
+GNews ingestion and Story/Event are `Planned / documented only`. There is no parallel
+GNews persistence/classification path and SO-002 does not implement either component.
 
 ## 5. Ingestion
 
-Generic connector families:
+Approved acquisition abstractions and status:
 
-- RSS / Atom
-- REST / API
-- HTML
-- sitemap where appropriate
+| Abstraction | Status in SO-002 |
+|---|---|
+| RSS/Atom Connector | `Implemented` |
+| Government API Connector | `Planned / documented only` |
+| Legal Corpus Connector | `Planned / documented only` |
+| Official Listing Connector | `Planned / documented only` |
+
+The future abstractions may reuse REST/API, HTML, or sitemap transport/parsing techniques;
+they do not authorize a new infrastructure layer. Implementation guidance lives in
+[`SOURCE_CONNECTOR_GUIDE.md`](SOURCE_CONNECTOR_GUIDE.md#31-approved-acquisition-abstractions).
 
 Preferred Python stack:
 

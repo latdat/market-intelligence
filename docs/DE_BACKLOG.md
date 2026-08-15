@@ -2,6 +2,28 @@
 
 This is an implementation ordering guide, not proof that any component is already built.
 
+## Source Onboarding roadmap
+
+This is the approved conceptual sequence for the Official Source Architecture v1 track.
+The canonical 25-source matrix lives in
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#23-target-official-architecture-v1--canonical-matrix)
+and is not duplicated here.
+
+| Task | Outcome | Status |
+|---|---|---|
+| SO-002 | Adopt Official Source Architecture v1 in documentation | `Implemented (documentation/design only)` |
+| SO-003 | Rights-safe `SourceConfig` / content-scope design | `Planned / documented only` |
+| SO-004 | Low-cost/RSS official onboarding | `Planned / documented only` |
+| SO-005 | Government API Connector | `Planned / documented only` |
+| SO-006 | Legal Corpus Connector | `Planned / documented only` |
+| SO-007 | Official Listing Connector | `Planned / documented only` |
+| SO-008 | Remaining MUST source onboarding | `Planned / documented only` |
+| SO-009 | Four-market production verification | `Planned / documented only` |
+
+SO-001 remains the implemented four-source RSS pilot described in
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--so-001-pilot-registry).
+This roadmap does not resume or renumber DE work. DE-013 remains `PAUSED`.
+
 ## Phase 0 — Repository foundations
 
 ### DE-001 Repository scaffold
@@ -244,7 +266,11 @@ Goal:
 - default ~15 minutes where appropriate
 - source-specific intervals when needed
 
-## Phase 6 — More acquisition methods
+## Phase 6 — More acquisition methods (legacy DE placeholders)
+
+The DE-018 through DE-021 labels below predate the approved Source Onboarding roadmap.
+They remain historical generic placeholders, are not implementation evidence, and must
+not be started or mapped one-to-one without reconciling them with SO-005 through SO-008.
 
 ### DE-018 Generic REST connector framework
 

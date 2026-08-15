@@ -48,7 +48,7 @@ Represents one configured source.
     "can_fetch": true,
     "can_store_metadata": true,
     "can_store_full_text": "REVIEWED",
-    "can_ai_process": "REVIEWED",
+    "can_ai_process": false,
     "can_show_snippet": "REVIEWED",
     "can_redistribute_full_text": false,
     "rights_review_status": "APPROVED"
@@ -78,6 +78,13 @@ Minimum fields:
 - `health_status`
 - `last_success_at`
 - `last_failure_at`
+
+The target/shared contract for `can_ai_process` is boolean-only. Do not add values such
+as `REVIEWED` or `restricted`; represent denial as `false` and keep review/content-scope
+state separate. The current internal `SourceConfig` model incorrectly reuses
+`RightsDecision` and can parse `REVIEWED` for this field. That is legacy technical debt,
+not a valid target/shared-contract value or AI-processing permission. SO-002 does not
+change runtime validation; SO-003 must resolve this mismatch.
 
 ---
 
@@ -325,8 +332,9 @@ Provider output never controls application lineage, versions, timestamps, usage,
 Local deterministic classification may run when article metadata is legitimately stored;
 it does not require `can_ai_process=true`. No provider prompt or HTTP request is created
 unless the deterministic result is `AMBIGUOUS`, the article/source IDs match, and
-`rights_review_status == APPROVED` plus `can_ai_process is true`. The legacy value
-`REVIEWED` is not AI-processing permission.
+`rights_review_status == APPROVED` plus `can_ai_process is true`. Due to the internal
+technical debt above, runtime may parse the out-of-contract string `REVIEWED`, but the
+rights gate rejects it and it is not AI-processing permission.
 
 An ambiguous result without AI permission makes zero provider calls and is terminal
 `AI_FALLBACK_NOT_ALLOWED` / `QUARANTINED`.

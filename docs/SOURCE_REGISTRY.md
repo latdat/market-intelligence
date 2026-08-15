@@ -4,6 +4,14 @@
 
 The Source Registry is the control plane for external information sources.
 
+This document is the canonical source of truth for:
+
+- the currently configured/onboarded sources;
+- the 25-source Official Source Architecture v1 MUST matrix;
+- source/channel and content-scope rules used by future Source Onboarding work.
+
+Other documents should reference this registry instead of copying the full target matrix.
+
 It answers:
 
 - what source is this?
@@ -38,7 +46,7 @@ rights:
   can_fetch: true
   can_store_metadata: true
   can_store_full_text: REVIEWED
-  can_ai_process: REVIEWED
+  can_ai_process: false
   can_show_snippet: REVIEWED
   can_redistribute_full_text: false
   rights_review_status: APPROVED
@@ -105,20 +113,27 @@ current contract example. New operational state defaults to `UNKNOWN`. Business
 enablement `status` remains conceptually separate from health but is not implemented
 in DE-002.
 
-### 2.2 SO-001 pilot registry
+### 2.2 Current implementation — SO-001 pilot registry
 
-The first production registry contains four official RSS sources:
+`CURRENT IMPLEMENTATION` contains exactly four static RSS `SourceConfig` files under
+`config/sources/`:
 
-| Source ID | Market | Coverage |
-|---|---|---|
-| vn_mst_news_events | VN | Ministry of Science and Technology news/events |
-| us_fed_press_releases | US | Federal Reserve press releases |
-| eu_ecb_press | EU | ECB press and news |
-| cn_nbs_latest_releases | CN | NBS latest releases |
+| Source ID | Market | Current role | Official v1 MUST? |
+|---|---|---|---|
+| `vn_mst_news_events` | VN | Domain news/discovery; editorial AI OFF/PENDING | No |
+| `us_fed_press_releases` | US | Official Federal Reserve press releases | Yes |
+| `eu_ecb_press` | EU | Official ECB press/news | Yes |
+| `cn_nbs_latest_releases` | CN | Market/statistical context; narrative AI OFF/PENDING | No |
 
 All four pilot records use conservative metadata-only rights with
-rights_review_status = "PENDING". This permits fetch and metadata persistence but
-does not approve full-text storage, AI processing, snippet display, or redistribution.
+`rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
+metadata persistence but does not approve full-text storage, AI processing, snippet
+display, or redistribution.
+
+This implemented list is not the 25-source target. In particular,
+`vn_mst_news_events` remains separate from the future formal-document config
+`vn_mst_regulatory_docs`, and `cn_nbs_latest_releases` remains context rather than a
+canonical legal/regulatory spine.
 
 vn_moc_direction is intentionally not in the pilot registry. Its upstream HTTP URL
 redirects to an HTTPS endpoint whose certificate chain could not be verified by the
@@ -127,6 +142,43 @@ work around that source.
 
 The NBS feed publishes timezone-naive timestamp strings. Existing normalization keeps
 published_at = null and never substitutes discovered_at.
+
+### 2.3 Target Official Architecture v1 — canonical matrix
+
+`TARGET OFFICIAL ARCHITECTURE v1` contains 25 MUST official core sources. `MUST` is a
+target priority, not an implementation claim. Only the two rows explicitly marked
+`Implemented (SO-001 SourceConfig)` currently have production source config records;
+the remaining 23 rows are `Planned / documented only`.
+
+| Market | Source ID | Target role | Implementation status |
+|---|---|---|---|
+| VN | `vn_vbpl_legal` | Canonical legal spine (VBPL) | `Planned / documented only` |
+| VN | `vn_sbv_regulatory_docs` | State Bank regulatory documents | `Planned / documented only` |
+| VN | `vn_ssc_regulatory_docs` | Securities regulatory documents | `Planned / documented only` |
+| VN | `vn_moit_regulatory_docs` | Industry/trade/energy regulatory documents | `Planned / documented only` |
+| VN | `vn_mst_regulatory_docs` | Technology regulatory documents | `Planned / documented only` |
+| VN | `vn_moc_regulatory_docs` | Construction/real-estate regulatory documents | `Planned / documented only` |
+| US | `us_federal_register` | Federal Register event spine | `Planned / documented only` |
+| US | `us_govinfo_legal` | GovInfo canonical legal corpus | `Planned / documented only` |
+| US | `us_fed_press_releases` | Federal Reserve press releases | `Implemented (SO-001 SourceConfig)` |
+| US | `us_sec_regulatory` | Securities regulation | `Planned / documented only` |
+| US | `us_ferc_regulatory` | Energy regulation | `Planned / documented only` |
+| US | `us_bis_regulatory` | Industry/security/trade-control regulation | `Planned / documented only` |
+| US | `us_fhfa_regulatory` | Housing-finance regulation | `Planned / documented only` |
+| EU | `eu_eurlex_cellar` | Canonical legal spine (EUR-Lex/CELLAR) | `Planned / documented only` |
+| EU | `eu_ec_policy_news` | European Commission policy news | `Planned / documented only` |
+| EU | `eu_ecb_press` | ECB press releases | `Implemented (SO-001 SourceConfig)` |
+| EU | `eu_esma_regulatory` | Securities/markets regulation | `Planned / documented only` |
+| CN | `cn_npc_law_db` | Canonical legal spine (NPC Laws DB) | `Planned / documented only` |
+| CN | `cn_state_council_policy_docs` | State Council formal policy documents | `Planned / documented only` |
+| CN | `cn_pboc_regulatory_docs` | Central-bank regulatory documents | `Planned / documented only` |
+| CN | `cn_nfra_regulatory_docs` | Financial regulation | `Planned / documented only` |
+| CN | `cn_csrc_regulatory_docs` | Securities regulation | `Planned / documented only` |
+| CN | `cn_miit_regulatory_docs` | Industry/technology regulation | `Planned / documented only` |
+| CN | `cn_nea_regulatory_docs` | Energy regulation | `Planned / documented only` |
+| CN | `cn_mohurd_regulatory_docs` | Housing/urban-rural development regulation | `Planned / documented only` |
+
+Market totals are VN 6, US 7, EU 4, and CN 8: 25 MUST sources in total.
 
 ## 3. Suggested enums
 
@@ -218,6 +270,29 @@ Do not poll every source identically without reason.
 Rights fields are operational constraints, not documentation-only notes.
 
 Code that stores or displays content must respect them.
+
+Official Source Architecture v1 scopes a rights decision by all of:
+
+- source/channel;
+- content class;
+- third-party exclusions within that channel.
+
+A hostname is not a sufficient rights boundary. One host may publish formal documents,
+editorial news, and third-party material under different terms.
+
+Each `SourceConfig` must therefore be content-homogeneous. If one website contains both
+editorial news and formal regulatory documents, create separate configs rather than a
+single mixed config. For example, `vn_mst_news_events` and
+`vn_mst_regulatory_docs` remain separate source identities even if their channels share
+an organization or hostname.
+
+For the target/shared authoring contract, `can_ai_process` is boolean-only (`true` or
+`false`). Do not add pseudo-boolean values such as `REVIEWED` or `restricted`; use
+`false`, the review status, and the separately reviewed content scope. The current
+internal `SourceConfig` model can parse `REVIEWED` here because it incorrectly reuses
+`RightsDecision`. That is legacy technical debt, not a valid target/shared-contract
+value, and the AI rights gate rejects it. SO-003 must resolve the mismatch; SO-002 changes
+no config or runtime validation.
 
 Important:
 
