@@ -59,6 +59,7 @@ def source(*, approved: bool = True) -> SourceConfig:
             "source_type": "REGULATOR",
             "authority_level": "PRIMARY",
             "domains": ["FINANCE"],
+            "content_scope": "FORMAL_REGULATORY_LEGAL",
             "acquisition": {
                 "method": "RSS",
                 "endpoint_url": "https://source.example/feed.xml",

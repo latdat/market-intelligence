@@ -271,6 +271,7 @@ Ví dụ:
   "source_type": "GOVERNMENT",
   "authority_level": "PRIMARY",
   "domains": ["LAW_POLICY"],
+  "content_scope": "FORMAL_REGULATORY_LEGAL",
 
   "acquisition": {
     "method": "REST_API",
@@ -306,6 +307,7 @@ language
 source_type
 authority_level
 domains
+content_scope
 acquisition_method
 poll_interval
 rate_limit
@@ -316,6 +318,13 @@ health_status
 last_success_at
 last_failure_at
 ```
+
+`content_scope` là field bắt buộc của internal `SourceConfig`, chỉ nhận
+`EDITORIAL_NEWS` hoặc `FORMAL_REGULATORY_LEGAL`. Field này mô tả content class đồng
+nhất, không tự cấp quyền AI. `can_ai_process` chỉ nhận boolean và quyền AI vẫn yêu cầu
+`rights_review_status=APPROVED` cùng `can_ai_process=true`. Website có editorial/news
+và formal regulatory/legal content với rights khác nhau phải dùng các `SourceConfig`
+riêng.
 
 ---
 

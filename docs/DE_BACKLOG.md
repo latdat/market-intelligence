@@ -12,7 +12,7 @@ and is not duplicated here.
 | Task | Outcome | Status |
 |---|---|---|
 | SO-002 | Adopt Official Source Architecture v1 in documentation | `Implemented (documentation/design only)` |
-| SO-003 | Rights-safe `SourceConfig` / content-scope design | `Planned / documented only` |
+| SO-003 | Rights-safe `SourceConfig` / content-scope contract | `Implemented` |
 | SO-004 | Low-cost/RSS official onboarding | `Planned / documented only` |
 | SO-005 | Government API Connector | `Planned / documented only` |
 | SO-006 | Legal Corpus Connector | `Planned / documented only` |

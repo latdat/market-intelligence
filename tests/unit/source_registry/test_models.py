@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from market_intelligence.source_registry import (
+    ContentScope,
     CostType,
     HealthStatus,
     Market,
@@ -28,6 +29,7 @@ def valid_source_config_data() -> dict[str, object]:
         "source_type": "GOVERNMENT",
         "authority_level": "PRIMARY",
         "domains": ["LAW_POLICY"],
+        "content_scope": "FORMAL_REGULATORY_LEGAL",
         "acquisition": {
             "method": "REST_API",
             "endpoint_url": "https://www.federalregister.gov/api/v1/documents.json",
@@ -38,7 +40,7 @@ def valid_source_config_data() -> dict[str, object]:
             "can_fetch": True,
             "can_store_metadata": True,
             "can_store_full_text": "REVIEWED",
-            "can_ai_process": "REVIEWED",
+            "can_ai_process": False,
             "can_show_snippet": "REVIEWED",
             "can_redistribute_full_text": False,
             "rights_review_status": "APPROVED",
@@ -57,6 +59,7 @@ def test_valid_source_config() -> None:
 
     assert config.source_id == "us_federal_register"
     assert config.market is Market.US
+    assert config.content_scope is ContentScope.FORMAL_REGULATORY_LEGAL
     assert config.acquisition.rate_limit is None
     assert config.cost.type is CostType.FREE
 
@@ -158,6 +161,35 @@ def test_unknown_fields_are_rejected() -> None:
         SourceConfig.model_validate(payload)
 
 
+@pytest.mark.parametrize(
+    "content_scope",
+    ["EDITORIAL_NEWS", "FORMAL_REGULATORY_LEGAL"],
+)
+def test_content_scope_accepts_contract_values(content_scope: str) -> None:
+    payload = valid_source_config_data()
+    payload["content_scope"] = content_scope
+
+    config = SourceConfig.model_validate(payload)
+
+    assert config.content_scope.value == content_scope
+
+
+def test_missing_content_scope_is_rejected() -> None:
+    payload = valid_source_config_data()
+    del payload["content_scope"]
+
+    with pytest.raises(ValidationError):
+        SourceConfig.model_validate(payload)
+
+
+def test_unknown_content_scope_is_rejected() -> None:
+    payload = valid_source_config_data()
+    payload["content_scope"] = "OTHER"
+
+    with pytest.raises(ValidationError):
+        SourceConfig.model_validate(payload)
+
+
 @pytest.mark.parametrize("decision", [True, False, "REVIEWED"])
 def test_rights_decision_accepts_contract_values(decision: object) -> None:
     payload = valid_source_config_data()
@@ -172,6 +204,23 @@ def test_rights_decision_accepts_contract_values(decision: object) -> None:
 def test_invalid_rights_decision_is_rejected(decision: object) -> None:
     payload = valid_source_config_data()
     nested_dict(payload, "rights")["can_store_full_text"] = decision
+
+    with pytest.raises(ValidationError):
+        SourceConfig.model_validate(payload)
+
+
+@pytest.mark.parametrize("decision", ["REVIEWED", "true", 1, 0, None])
+def test_can_ai_process_rejects_non_boolean_values(decision: object) -> None:
+    payload = valid_source_config_data()
+    nested_dict(payload, "rights")["can_ai_process"] = decision
+
+    with pytest.raises(ValidationError):
+        SourceConfig.model_validate(payload)
+
+
+def test_missing_can_ai_process_is_rejected() -> None:
+    payload = valid_source_config_data()
+    del nested_dict(payload, "rights")["can_ai_process"]
 
     with pytest.raises(ValidationError):
         SourceConfig.model_validate(payload)
@@ -258,13 +307,16 @@ def test_source_config_and_state_build_flat_definition() -> None:
 
     definition = SourceDefinition.from_parts(config, state)
     serialized = definition.model_dump(mode="json")
+    config_serialized = config.model_dump(mode="json")
 
+    assert config_serialized["content_scope"] == "FORMAL_REGULATORY_LEGAL"
     assert serialized["acquisition_method"] == "REST_API"
     assert serialized["poll_interval_minutes"] == 15
     assert serialized["rate_limit"] is None
     assert "endpoint_url" not in serialized
     assert serialized["health_status"] == "HEALTHY"
     assert "acquisition" not in serialized
+    assert "content_scope" not in serialized
 
 
 def test_source_definition_json_round_trip_is_stable() -> None:

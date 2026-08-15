@@ -155,9 +155,10 @@ The canonical 25-source matrix and current/target status are maintained only in
 Rights are scoped by source/channel, content class, and third-party exclusions—not by
 hostname alone. A `SourceConfig` must be content-homogeneous: when one website publishes
 both editorial news and formal regulatory documents, those channels require separate
-configs. The target keeps `can_ai_process` boolean and does not add values such as
-`restricted`. Detailed rights-safe content-scope design belongs to SO-003; SO-002 does
-not change existing configs or runtime validation.
+configs. `SourceConfig.content_scope` is required and accepts only `EDITORIAL_NEWS` or
+`FORMAL_REGULATORY_LEGAL`; it describes the reviewed content class and is not an AI
+authorization input. `can_ai_process` is strict boolean-only. AI authorization continues
+to require both `rights_review_status == APPROVED` and `can_ai_process is true`.
 
 ### 4.5 One pipeline for official and future GNews inputs
 

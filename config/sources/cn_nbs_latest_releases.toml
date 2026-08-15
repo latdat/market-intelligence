@@ -6,6 +6,7 @@ source_type = "GOVERNMENT"
 authority_level = "PRIMARY"
 domains = ["FINANCE"]
 priority = 100
+content_scope = "EDITORIAL_NEWS"
 
 [acquisition]
 method = "RSS"

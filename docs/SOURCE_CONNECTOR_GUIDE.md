@@ -208,7 +208,9 @@ Default connector output should therefore be metadata-first.
 Rights review must cover the configured source/channel, its content class, and explicit
 third-party exclusions. Hostname-level approval alone is insufficient. A connector must
 receive a content-homogeneous `SourceConfig`; it must not silently mix editorial news and
-formal regulatory documents from the same website. See the canonical policy in
+formal regulatory documents from the same website. The required `content_scope` value
+describes that class but does not authorize AI; authorization remains the conjunction of
+approved review status and boolean AI permission. See the canonical policy in
 [`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#6-rights).
 
 ## 12. Health metrics

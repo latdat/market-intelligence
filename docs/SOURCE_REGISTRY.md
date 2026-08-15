@@ -36,6 +36,8 @@ authority_level: PRIMARY
 domains:
   - LAW_POLICY
 
+content_scope: FORMAL_REGULATORY_LEGAL
+
 acquisition:
   method: REST_API
   endpoint_url: https://www.federalregister.gov/api/v1/documents.json
@@ -77,9 +79,11 @@ production registry plus a deterministic TOML loader. Each filename must equal i
 source_id, and unknown or invalid fields fail before any network request.
 
 Static authoring data is represented by `SourceConfig`. It groups acquisition fields
-under `acquisition` and does not contain runtime health fields. Dynamic values are
-represented separately by `SourceOperationalState` and must not be written back to
-the TOML source configuration.
+under `acquisition`, requires one validated `content_scope`, and does not contain
+runtime health fields. Dynamic values are represented separately by
+`SourceOperationalState` and must not be written back to the TOML source configuration.
+`content_scope` is internal authoring/audit metadata and is not added to the flat
+`SourceDefinition` shared wire contract.
 
 `AcquisitionConfig.endpoint_url` is the reviewed HTTP(S) endpoint used by the
 configured acquisition method. It is internal/static configuration so connectors do
@@ -128,7 +132,9 @@ in DE-002.
 All four pilot records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
 metadata persistence but does not approve full-text storage, AI processing, snippet
-display, or redistribution.
+display, or redistribution. All four records have
+`content_scope = "EDITORIAL_NEWS"`; this describes their homogeneous channel class and
+does not change those rights decisions.
 
 This implemented list is not the 25-source target. In particular,
 `vn_mst_news_events` remains separate from the future formal-document config
@@ -231,6 +237,13 @@ SECONDARY
 DISCOVERY
 ```
 
+Content scopes:
+
+```text
+EDITORIAL_NEWS
+FORMAL_REGULATORY_LEGAL
+```
+
 ## 4. Health semantics
 
 Keep business status and health status separate.
@@ -286,13 +299,15 @@ single mixed config. For example, `vn_mst_news_events` and
 `vn_mst_regulatory_docs` remain separate source identities even if their channels share
 an organization or hostname.
 
-For the target/shared authoring contract, `can_ai_process` is boolean-only (`true` or
-`false`). Do not add pseudo-boolean values such as `REVIEWED` or `restricted`; use
-`false`, the review status, and the separately reviewed content scope. The current
-internal `SourceConfig` model can parse `REVIEWED` here because it incorrectly reuses
-`RightsDecision`. That is legacy technical debt, not a valid target/shared-contract
-value, and the AI rights gate rejects it. SO-003 must resolve the mismatch; SO-002 changes
-no config or runtime validation.
+`SourceConfig.content_scope` is required and accepts exactly `EDITORIAL_NEWS` or
+`FORMAL_REGULATORY_LEGAL`. It describes the content class covered by the config and
+rights review; it does not grant or deny AI permission. Third-party exclusions remain
+part of the reviewed channel/connector boundary rather than a generic policy field.
+
+`can_ai_process` is strict boolean-only (`true` or `false`). Do not add or coerce
+pseudo-booleans such as `REVIEWED`, `restricted`, `"true"`, or `1`.
+`rights_review_status` remains separate. AI processing is allowed only when the status
+is `APPROVED` and `can_ai_process is true`.
 
 Important:
 

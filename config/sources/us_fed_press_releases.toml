@@ -6,6 +6,7 @@ source_type = "REGULATOR"
 authority_level = "PRIMARY"
 domains = ["FINANCE", "LAW_POLICY"]
 priority = 100
+content_scope = "EDITORIAL_NEWS"
 
 [acquisition]
 method = "RSS"

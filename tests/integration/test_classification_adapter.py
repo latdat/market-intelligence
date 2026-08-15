@@ -23,6 +23,7 @@ def approved_source() -> SourceConfig:
             "source_type": "REGULATOR",
             "authority_level": "PRIMARY",
             "domains": ["LAW_POLICY", "TECHNOLOGY"],
+            "content_scope": "FORMAL_REGULATORY_LEGAL",
             "acquisition": {
                 "method": "RSS",
                 "endpoint_url": "https://regulator.example/feed.xml",

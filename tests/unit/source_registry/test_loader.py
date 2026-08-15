@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from market_intelligence.source_registry import (
+    ContentScope,
     RightsReviewStatus,
     SourceConfigLoadError,
     load_source_config,
@@ -22,6 +23,7 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "vn_mst_news_events",
     ]
     assert all(source.rights.can_fetch for source in sources)
+    assert all(source.content_scope is ContentScope.EDITORIAL_NEWS for source in sources)
     assert all(source.rights.can_store_metadata for source in sources)
     assert all(source.rights.can_store_full_text is False for source in sources)
     assert all(source.rights.can_ai_process is False for source in sources)
@@ -51,6 +53,24 @@ def test_invalid_toml_has_file_context(tmp_path: Path) -> None:
         load_source_config(config_path)
 
     assert captured.value.path == config_path
+
+
+def test_legacy_reviewed_can_ai_process_is_rejected_with_file_context(tmp_path: Path) -> None:
+    source_path = SOURCE_DIRECTORY / "vn_mst_news_events.toml"
+    config_path = tmp_path / source_path.name
+    config_path.write_text(
+        source_path.read_text(encoding="utf-8").replace(
+            "can_ai_process = false",
+            'can_ai_process = "REVIEWED"',
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(SourceConfigLoadError) as captured:
+        load_source_config(config_path)
+
+    assert captured.value.path == config_path
+    assert "can_ai_process" in captured.value.detail
 
 
 def test_empty_source_directory_is_rejected(tmp_path: Path) -> None:

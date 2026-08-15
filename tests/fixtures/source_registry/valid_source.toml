@@ -6,6 +6,7 @@ source_type = "GOVERNMENT"
 authority_level = "PRIMARY"
 domains = ["LAW_POLICY"]
 priority = 100
+content_scope = "FORMAL_REGULATORY_LEGAL"
 
 [acquisition]
 method = "REST_API"
@@ -16,7 +17,7 @@ poll_interval_minutes = 15
 can_fetch = true
 can_store_metadata = true
 can_store_full_text = "REVIEWED"
-can_ai_process = "REVIEWED"
+can_ai_process = false
 can_show_snippet = "REVIEWED"
 can_redistribute_full_text = false
 rights_review_status = "APPROVED"

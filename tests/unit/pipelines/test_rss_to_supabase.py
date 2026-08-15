@@ -26,6 +26,7 @@ def source_config(
             "source_type": "OFFICIAL_ORGANIZATION",
             "authority_level": "PRIMARY",
             "domains": ["TECHNOLOGY"],
+            "content_scope": "EDITORIAL_NEWS",
             "acquisition": {
                 "method": "RSS",
                 "endpoint_url": f"https://example.org/{source_id}.xml",

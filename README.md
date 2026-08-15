@@ -111,7 +111,9 @@ strict trong DE-001.
 ## SO-001 source onboarding
 
 Production source configuration nằm trong config/sources/, mỗi source có một file
-TOML và filename phải khớp source_id.
+TOML và filename phải khớp source_id. Mỗi `SourceConfig` bắt buộc khai báo một
+`content_scope` đồng nhất (`EDITORIAL_NEWS` hoặc `FORMAL_REGULATORY_LEGAL`). Field này
+phục vụ authoring/audit, không trực tiếp cấp quyền AI.
 
 Chạy live preflight giới hạn 20 entries/source mà không ghi Supabase:
 
@@ -137,8 +139,9 @@ The DeepSeek adapter remains a standalone provider boundary and is not wired int
 onboarding. Current classification behavior is `classification-v2`: deterministic rules
 run first, and only `AMBIGUOUS` articles may reach the rights-gated DeepSeek fallback.
 No provider request is permitted unless the source has both
-`rights_review_status=APPROVED` and `can_ai_process=true`. Unit and integration tests use
-mocked HTTP and do not need or use a real API key.
+`rights_review_status=APPROVED` and strict boolean `can_ai_process=true`.
+`content_scope` does not participate in this authorization decision. Unit and integration
+tests use mocked HTTP and do not need or use a real API key.
 
 DE-009 adds `ClassificationRepository`, additive migrations for
 `public.article_classifications`, transactional claim/lease/fencing RPCs, and offline

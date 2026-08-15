@@ -31,6 +31,7 @@ def source(
             "source_type": "REGULATOR",
             "authority_level": "PRIMARY",
             "domains": [value.value for value in domains],
+            "content_scope": "FORMAL_REGULATORY_LEGAL",
             "acquisition": {
                 "method": "RSS",
                 "endpoint_url": "https://example.test/feed",

@@ -79,12 +79,14 @@ Minimum fields:
 - `last_success_at`
 - `last_failure_at`
 
-The target/shared contract for `can_ai_process` is boolean-only. Do not add values such
-as `REVIEWED` or `restricted`; represent denial as `false` and keep review/content-scope
-state separate. The current internal `SourceConfig` model incorrectly reuses
-`RightsDecision` and can parse `REVIEWED` for this field. That is legacy technical debt,
-not a valid target/shared-contract value or AI-processing permission. SO-002 does not
-change runtime validation; SO-003 must resolve this mismatch.
+`can_ai_process` is strict boolean-only. Values such as `REVIEWED`, `restricted`,
+numeric booleans, and string booleans are invalid; denial is represented as `false`.
+`rights_review_status` remains a separate decision.
+
+The internal authoring model `SourceConfig` additionally requires one
+`content_scope`: `EDITORIAL_NEWS` or `FORMAL_REGULATORY_LEGAL`. The field describes
+the homogeneous content class covered by the config and its rights review. It does not
+authorize AI and is intentionally absent from this shared `SourceDefinition` shape.
 
 ---
 
@@ -332,9 +334,8 @@ Provider output never controls application lineage, versions, timestamps, usage,
 Local deterministic classification may run when article metadata is legitimately stored;
 it does not require `can_ai_process=true`. No provider prompt or HTTP request is created
 unless the deterministic result is `AMBIGUOUS`, the article/source IDs match, and
-`rights_review_status == APPROVED` plus `can_ai_process is true`. Due to the internal
-technical debt above, runtime may parse the out-of-contract string `REVIEWED`, but the
-rights gate rejects it and it is not AI-processing permission.
+`rights_review_status == APPROVED` plus `can_ai_process is true`. Content scope does
+not participate in this authorization decision.
 
 An ambiguous result without AI permission makes zero provider calls and is terminal
 `AI_FALLBACK_NOT_ALLOWED` / `QUARANTINED`.

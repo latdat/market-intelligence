@@ -28,6 +28,11 @@ def change_rights(source: SourceConfig, **changes: object) -> SourceConfig:
     return source.model_copy(update={"rights": rights})
 
 
+def bypass_rights_validation_with_legacy_ai_value(source: SourceConfig) -> SourceConfig:
+    rights = source.rights.model_copy(update={"can_ai_process": "REVIEWED"})
+    return source.model_copy(update={"rights": rights})
+
+
 def test_approved_true_rights_and_matching_source_are_accepted(
     canonical_article: CanonicalArticle,
     approved_source: SourceConfig,
@@ -39,16 +44,17 @@ def test_approved_true_rights_and_matching_source_are_accepted(
     ("status", "can_ai_process"),
     [
         ("PENDING", True),
+        ("PENDING", False),
         ("REJECTED", True),
+        ("REJECTED", False),
         ("APPROVED", False),
-        ("APPROVED", "REVIEWED"),
     ],
 )
 def test_rights_gate_denies_every_non_approved_true_combination(
     canonical_article: CanonicalArticle,
     approved_source: SourceConfig,
     status: str,
-    can_ai_process: bool | str,
+    can_ai_process: bool,
 ) -> None:
     source = change_rights(
         approved_source,
@@ -111,8 +117,28 @@ def test_classification_input_allows_null_description(
 @pytest.mark.parametrize(
     "source_factory",
     [
-        lambda source: change_rights(source, rights_review_status="PENDING"),
-        lambda source: change_rights(source, can_ai_process="REVIEWED"),
+        lambda source: change_rights(
+            source,
+            rights_review_status="PENDING",
+            can_ai_process=True,
+        ),
+        lambda source: change_rights(
+            source,
+            rights_review_status="PENDING",
+            can_ai_process=False,
+        ),
+        lambda source: change_rights(
+            source,
+            rights_review_status="REJECTED",
+            can_ai_process=True,
+        ),
+        lambda source: change_rights(
+            source,
+            rights_review_status="REJECTED",
+            can_ai_process=False,
+        ),
+        lambda source: change_rights(source, can_ai_process=False),
+        bypass_rights_validation_with_legacy_ai_value,
     ],
 )
 def test_denied_request_builds_no_prompt_and_makes_zero_http_calls(

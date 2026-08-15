@@ -22,6 +22,7 @@ def source_config() -> SourceConfig:
             "source_type": "OFFICIAL_ORGANIZATION",
             "authority_level": "PRIMARY",
             "domains": ["TECHNOLOGY"],
+            "content_scope": "EDITORIAL_NEWS",
             "acquisition": {
                 "method": "RSS",
                 "endpoint_url": "https://example.org/feed.xml",
@@ -32,7 +33,7 @@ def source_config() -> SourceConfig:
                 "can_fetch": True,
                 "can_store_metadata": True,
                 "can_store_full_text": False,
-                "can_ai_process": "REVIEWED",
+                "can_ai_process": False,
                 "can_show_snippet": "REVIEWED",
                 "can_redistribute_full_text": False,
                 "rights_review_status": "APPROVED",

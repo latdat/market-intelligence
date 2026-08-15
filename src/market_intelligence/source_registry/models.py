@@ -63,6 +63,13 @@ class AuthorityLevel(StrEnum):
     DISCOVERY = "DISCOVERY"
 
 
+class ContentScope(StrEnum):
+    """Homogeneous content classes supported by static source configuration."""
+
+    EDITORIAL_NEWS = "EDITORIAL_NEWS"
+    FORMAL_REGULATORY_LEGAL = "FORMAL_REGULATORY_LEGAL"
+
+
 class HealthStatus(StrEnum):
     """Operational health values, including the existing compatibility value."""
 
@@ -135,7 +142,7 @@ class RightsConfig(RegistryModel):
     can_fetch: StrictBool
     can_store_metadata: StrictBool
     can_store_full_text: RightsDecision
-    can_ai_process: RightsDecision
+    can_ai_process: StrictBool
     can_show_snippet: RightsDecision
     can_redistribute_full_text: StrictBool
     rights_review_status: RightsReviewStatus
@@ -186,6 +193,7 @@ class _SourceMetadata(RegistryModel):
 class SourceConfig(_SourceMetadata):
     """Static, human-authored source configuration."""
 
+    content_scope: ContentScope
     acquisition: AcquisitionConfig
 
 
