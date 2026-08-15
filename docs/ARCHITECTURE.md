@@ -55,12 +55,12 @@ email_sent_at
 
 ## 3. Current implementation and approved platform flow
 
-Current source-onboarding implementation covers eight configured `SourceConfig` records:
-six RSS/Atom records and two REST API records (`us_federal_register`, `us_govinfo_legal` as part of SO-004 and SO-005).
+Current source-onboarding implementation covers nine configured `SourceConfig` records:
+six RSS/Atom records, two REST API records, and one HTML record (`vn_sbv_regulatory_docs` as part of SO-004, SO-005, and SO-006).
 The exact implemented list and its rights state are maintained in
 [`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--production-source-registry).
-Six of those eight records are members of the 25-source official-core target. The
-other 19 MUST sources, GNews, and Story/Event are not implemented.
+Seven of those nine records are members of the 25-source official-core target. The
+other 18 MUST sources, GNews, and Story/Event are not implemented.
 
 The diagram below is the approved platform flow, not evidence that every box is deployed
 or operational. Section 7 records implementation boundaries for the downstream stages.
@@ -125,8 +125,8 @@ Cloudflare Pages / Workers
 
 `CURRENT IMPLEMENTATION` and `TARGET OFFICIAL ARCHITECTURE v1` are different scopes:
 
-- `CURRENT IMPLEMENTATION`: eight SO-001/SO-004/SO-005 `SourceConfig` records (six
-  RSS/Atom, two REST API) and the RSS/Atom, Government API, and Legal Corpus connector paths;
+- `CURRENT IMPLEMENTATION`: nine SO-001/SO-004/SO-005/SO-006 `SourceConfig` records (six
+  RSS/Atom, two REST API, one HTML) and the RSS/Atom, Government API, Legal Corpus, and Official Listing connector paths;
 - `TARGET OFFICIAL ARCHITECTURE v1`: 25 MUST official core sources across VN, US, EU,
   and CN;
 - SO-002 adopts the target as documentation/design only. It does not create the missing
@@ -188,7 +188,7 @@ Approved acquisition abstractions and status:
 | RSS/Atom Connector | `Implemented` |
 | Government API Connector | `Implemented (SO-004)` |
 | Legal Corpus Connector | `Implemented (SO-005)` |
-| Official Listing Connector | `Planned / documented only` |
+| Official Listing Connector | `Implemented (SO-006)` |
 
 The future abstractions may reuse REST/API, HTML, or sitemap transport/parsing techniques;
 they do not authorize a new infrastructure layer. Implementation guidance lives in

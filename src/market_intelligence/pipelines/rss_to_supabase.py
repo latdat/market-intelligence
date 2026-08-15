@@ -7,7 +7,11 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from market_intelligence.articles import CanonicalArticle, RawArticle
-from market_intelligence.connectors import GovernmentApiConnector, RssAtomConnector
+from market_intelligence.connectors import (
+    GovernmentApiConnector,
+    OfficialListingConnector,
+    RssAtomConnector,
+)
 from market_intelligence.deduplication import DedupReason, evaluate_duplicate
 from market_intelligence.normalization import ArticleNormalizationError, normalize_article
 from market_intelligence.persistence import ArticleRepository
@@ -50,6 +54,9 @@ def _create_connector_for_source(source: SourceConfig, max_items: int) -> Source
             api_key = os.environ.get("GOVINFO_API_KEY", "")
             return LegalCorpusConnector(api_key=api_key, max_items=max_items)
         return GovernmentApiConnector(max_items=max_items)
+    if method is AcquisitionMethod.HTML:
+        if source.source_id == "vn_sbv_regulatory_docs":
+            return OfficialListingConnector(max_items=max_items)
     raise UnsupportedAcquisitionMethod(
         f"source {source.source_id} uses acquisition method {method.value!r} "
         "which is not supported by any registered connector"

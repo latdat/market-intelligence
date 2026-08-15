@@ -25,8 +25,9 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "us_govinfo_legal",
         "us_sec_regulatory",
         "vn_mst_news_events",
+        "vn_sbv_regulatory_docs",
     ]
-    assert len(sources) == 8
+    assert len(sources) == 9
     assert all(source.rights.can_fetch for source in sources)
 
     # Rights baseline: all sources use conservative PENDING metadata-only rights
@@ -39,8 +40,13 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         source.rights.rights_review_status is RightsReviewStatus.PENDING for source in sources
     )
 
-    # us_sec_regulatory and us_federal_register are FORMAL_REGULATORY_LEGAL
-    formal_sources = {"us_sec_regulatory", "us_federal_register", "us_govinfo_legal"}
+    # us_sec_regulatory, us_federal_register, and vn_sbv_regulatory_docs are FORMAL_REGULATORY_LEGAL
+    formal_sources = {
+        "us_sec_regulatory",
+        "us_federal_register",
+        "us_govinfo_legal",
+        "vn_sbv_regulatory_docs",
+    }
     editorial_sources = [s for s in sources if s.source_id not in formal_sources]
     assert all(source.content_scope is ContentScope.EDITORIAL_NEWS for source in editorial_sources)
 
@@ -113,6 +119,52 @@ def test_us_federal_register_identity_and_contract() -> None:
     # Cost: free
     assert fr.cost.type.value == "FREE"
     assert fr.cost.monthly_fixed_usd == 0
+
+
+def test_vn_sbv_regulatory_docs_identity_and_contract() -> None:
+    """Exact contract assertions for the vn_sbv_regulatory_docs SourceConfig (SO-006)."""
+    from market_intelligence.source_registry import AcquisitionMethod, SourceType
+
+    sources = load_source_configs(SOURCE_DIRECTORY)
+    sbv = next(s for s in sources if s.source_id == "vn_sbv_regulatory_docs")
+
+    # Identity
+    assert sbv.source_id == "vn_sbv_regulatory_docs"
+    assert sbv.name == "State Bank of Vietnam Regulatory Documents"
+    assert sbv.market.value == "VN"
+    assert sbv.language == "vi"
+    assert sbv.source_type is SourceType.REGULATOR
+    assert sbv.authority_level.value == "PRIMARY"
+
+    # Cross-domain coverage
+    assert set(str(d) for d in sbv.domains) == {
+        "LAW_POLICY",
+        "FINANCE",
+    }
+
+    # Content scope: formal regulatory, not editorial news
+    assert sbv.content_scope is ContentScope.FORMAL_REGULATORY_LEGAL
+
+    # Acquisition: HTML at the official endpoint with 15-minute polling
+    assert sbv.acquisition.method is AcquisitionMethod.HTML
+    assert (
+        str(sbv.acquisition.endpoint_url)
+        == "https://sbv.gov.vn/vi/v%C4%83n-b%E1%BA%A3n-quy-ph%E1%BA%A1m-ph%C3%A1p-lu%E1%BA%ADt"
+    )
+    assert sbv.acquisition.poll_interval_minutes == 15
+
+    # Rights: conservative PENDING — AI processing off
+    assert sbv.rights.can_fetch is True
+    assert sbv.rights.can_store_metadata is True
+    assert sbv.rights.can_store_full_text is False
+    assert sbv.rights.can_ai_process is False
+    assert sbv.rights.can_show_snippet is False
+    assert sbv.rights.can_redistribute_full_text is False
+    assert sbv.rights.rights_review_status is RightsReviewStatus.PENDING
+
+    # Cost: free
+    assert sbv.cost.type.value == "FREE"
+    assert sbv.cost.monthly_fixed_usd == 0
 
 
 def test_source_filename_must_match_source_id(tmp_path: Path) -> None:

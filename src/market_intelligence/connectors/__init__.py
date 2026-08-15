@@ -15,6 +15,13 @@ from market_intelligence.connectors.legal_corpus import (
     LegalCorpusConnector,
     LegalCorpusConnectorError,
 )
+from market_intelligence.connectors.official_listing import (
+    ListingConfigurationError,
+    ListingFetchError,
+    ListingParseError,
+    OfficialListingConnector,
+    OfficialListingConnectorError,
+)
 from market_intelligence.connectors.rss_atom import (
     FeedConfigurationError,
     FeedFetchError,
@@ -40,4 +47,9 @@ __all__ = [
     "CorpusBoundsError",
     "LegalCorpusConnector",
     "LegalCorpusConnectorError",
+    "ListingConfigurationError",
+    "ListingFetchError",
+    "ListingParseError",
+    "OfficialListingConnector",
+    "OfficialListingConnectorError",
 ]

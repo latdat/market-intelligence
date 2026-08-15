@@ -61,12 +61,13 @@ Official Source Architecture v1 uses these connector-level abstractions:
 | RSS/Atom Connector | `Implemented` | Parse configured RSS/Atom channels into `RawArticle` |
 | Government API Connector | `Implemented (SO-004)` | Acquire bounded records from official government REST APIs |
 | Legal Corpus Connector | `Implemented (SO-005 v1: PLAW package-level)` | Traverse canonical legal corpora while preserving official identity/provenance |
-| Official Listing Connector | `Planned / documented only` | Parse official publication/listing pages when no suitable feed/API exists |
+| Official Listing Connector | `Implemented (SO-006)` | Parse official publication/listing pages when no suitable feed/API exists |
 
 The future abstractions may share `httpx`, pagination, HTML parsing, or sitemap helpers.
 They are semantic connector boundaries, not separate queues or infrastructure systems.
 SO-004 implements the Government API Connector boundary for `us_federal_register`.
 SO-005 implements the Legal Corpus Connector boundary for `us_govinfo_legal` (v1 scope: PLAW collection package summaries).
+SO-006 implements the Official Listing Connector boundary for `vn_sbv_regulatory_docs`.
 
 Future GNews acquisition must also return `RawArticle` and then use the same normalize,
 deduplication, article persistence, and classification path as official sources. It must

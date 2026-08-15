@@ -15,12 +15,13 @@ and is not duplicated here.
 | SO-003 | Rights-safe `SourceConfig` / content-scope contract | `Implemented` |
 | SO-004 | RSS + Government API official sources | `Implemented` |
 | SO-005 | Legal Corpus sources | `Implemented (SO-005 v1: PLAW package-level)` |
-| SO-006 | Official Listing sources | `Planned / documented only` |
+| SO-006 | Official Listing sources | `Implemented` |
 | SO-007 | Complete 25-source portfolio | `Planned / documented only` |
 | SO-008 | Production verification | `Planned / documented only` |
 
 SO-001 and SO-004 remain the implemented pilot, with SO-004 now expanding to cover seven sources (six RSS/Atom, one REST API for `us_federal_register`).
-SO-005 adds `us_govinfo_legal` with `LegalCorpusConnector` v1. This roadmap does not
+SO-005 adds `us_govinfo_legal` with `LegalCorpusConnector` v1.
+SO-006 adds `vn_sbv_regulatory_docs` with `OfficialListingConnector` v1. This roadmap does not
 resume or renumber DE work. DE-013 remains `PAUSED`.
 
 ## Phase 0 — Repository foundations
