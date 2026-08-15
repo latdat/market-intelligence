@@ -1,0 +1,30 @@
+{
+  "count": 42,
+  "description": "Documents matching search",
+  "total_pages": 3,
+  "next_page_url": "https://www.federalregister.gov/api/v1/documents.json?page=2",
+  "results": [
+    {
+      "document_number": "2026-18001",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/14/2026-18001/example-rule",
+      "title": "Example Final Rule on Energy Standards",
+      "abstract": "This rule establishes updated energy efficiency standards for residential appliances.",
+      "publication_date": "2026-08-14",
+      "type": "Rule",
+      "agencies": [
+        {"name": "Department of Energy", "raw_name": "DEPARTMENT OF ENERGY"}
+      ]
+    },
+    {
+      "document_number": "2026-18002",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/14/2026-18002/proposed-rule",
+      "title": "Proposed Rule on Financial Reporting Requirements",
+      "abstract": "Proposed amendments to Regulation S-X governing financial statement requirements.",
+      "publication_date": "2026-08-14",
+      "type": "Proposed Rule",
+      "agencies": [
+        {"name": "Securities and Exchange Commission", "raw_name": "SECURITIES AND EXCHANGE COMMISSION"}
+      ]
+    }
+  ]
+}

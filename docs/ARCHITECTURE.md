@@ -55,11 +55,12 @@ email_sent_at
 
 ## 3. Current implementation and approved platform flow
 
-Current source-onboarding implementation is limited to six configured RSS
-`SourceConfig` records. The exact implemented list and its rights state are maintained in
-[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--rss-source-registry).
-Only four of those six records are members of the 25-source official-core target. The
-other 21 MUST sources, GNews, and Story/Event are not implemented by SO-002.
+Current source-onboarding implementation covers seven configured `SourceConfig` records:
+six RSS/Atom records (SO-001/SO-004) and one REST API record (SO-005, `us_federal_register`).
+The exact implemented list and its rights state are maintained in
+[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--production-source-registry).
+Five of those seven records are members of the 25-source official-core target. The
+other 20 MUST sources, GNews, and Story/Event are not implemented.
 
 The diagram below is the approved platform flow, not evidence that every box is deployed
 or operational. Section 7 records implementation boundaries for the downstream stages.
@@ -67,7 +68,7 @@ or operational. Section 7 records implementation boundaries for the downstream s
 ```text
 ┌───────────────────────────────────────────────────┐
 │                   DATA SOURCES                    │
-│ Official core: 25 MUST target; 2 current configs │
+│ Official core: 25 MUST target; 5 current configs  │
 │ Non-MUST domain/context: 2 current configs        │
 │ Future GNews: discovery/enrichment only           │
 └─────────────────────────┬─────────────────────────┘
@@ -117,14 +118,15 @@ Frontend:
 Cloudflare Pages / Workers
 ```
 
+
 ## 4. Official Source Architecture v1
 
 ### 4.1 Status boundary
 
 `CURRENT IMPLEMENTATION` and `TARGET OFFICIAL ARCHITECTURE v1` are different scopes:
 
-- `CURRENT IMPLEMENTATION`: six SO-001/SO-004 RSS `SourceConfig` records and the existing
-  RSS/Atom connector path;
+- `CURRENT IMPLEMENTATION`: seven SO-001/SO-004/SO-005 `SourceConfig` records (six
+  RSS/Atom, one REST API) and the RSS/Atom plus Government API connector paths;
 - `TARGET OFFICIAL ARCHITECTURE v1`: 25 MUST official core sources across VN, US, EU,
   and CN;
 - SO-002 adopts the target as documentation/design only. It does not create the missing
@@ -181,10 +183,10 @@ GNews persistence/classification path and SO-002 does not implement either compo
 
 Approved acquisition abstractions and status:
 
-| Abstraction | Status in SO-002 |
+| Abstraction | Status |
 |---|---|
 | RSS/Atom Connector | `Implemented` |
-| Government API Connector | `Planned / documented only` |
+| Government API Connector | `Implemented (SO-005)` |
 | Legal Corpus Connector | `Planned / documented only` |
 | Official Listing Connector | `Planned / documented only` |
 

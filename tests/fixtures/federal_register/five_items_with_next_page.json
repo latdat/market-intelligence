@@ -1,0 +1,36 @@
+{
+  "count": 5,
+  "next_page_url": "https://www.federalregister.gov/api/v1/documents.json?page=2",
+  "results": [
+    {
+      "document_number": "2026-30001",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/15/2026-30001/rule-a",
+      "title": "Rule A",
+      "publication_date": "2026-08-15"
+    },
+    {
+      "document_number": "2026-30002",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/15/2026-30002/rule-b",
+      "title": "Rule B",
+      "publication_date": "2026-08-15"
+    },
+    {
+      "document_number": "2026-30003",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/15/2026-30003/rule-c",
+      "title": "Rule C",
+      "publication_date": "2026-08-15"
+    },
+    {
+      "document_number": "2026-30004",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/15/2026-30004/rule-d",
+      "title": "Rule D",
+      "publication_date": "2026-08-15"
+    },
+    {
+      "document_number": "2026-30005",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/15/2026-30005/rule-e",
+      "title": "Rule E",
+      "publication_date": "2026-08-15"
+    }
+  ]
+}

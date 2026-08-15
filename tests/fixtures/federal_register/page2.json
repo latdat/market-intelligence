@@ -1,0 +1,18 @@
+{
+  "count": 42,
+  "description": "Documents matching search",
+  "total_pages": 3,
+  "results": [
+    {
+      "document_number": "2026-18003",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/13/2026-18003/technology-rule",
+      "title": "Notice of Proposed Rulemaking on Technology Transfer",
+      "abstract": "Bureau of Industry and Security proposes rules on technology transfer controls.",
+      "publication_date": "2026-08-13",
+      "type": "Proposed Rule",
+      "agencies": [
+        {"name": "Bureau of Industry and Security", "raw_name": "BUREAU OF INDUSTRY AND SECURITY"}
+      ]
+    }
+  ]
+}

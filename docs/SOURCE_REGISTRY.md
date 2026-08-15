@@ -117,26 +117,41 @@ current contract example. New operational state defaults to `UNKNOWN`. Business
 enablement `status` remains conceptually separate from health but is not implemented
 in DE-002.
 
-### 2.2 Current implementation — RSS source registry
+### 2.2 Current implementation — production source registry
 
-`CURRENT IMPLEMENTATION` contains exactly six static RSS `SourceConfig` files under
-`config/sources/`:
+`CURRENT IMPLEMENTATION` contains exactly seven static `SourceConfig` files under
+`config/sources/`: six RSS/Atom sources (SO-001/SO-004) and one REST API source (SO-005).
 
-| Source ID | Market | Current role | Official v1 MUST? |
-|---|---|---|---|
-| `vn_mst_news_events` | VN | Domain news/discovery; editorial AI OFF/PENDING | No |
-| `us_fed_press_releases` | US | Official Federal Reserve press releases | Yes |
-| `eu_ecb_press` | EU | Official ECB press/news | Yes |
-| `cn_nbs_latest_releases` | CN | Market/statistical context; narrative AI OFF/PENDING | No |
-| `us_sec_regulatory` | US | Official SEC Administrative Proceedings | Yes |
-| `eu_ec_policy_news` | EU | Official European Commission policy news | Yes |
+| Source ID | Market | Acquisition | Current role | Official v1 MUST? |
+|---|---|---|---|---|
+| `vn_mst_news_events` | VN | RSS | Domain news/discovery; editorial AI OFF/PENDING | No |
+| `us_fed_press_releases` | US | RSS | Official Federal Reserve press releases | Yes |
+| `eu_ecb_press` | EU | RSS | Official ECB press/news | Yes |
+| `cn_nbs_latest_releases` | CN | RSS | Market/statistical context; narrative AI OFF/PENDING | No |
+| `us_sec_regulatory` | US | RSS | Official SEC Administrative Proceedings | Yes |
+| `eu_ec_policy_news` | EU | RSS | Official European Commission policy news | Yes |
+| `us_federal_register` | US | REST_API | Federal Register regulatory event spine (SO-005) | Yes |
 
-All six pilot records use conservative metadata-only rights with
+Of the 25 official MUST sources, **5** are currently implemented: `us_fed_press_releases`,
+`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, and `us_federal_register`. The
+remaining **20** MUST sources are `Planned / documented only`.
+
+All seven records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
 metadata persistence but does not approve full-text storage, AI processing, snippet
-display, or redistribution. All six records have
-`content_scope = "EDITORIAL_NEWS"` (except `us_sec_regulatory` which has `FORMAL_REGULATORY_LEGAL`); this describes their homogeneous channel class and
-does not change those rights decisions.
+display, or redistribution.
+
+Content scope:
+- `EDITORIAL_NEWS`: `vn_mst_news_events`, `us_fed_press_releases`, `eu_ecb_press`,
+  `cn_nbs_latest_releases`, `eu_ec_policy_news`
+- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`
+
+**us_federal_register event-spine vs. future GovInfo corpus boundary:**
+The `us_federal_register` source is the Federal Register **regulatory event spine** — it
+provides timely notice of proposed and final rules. It is NOT the canonical legal corpus.
+The future `us_govinfo_legal` source (planned, not implemented) owns canonical GovInfo
+legal-corpus coverage (CFR, U.S. Code, Public Laws). These two sources have separate
+identities and must not be merged into a single `SourceConfig`.
 
 This implemented list is not the 25-source target. In particular,
 `vn_mst_news_events` remains separate from the future formal-document config
@@ -166,7 +181,7 @@ the remaining 21 rows are `Planned / documented only`.
 | VN | `vn_moit_regulatory_docs` | Industry/trade/energy regulatory documents | `Planned / documented only` |
 | VN | `vn_mst_regulatory_docs` | Technology regulatory documents | `Planned / documented only` |
 | VN | `vn_moc_regulatory_docs` | Construction/real-estate regulatory documents | `Planned / documented only` |
-| US | `us_federal_register` | Federal Register event spine | `Planned / documented only` |
+| US | `us_federal_register` | Federal Register event spine | `Implemented (SO-005 SourceConfig)` |
 | US | `us_govinfo_legal` | GovInfo canonical legal corpus | `Planned / documented only` |
 | US | `us_fed_press_releases` | Federal Reserve press releases | `Implemented (SO-001 SourceConfig)` |
 | US | `us_sec_regulatory` | Securities regulation | `Implemented (SO-004 SourceConfig)` |

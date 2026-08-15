@@ -59,13 +59,13 @@ Official Source Architecture v1 uses these connector-level abstractions:
 | Abstraction | Status | Purpose |
 |---|---|---|
 | RSS/Atom Connector | `Implemented` | Parse configured RSS/Atom channels into `RawArticle` |
-| Government API Connector | `Planned / documented only` | Acquire bounded records from official government APIs |
+| Government API Connector | `Implemented (SO-005)` | Acquire bounded records from official government REST APIs |
 | Legal Corpus Connector | `Planned / documented only` | Traverse canonical legal corpora while preserving official identity/provenance |
 | Official Listing Connector | `Planned / documented only` | Parse official publication/listing pages when no suitable feed/API exists |
 
 The future abstractions may share `httpx`, pagination, HTML parsing, or sitemap helpers.
 They are semantic connector boundaries, not separate queues or infrastructure systems.
-SO-002 implements none of the three future abstractions.
+SO-005 implements the Government API Connector boundary for `us_federal_register`.
 
 Future GNews acquisition must also return `RawArticle` and then use the same normalize,
 deduplication, article persistence, and classification path as official sources. It must
@@ -180,6 +180,69 @@ Connector must define:
 - publication timestamp mapping
 
 Pagination must terminate deterministically.
+
+### 9.1 GovernmentApiConnector v1 boundary (SO-005)
+
+`GovernmentApiConnector` is implemented at
+`src/market_intelligence/connectors/government_api.py`.
+
+**v1 scope:**
+
+- Accepts only `AcquisitionMethod.REST_API`.
+- Supports only `source_id: us_federal_register`. Any other REST_API source raises
+  `ApiConfigurationError` before network access.
+- Refuses a source when `rights.can_fetch` is false.
+
+**HTTP behavior (matches RssAtomConnector):**
+
+- 10-second request timeout.
+- At most 3 attempts.
+- Retries timeout/connection failures and HTTP 408, 429, 500, 502, 503, and 504.
+- Does not retry other HTTP 4xx responses.
+- Does not automatically follow redirects (`follow_redirects=False`).
+- Bounded exponential backoff with jitter.
+- Honors a valid `Retry-After` header for HTTP 429/503, capped by max delay.
+- `clock`, `sleep`, and `random_value` are injectable for deterministic tests.
+
+**Pagination:**
+
+- Uses `next_page_url` from the API response envelope.
+- Bounded by `max_items` constructor parameter.
+- Before following `next_page_url` validates: HTTPS only, no userinfo, same Federal
+  Register origin (`https://www.federalregister.gov`), documents API path prefix
+  (`/api/v1/documents`), and URL not already visited.
+- Rejects cross-origin pagination and loops with structured log warnings.
+- Does not persist pagination/cursor state between calls.
+
+**Federal Register field mapping:**
+
+| API field | RawArticle field |
+|---|---|
+| `document_number` | `source_item_id` |
+| `html_url` | `url` |
+| `title` | `title` |
+| `abstract` | `description` |
+| `publication_date` | `published_at_raw` (preserved exactly as date string) |
+| source `language` | `language_hint` |
+| connector clock | `retrieved_at` |
+| source `source_id` | `source_id` |
+
+`html_url` is required; items without it are skipped with a structured warning.
+Missing `html_url` in all items in a non-empty response is a parse error.
+Empty `results` list is valid (no new documents) and returns `[]`.
+
+**Publication date policy:**
+
+The Federal Register API returns `publication_date` as a date-only string (`YYYY-MM-DD`).
+This value is preserved exactly in `published_at_raw`. The connector does NOT synthesize
+midnight UTC or substitute `retrieved_at`. Normalization handles timestamp parsing
+downstream using the existing policy.
+
+**Connector does NOT:**
+
+- Normalize, deduplicate, persist, classify, or emit telemetry records.
+- Download Federal Register HTML bodies or GovInfo PDFs.
+- Implement `us_govinfo_legal` (Legal Corpus — separate planned connector).
 
 ## 10. HTML
 

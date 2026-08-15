@@ -21,16 +21,14 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "eu_ec_policy_news",
         "eu_ecb_press",
         "us_fed_press_releases",
+        "us_federal_register",
         "us_sec_regulatory",
         "vn_mst_news_events",
     ]
+    assert len(sources) == 7
     assert all(source.rights.can_fetch for source in sources)
 
-    editorial_news_sources = [s for s in sources if s.source_id != "us_sec_regulatory"]
-    assert all(
-        source.content_scope is ContentScope.EDITORIAL_NEWS for source in editorial_news_sources
-    )
-
+    # Rights baseline: all sources use conservative PENDING metadata-only rights
     assert all(source.rights.can_store_metadata for source in sources)
     assert all(source.rights.can_store_full_text is False for source in sources)
     assert all(source.rights.can_ai_process is False for source in sources)
@@ -39,6 +37,11 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
     assert all(
         source.rights.rights_review_status is RightsReviewStatus.PENDING for source in sources
     )
+
+    # us_sec_regulatory and us_federal_register are FORMAL_REGULATORY_LEGAL
+    formal_sources = {"us_sec_regulatory", "us_federal_register"}
+    editorial_sources = [s for s in sources if s.source_id not in formal_sources]
+    assert all(source.content_scope is ContentScope.EDITORIAL_NEWS for source in editorial_sources)
 
     sec_source = next(s for s in sources if s.source_id == "us_sec_regulatory")
     assert sec_source.content_scope is ContentScope.FORMAL_REGULATORY_LEGAL
@@ -61,6 +64,54 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "REAL_ESTATE",
         "FINANCE",
     }
+
+
+def test_us_federal_register_identity_and_contract() -> None:
+    """Exact contract assertions for the us_federal_register SourceConfig (SO-005)."""
+    from market_intelligence.source_registry import AcquisitionMethod, SourceType
+
+    sources = load_source_configs(SOURCE_DIRECTORY)
+    fr = next(s for s in sources if s.source_id == "us_federal_register")
+
+    # Identity
+    assert fr.source_id == "us_federal_register"
+    assert fr.name == "Federal Register"
+    assert fr.market.value == "US"
+    assert fr.language == "en"
+    assert fr.source_type is SourceType.GOVERNMENT
+    assert fr.authority_level.value == "PRIMARY"
+
+    # Cross-domain coverage
+    assert set(str(d) for d in fr.domains) == {
+        "LAW_POLICY",
+        "ENERGY",
+        "TECHNOLOGY",
+        "REAL_ESTATE",
+        "FINANCE",
+    }
+
+    # Content scope: formal regulatory, not editorial news
+    assert fr.content_scope is ContentScope.FORMAL_REGULATORY_LEGAL
+
+    # Acquisition: REST_API at the official endpoint with 15-minute polling
+    assert fr.acquisition.method is AcquisitionMethod.REST_API
+    assert (
+        str(fr.acquisition.endpoint_url) == "https://www.federalregister.gov/api/v1/documents.json"
+    )
+    assert fr.acquisition.poll_interval_minutes == 15
+
+    # Rights: conservative PENDING — AI processing off
+    assert fr.rights.can_fetch is True
+    assert fr.rights.can_store_metadata is True
+    assert fr.rights.can_store_full_text is False
+    assert fr.rights.can_ai_process is False
+    assert fr.rights.can_show_snippet is False
+    assert fr.rights.can_redistribute_full_text is False
+    assert fr.rights.rights_review_status is RightsReviewStatus.PENDING
+
+    # Cost: free
+    assert fr.cost.type.value == "FREE"
+    assert fr.cost.monthly_fixed_usd == 0
 
 
 def test_source_filename_must_match_source_id(tmp_path: Path) -> None:

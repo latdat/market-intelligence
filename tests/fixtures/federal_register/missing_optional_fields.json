@@ -1,0 +1,20 @@
+{
+  "count": 2,
+  "results": [
+    {
+      "document_number": "2026-19001",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/14/2026-19001/minimal-rule",
+      "title": "Minimal Document With No Optional Fields",
+      "publication_date": "2026-08-14"
+    },
+    {
+      "document_number": "2026-19002",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/14/2026-19002/full-rule",
+      "title": "Document With All Optional Fields",
+      "abstract": "A full abstract for this document.",
+      "publication_date": "2026-08-14",
+      "type": "Rule",
+      "agencies": [{"name": "Test Agency"}]
+    }
+  ]
+}

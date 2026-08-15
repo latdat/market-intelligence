@@ -1,4 +1,4 @@
-"""Minimal RSS-to-repository composition for source onboarding."""
+"""Source ingestion pipeline composition for RSS/Atom and REST API sources."""
 
 import logging
 from collections.abc import Sequence
@@ -6,20 +6,47 @@ from dataclasses import dataclass
 from typing import Protocol
 
 from market_intelligence.articles import CanonicalArticle, RawArticle
-from market_intelligence.connectors import RssAtomConnector
+from market_intelligence.connectors import GovernmentApiConnector, RssAtomConnector
 from market_intelligence.deduplication import DedupReason, evaluate_duplicate
 from market_intelligence.normalization import ArticleNormalizationError, normalize_article
 from market_intelligence.persistence import ArticleRepository
-from market_intelligence.source_registry import SourceConfig
+from market_intelligence.source_registry import AcquisitionMethod, SourceConfig
 
 logger = logging.getLogger(__name__)
 
 
-class RssSourceFetcher(Protocol):
+class SourceFetcher(Protocol):
     """Fetch boundary used to keep pipeline tests offline."""
 
     async def fetch(self, source: SourceConfig) -> list[RawArticle]:
         """Fetch raw records for one validated source."""
+
+
+# Backward-compatible alias; existing code and tests reference RssSourceFetcher.
+RssSourceFetcher = SourceFetcher
+
+
+class UnsupportedAcquisitionMethod(Exception):
+    """Raised when a source uses an acquisition method with no registered connector."""
+
+
+def _create_connector_for_source(source: SourceConfig, max_items: int) -> SourceFetcher:
+    """Return the appropriate connector for a source's acquisition method.
+
+    Routing:
+      RSS / ATOM  -> RssAtomConnector
+      REST_API    -> GovernmentApiConnector (max_items bound applied at connector level)
+      anything else -> UnsupportedAcquisitionMethod (before network access)
+    """
+    method = source.acquisition.method
+    if method in (AcquisitionMethod.RSS, AcquisitionMethod.ATOM):
+        return RssAtomConnector()
+    if method is AcquisitionMethod.REST_API:
+        return GovernmentApiConnector(max_items=max_items)
+    raise UnsupportedAcquisitionMethod(
+        f"source {source.source_id} uses acquisition method {method.value!r} "
+        "which is not supported by any registered connector"
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,17 +102,21 @@ class _PreparedSource:
     rejected_count: int
 
 
-async def preflight_rss_sources(
+async def preflight_sources(
     sources: Sequence[SourceConfig],
     *,
     max_items: int,
-    connector: RssSourceFetcher | None = None,
+    connector: SourceFetcher | None = None,
 ) -> tuple[SourcePreflightResult, ...]:
-    """Fetch and normalize bounded live data without persistence."""
+    """Fetch and normalize bounded live data without persistence.
+
+    Routes each source to the appropriate connector by acquisition method unless
+    a single override connector is provided (for testing).
+    """
     _validate_max_items(max_items)
-    fetcher = connector or RssAtomConnector()
     results: list[SourcePreflightResult] = []
     for source in sources:
+        fetcher = connector or _create_connector_for_source(source, max_items)
         prepared = await _prepare_source(source, fetcher, max_items)
         results.append(
             SourcePreflightResult(
@@ -99,21 +130,31 @@ async def preflight_rss_sources(
     return tuple(results)
 
 
+async def preflight_rss_sources(
+    sources: Sequence[SourceConfig],
+    *,
+    max_items: int,
+    connector: SourceFetcher | None = None,
+) -> tuple[SourcePreflightResult, ...]:
+    """Backward-compatible alias for preflight_sources."""
+    return await preflight_sources(sources, max_items=max_items, connector=connector)
+
+
 async def run_rss_ingestion(
     sources: Sequence[SourceConfig],
     repository: ArticleRepository,
     *,
     max_items: int,
-    connector: RssSourceFetcher | None = None,
+    connector: SourceFetcher | None = None,
 ) -> IngestionRunResult:
-    """Run bounded RSS ingestion and persist every metadata-approved source record."""
+    """Run bounded ingestion for all acquisition methods and persist metadata-approved records."""
     _validate_max_items(max_items)
-    fetcher = connector or RssAtomConnector()
     batch_articles: list[CanonicalArticle] = []
     duplicate_matches: list[BatchDuplicateMatch] = []
     source_results: list[SourceIngestionResult] = []
 
     for source in sources:
+        fetcher = connector or _create_connector_for_source(source, max_items)
         prepared = await _prepare_source(source, fetcher, max_items)
         duplicate_count = 0
         persisted_count = 0

@@ -1,0 +1,15 @@
+{
+  "count": 2,
+  "results": [
+    {
+      "document_number": "2026-20001",
+      "title": "This item has no html_url and is unusable"
+    },
+    {
+      "document_number": "2026-20002",
+      "html_url": "https://www.federalregister.gov/documents/2026/08/14/2026-20002/valid",
+      "title": "Valid Document After Unusable",
+      "publication_date": "2026-08-14"
+    }
+  ]
+}

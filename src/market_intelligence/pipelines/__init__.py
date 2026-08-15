@@ -13,7 +13,9 @@ from market_intelligence.pipelines.rss_to_supabase import (
     IngestionRunResult,
     SourceIngestionResult,
     SourcePreflightResult,
+    UnsupportedAcquisitionMethod,
     preflight_rss_sources,
+    preflight_sources,
     run_rss_ingestion,
 )
 
@@ -28,6 +30,8 @@ __all__ = [
     "IngestionRunResult",
     "SourceIngestionResult",
     "SourcePreflightResult",
+    "UnsupportedAcquisitionMethod",
     "preflight_rss_sources",
+    "preflight_sources",
     "run_rss_ingestion",
 ]

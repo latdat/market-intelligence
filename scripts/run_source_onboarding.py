@@ -1,4 +1,4 @@
-"""Manual bounded runner for SO-001 source onboarding."""
+"""Manual bounded runner for source onboarding — supports RSS/Atom and REST API sources."""
 
 import argparse
 import asyncio
@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from market_intelligence.persistence import create_article_repository_from_environment
-from market_intelligence.pipelines import preflight_rss_sources, run_rss_ingestion
+from market_intelligence.pipelines import preflight_sources, run_rss_ingestion
 from market_intelligence.source_registry import load_source_configs
 
 DEFAULT_SOURCE_DIRECTORY = Path("config/sources")
@@ -35,7 +35,7 @@ def parse_args() -> argparse.Namespace:
         "--max-items",
         type=positive_integer,
         required=True,
-        help="maximum feed entries processed per source",
+        help="maximum entries processed per source",
     )
     parser.add_argument(
         "--preflight",
@@ -49,7 +49,7 @@ async def run(args: argparse.Namespace) -> Any:
     """Run preflight or persistence with the same validated source registry."""
     sources = load_source_configs(args.config_dir)
     if args.preflight:
-        return await preflight_rss_sources(sources, max_items=args.max_items)
+        return await preflight_sources(sources, max_items=args.max_items)
 
     repository = create_article_repository_from_environment()
     return await run_rss_ingestion(
