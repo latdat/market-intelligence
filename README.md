@@ -2,7 +2,8 @@
 
 Repository này chứa phần Data Engineer của Market & Regulatory Intelligence
 Platform. Các thành phần hiện tại bao gồm source models, ingestion/normalization,
-deterministic deduplication và persistence MVP cho `CanonicalArticle`; chưa có một
+deterministic deduplication, classification adapter và durable classification
+persistence contract; chưa có một
 pipeline production hoàn chỉnh.
 
 ## Yêu cầu
@@ -136,6 +137,11 @@ The adapter is standalone: it is not wired into onboarding, does not persist res
 and must not classify production articles whose source lacks both
 `rights_review_status=APPROVED` and `can_ai_process=true`. Unit and integration tests use
 mocked HTTP and do not need or use a real API key.
+
+DE-009 adds `ClassificationRepository`, local additive migrations for
+`public.article_classifications`, transactional claim/lease/fencing RPCs, and offline
+PostgreSQL integration/concurrency tests. It is not wired into onboarding and the
+committed migrations have not been applied to remote Supabase by this task.
 
 ## Supabase configuration
 

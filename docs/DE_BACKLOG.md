@@ -102,7 +102,8 @@ Goal:
 
 ### DE-009 Classification persistence
 
-Status: planned only.
+Status: implemented locally; migrations are committed but not applied to remote
+Supabase, and orchestration is not wired.
 
 Goal:
 
@@ -110,6 +111,8 @@ Goal:
 - use `(article_id, classifier_version)` identity
 - own durable attempt lifecycle and cross-run idempotency
 - preserve `classified_at`
+- fence stale workers with `claim_token` and leases
+- reject enqueue lineage mismatch without overwriting history
 
 ## Phase 3 — Matching
 

@@ -211,9 +211,49 @@ CanonicalArticle + SourceConfig
         -> ClassifiedArticle + internal ClassificationResult metadata
 ```
 
-It is not wired into the ingestion runner and has no persistence. DE-009 remains planned
-and will use `(article_id, classifier_version)` as the classification identity. Durable
-attempt lifecycle and cross-run idempotency belong to DE-009, not this in-memory adapter.
+It is not wired into the ingestion runner and does not itself persist results. DE-009
+now implements a separate durable repository using
+`(article_id, classifier_version)` identity. Orchestration between the two components
+remains intentionally unwired.
+
+### 7.3 DE-009 classification persistence
+
+`ClassificationRepository` separates durable lifecycle operations from both DE-008 and
+the Supabase client. The Supabase adapter uses transactional PostgreSQL RPCs:
+
+```text
+enqueue
+  -> RETRYABLE
+  -> atomic claim/reclaim + new claim_token + lease
+  -> PROCESSING
+       -> SUCCEEDED
+       -> RETRYABLE at +15/+60 minutes
+       -> QUARANTINED
+```
+
+The composite primary key is `(article_id, classifier_version)`. Existing work can only
+be re-enqueued when `requested_model`, `prompt_version`, and `taxonomy_version` match;
+otherwise enqueue returns `LINEAGE_MISMATCH` without updating the row.
+
+`attempt_count` counts successfully claimed durable classification invocations.
+DE-008 `provider_attempts` counts HTTP calls inside one invocation. The two budgets are
+independent, and DE-009 does not reserve provider-call slots or guarantee an exact
+lifetime HTTP-call count.
+
+The claim RPC uses `FOR UPDATE SKIP LOCKED LIMIT 1`, increments `attempt_count` in the
+same transaction, and assigns a unique `claim_token`. Completion, failure, and renewal
+must match that token and a live lease. Reclaim replaces the token, fencing stale
+workers. Successful and quarantined rows are immutable; replaying completion after
+success returns the existing success without another write.
+
+Expired exhausted recovery is deliberately bounded. One claim RPC locks and mutates at
+most one candidate; it never performs a queue-wide sweep. All lifecycle mutations update
+`updated_at`.
+
+RLS is enabled. `service_role` may read the table and execute lifecycle RPCs, but receives
+no direct mutation grant; `anon` and `authenticated` receive neither table access nor RPC
+execution. This is local migration/code implementation only: remote Supabase has not
+been migrated by DE-009.
 
 ## 8. AI usage
 

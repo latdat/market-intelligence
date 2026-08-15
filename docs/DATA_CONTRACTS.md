@@ -339,20 +339,139 @@ billing ledger when an attempt's usage cannot be observed. Pricing is versioned,
 effective-dated, stored in configuration, and calculated with `Decimal`; no runtime
 pricing fetch occurs.
 
-### 5.3 Future DE-009 persistence boundary
+### 5.3 DE-009 durable classification persistence
 
-DE-008 does not persist classifications and does not provide cross-run idempotency. DE-009
-will own `public.article_classifications` with logical identity and equivalent database
-primary-key semantics:
+DE-009 implements the local schema and repository contract for durable classification
+state. It remains separate from the RSS/onboarding runner: enqueueing work and invoking
+DE-008 are orchestration concerns for a later approved task.
+
+The exact logical and database identity is:
 
 ```text
 (article_id, classifier_version)
 ```
 
-DE-009 will own durable `PROCESSING`, `RETRYABLE`, `SUCCEEDED`, `QUARANTINED` lifecycle,
-attempt count, claim/lease, cross-run retry budget, successful-result short circuit,
-expired-work reclaim, scheduling, and quarantine. No taxonomy/history/telemetry tables
-are implied until a concrete use case requires them.
+`classifier_version` identifies classification behavior. For an existing identity,
+`requested_model`, `prompt_version`, and `taxonomy_version` are immutable enqueue
+lineage. Enqueue verifies all three values. Any difference produces
+`LINEAGE_MISMATCH`, returns the mismatched field names, does not overwrite lineage, and
+is not treated as a normal idempotent enqueue.
+
+The exact columns in `public.article_classifications` are:
+
+```text
+article_id text not null
+classifier_version text not null
+status text not null
+
+is_relevant boolean null
+markets text[] null
+category text null
+topics text[] null
+confidence double precision null
+classified_at timestamptz null
+
+requested_model text not null
+provider_model text null
+prompt_version text not null
+taxonomy_version text not null
+provider_request_id text null
+system_fingerprint text null
+
+prompt_tokens bigint not null
+prompt_cache_hit_tokens bigint not null
+prompt_cache_miss_tokens bigint not null
+completion_tokens bigint not null
+total_tokens bigint not null
+estimated_cost_usd numeric(24,12) not null
+last_pricing_id text null
+last_pricing_window text null
+
+attempt_count smallint not null
+max_attempts smallint not null
+last_provider_attempts smallint null
+
+claim_token uuid null
+claimed_at timestamptz null
+lease_expires_at timestamptz null
+next_attempt_at timestamptz null
+
+last_error_category text null
+last_http_status integer null
+last_error_retryable boolean null
+last_error_at timestamptz null
+quarantined_at timestamptz null
+created_at timestamptz not null
+updated_at timestamptz not null
+
+primary key (article_id, classifier_version)
+foreign key (article_id) references public.articles(article_id) on delete restrict
+```
+
+Database constraints repeat the DE-008 taxonomy and cross-field invariants, require
+canonical market/topic order with no duplicates, validate finite confidence and
+non-negative consistent token totals, and enforce the lifecycle invariants below.
+`max_attempts` is between 1 and 12 and defaults to 3.
+
+| Current state | Operation | Next state | Required result |
+| --- | --- | --- | --- |
+| no row | enqueue | `RETRYABLE` | `attempt_count=0`, due immediately |
+| any existing state | enqueue, matching lineage | unchanged | idempotent state-specific outcome |
+| any existing state | enqueue, different lineage | unchanged | `LINEAGE_MISMATCH` |
+| due `RETRYABLE` | atomic claim | `PROCESSING` | increment `attempt_count`, issue new token and lease |
+| expired `PROCESSING`, budget remains | atomic reclaim | `PROCESSING` | increment `attempt_count`, replace token and lease |
+| expired `PROCESSING`, budget exhausted | recovery | `QUARANTINED` | clear claim; mark lease-expiry exhaustion |
+| live `PROCESSING`, matching token | renew | `PROCESSING` | extend lease and update `updated_at` |
+| live `PROCESSING`, matching token | successful completion | `SUCCEEDED` | persist semantic result and cumulative observed usage |
+| live `PROCESSING`, matching token | retryable failure, budget remains | `RETRYABLE` | clear claim; schedule 15 or 60 minutes |
+| live `PROCESSING`, matching token | non-retryable/manual terminal failure | `QUARANTINED` | clear claim and retry schedule |
+| live `PROCESSING`, matching token | any failure at exhausted budget | `QUARANTINED` | never leave an exhausted row `RETRYABLE` |
+| stale/expired token | renew, success, or failure | unchanged | `LOST_CLAIM` |
+| `SUCCEEDED` | completion replay | unchanged | `ALREADY_SUCCEEDED` |
+| `SUCCEEDED` or `QUARANTINED` | update/delete | rejected | terminal rows are immutable |
+
+`attempt_count` counts durable DE-008 `classify()` invocations successfully
+claimed/reclaimed. It increments atomically once per claim and is independent of
+DE-008 `provider_attempts`, which counts observed HTTP calls inside one invocation and
+remains bounded by three. DE-009 guarantees a durable invocation budget, not an exact
+lifetime provider-call count. There is no provider-call slot reservation.
+
+Every lifecycle mutation updates `updated_at`. Observed usage and estimated cost from
+each persisted invocation are added cumulatively; attempts with unobservable usage do
+not invent tokens. `last_provider_attempts` records only the most recently persisted
+invocation. The cost remains an estimate from observed provider usage, not an
+authoritative billing ledger.
+
+Claims use a unique random `claim_token` as a fencing token plus `claimed_at` and
+`lease_expires_at`. Mutation RPCs require the current token and an unexpired lease.
+An expired lease can be reclaimed with a new token, after which the stale worker cannot
+renew, fail, or overwrite the new worker result.
+
+`claim_next_article_classification` locks candidates with
+`FOR UPDATE SKIP LOCKED LIMIT 1`. One RPC examines and mutates at most one candidate.
+If that candidate is an expired exhausted invocation, the call quarantines only that row
+and returns `RECOVERED_QUARANTINED`; it does not sweep all exhausted work.
+
+The backend-neutral repository API is:
+
+```text
+enqueue(key, lineage, max_attempts=3) -> EnqueueResult
+get(key) -> ClassificationRecord | None
+get_succeeded(key) -> ClassifiedArticle | None
+claim_next(classifier_version, claim_token, lease_seconds=300)
+    -> ClassificationClaim | None
+renew_lease(claim, lease_seconds=300) -> LeaseRenewalResult
+complete_success(claim, ClassificationResult) -> CompletionResult
+record_failure(claim, ClassificationFailure, disposition) -> FailureResult
+```
+
+All lifecycle writes use transactional PostgreSQL RPCs. RLS is enabled with no
+`anon`/`authenticated` policies. `service_role` receives table `SELECT` and execute
+access to lifecycle RPCs, but no direct insert/update/delete grants. Terminal mutation
+guards and constraints remain database-side defense in depth.
+
+The committed migrations are additive and local only until separately reviewed and
+applied to remote Supabase. No taxonomy, history, or telemetry table is created.
 
 Classification should not require storing full article body by default.
 

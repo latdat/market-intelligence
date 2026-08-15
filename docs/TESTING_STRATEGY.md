@@ -157,9 +157,31 @@ Test:
 - errors/logs do not leak keys, prompts, article content, or raw responses
 - effective-date and UTC peak/off-peak pricing boundaries
 
-Cross-run duplicate prevention, durable retry lifecycle, and persistence idempotency are
-DE-009 tests. DE-008 tests only bounded retries within one invocation and use mocked HTTP;
-normal CI must not call the live provider.
+DE-008 tests only bounded retries within one invocation and use mocked HTTP; normal CI
+must not call the live provider.
+
+DE-009 unit tests validate strict persistence models, repository-to-RPC mapping,
+sanitized persistence errors, enqueue lineage mismatch, and the independence of durable
+`attempt_count` from DE-008 `provider_attempts`.
+
+DE-009 integration tests use an isolated local PostgreSQL cluster when PostgreSQL
+`initdb`, `pg_ctl`, and `psql` are available. They apply every committed migration and
+verify:
+
+- exact composite primary key, constraints, indexes, RLS, grants, and RPC privileges;
+- idempotent enqueue and `LINEAGE_MISMATCH` without overwriting lineage;
+- concurrent `FOR UPDATE SKIP LOCKED` claims issue at most one claim per row;
+- claim/reclaim increments once per durable invocation;
+- lease renewal and `updated_at` mutation;
+- stale token fencing after expiry/reclaim;
+- immutable/idempotent `SUCCEEDED` replay;
+- retry scheduling, cumulative observed usage/cost, and quarantine at budget exhaustion;
+- non-retryable failures cannot remain `RETRYABLE`;
+- invalid taxonomy arrays and inconsistent provider usage fail database validation;
+- expired exhausted recovery mutates only one locked candidate per claim call.
+
+The PostgreSQL fixture is offline, creates no provider calls, uses no remote Supabase,
+and skips only when local PostgreSQL binaries are unavailable.
 
 ## 8. Matching cases
 
