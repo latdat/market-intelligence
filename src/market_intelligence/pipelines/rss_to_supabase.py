@@ -1,6 +1,7 @@
 """Source ingestion pipeline composition for RSS/Atom and REST API sources."""
 
 import logging
+import os
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Protocol
@@ -35,13 +36,19 @@ def _create_connector_for_source(source: SourceConfig, max_items: int) -> Source
 
     Routing:
       RSS / ATOM  -> RssAtomConnector
-      REST_API    -> GovernmentApiConnector (max_items bound applied at connector level)
+      REST_API + us_federal_register -> GovernmentApiConnector
+      REST_API + us_govinfo_legal -> LegalCorpusConnector
       anything else -> UnsupportedAcquisitionMethod (before network access)
     """
     method = source.acquisition.method
     if method in (AcquisitionMethod.RSS, AcquisitionMethod.ATOM):
         return RssAtomConnector()
     if method is AcquisitionMethod.REST_API:
+        if source.source_id == "us_govinfo_legal":
+            from market_intelligence.connectors.legal_corpus import LegalCorpusConnector
+
+            api_key = os.environ.get("GOVINFO_API_KEY", "")
+            return LegalCorpusConnector(api_key=api_key, max_items=max_items)
         return GovernmentApiConnector(max_items=max_items)
     raise UnsupportedAcquisitionMethod(
         f"source {source.source_id} uses acquisition method {method.value!r} "

@@ -119,8 +119,8 @@ in DE-002.
 
 ### 2.2 Current implementation — production source registry
 
-`CURRENT IMPLEMENTATION` contains exactly seven static `SourceConfig` files under
-`config/sources/`: six RSS/Atom sources (SO-001/SO-004) and one REST API source (SO-005).
+`CURRENT IMPLEMENTATION` contains exactly eight static `SourceConfig` files under
+`config/sources/`: six RSS/Atom sources (SO-001/SO-004) and two REST API sources (SO-004, SO-005).
 
 | Source ID | Market | Acquisition | Current role | Official v1 MUST? |
 |---|---|---|---|---|
@@ -130,13 +130,14 @@ in DE-002.
 | `cn_nbs_latest_releases` | CN | RSS | Market/statistical context; narrative AI OFF/PENDING | No |
 | `us_sec_regulatory` | US | RSS | Official SEC Administrative Proceedings | Yes |
 | `eu_ec_policy_news` | EU | RSS | Official European Commission policy news | Yes |
-| `us_federal_register` | US | REST_API | Federal Register regulatory event spine (SO-005) | Yes |
+| `us_federal_register` | US | REST_API | Federal Register regulatory event spine (SO-004) | Yes |
+| `us_govinfo_legal` | US | REST_API | GovInfo canonical legal corpus (SO-005 v1: PLAW package-level) | Yes |
 
-Of the 25 official MUST sources, **5** are currently implemented: `us_fed_press_releases`,
-`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, and `us_federal_register`. The
-remaining **20** MUST sources are `Planned / documented only`.
+Of the 25 official MUST sources, **6** are currently implemented: `us_fed_press_releases`,
+`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, and `us_govinfo_legal`. The
+remaining **19** MUST sources are `Planned / documented only`.
 
-All seven records use conservative metadata-only rights with
+All eight records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
 metadata persistence but does not approve full-text storage, AI processing, snippet
 display, or redistribution.
@@ -144,13 +145,13 @@ display, or redistribution.
 Content scope:
 - `EDITORIAL_NEWS`: `vn_mst_news_events`, `us_fed_press_releases`, `eu_ecb_press`,
   `cn_nbs_latest_releases`, `eu_ec_policy_news`
-- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`
+- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`, `us_govinfo_legal`
 
-**us_federal_register event-spine vs. future GovInfo corpus boundary:**
+**us_federal_register event-spine vs. GovInfo corpus boundary:**
 The `us_federal_register` source is the Federal Register **regulatory event spine** — it
 provides timely notice of proposed and final rules. It is NOT the canonical legal corpus.
-The future `us_govinfo_legal` source (planned, not implemented) owns canonical GovInfo
-legal-corpus coverage (CFR, U.S. Code, Public Laws). These two sources have separate
+The `us_govinfo_legal` source is implemented in SO-005 v1 for PLAW package-level coverage;
+CFR and U.S. Code remain future expansion. These two sources have separate
 identities and must not be merged into a single `SourceConfig`.
 
 This implemented list is not the 25-source target. In particular,
@@ -181,8 +182,8 @@ the remaining 21 rows are `Planned / documented only`.
 | VN | `vn_moit_regulatory_docs` | Industry/trade/energy regulatory documents | `Planned / documented only` |
 | VN | `vn_mst_regulatory_docs` | Technology regulatory documents | `Planned / documented only` |
 | VN | `vn_moc_regulatory_docs` | Construction/real-estate regulatory documents | `Planned / documented only` |
-| US | `us_federal_register` | Federal Register event spine | `Implemented (SO-005 SourceConfig)` |
-| US | `us_govinfo_legal` | GovInfo canonical legal corpus | `Planned / documented only` |
+| US | `us_federal_register` | Federal Register event spine | `Implemented (SO-004 SourceConfig)` |
+| US | `us_govinfo_legal` | GovInfo canonical legal corpus | `Implemented (SO-005 v1: PLAW package-level)` |
 | US | `us_fed_press_releases` | Federal Reserve press releases | `Implemented (SO-001 SourceConfig)` |
 | US | `us_sec_regulatory` | Securities regulation | `Implemented (SO-004 SourceConfig)` |
 | US | `us_ferc_regulatory` | Energy regulation | `Planned / documented only` |

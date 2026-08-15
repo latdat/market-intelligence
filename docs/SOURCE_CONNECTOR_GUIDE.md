@@ -59,13 +59,14 @@ Official Source Architecture v1 uses these connector-level abstractions:
 | Abstraction | Status | Purpose |
 |---|---|---|
 | RSS/Atom Connector | `Implemented` | Parse configured RSS/Atom channels into `RawArticle` |
-| Government API Connector | `Implemented (SO-005)` | Acquire bounded records from official government REST APIs |
-| Legal Corpus Connector | `Planned / documented only` | Traverse canonical legal corpora while preserving official identity/provenance |
+| Government API Connector | `Implemented (SO-004)` | Acquire bounded records from official government REST APIs |
+| Legal Corpus Connector | `Implemented (SO-005 v1: PLAW package-level)` | Traverse canonical legal corpora while preserving official identity/provenance |
 | Official Listing Connector | `Planned / documented only` | Parse official publication/listing pages when no suitable feed/API exists |
 
 The future abstractions may share `httpx`, pagination, HTML parsing, or sitemap helpers.
 They are semantic connector boundaries, not separate queues or infrastructure systems.
-SO-005 implements the Government API Connector boundary for `us_federal_register`.
+SO-004 implements the Government API Connector boundary for `us_federal_register`.
+SO-005 implements the Legal Corpus Connector boundary for `us_govinfo_legal` (v1 scope: PLAW collection package summaries).
 
 Future GNews acquisition must also return `RawArticle` and then use the same normalize,
 deduplication, article persistence, and classification path as official sources. It must
@@ -181,7 +182,7 @@ Connector must define:
 
 Pagination must terminate deterministically.
 
-### 9.1 GovernmentApiConnector v1 boundary (SO-005)
+### 9.1 GovernmentApiConnector v1 boundary (SO-004)
 
 `GovernmentApiConnector` is implemented at
 `src/market_intelligence/connectors/government_api.py`.
@@ -209,9 +210,9 @@ Pagination must terminate deterministically.
 - Uses `next_page_url` from the API response envelope.
 - Bounded by `max_items` constructor parameter.
 - Before following `next_page_url` validates: HTTPS only, no userinfo, same Federal
-  Register origin (`https://www.federalregister.gov`), documents API path prefix
-  (`/api/v1/documents`), and URL not already visited.
-- Rejects cross-origin pagination and loops with structured log warnings.
+  Register origin (`https://www.federalregister.gov`), exact documents API path
+  (`/api/v1/documents.json`), and URL not already visited.
+- Rejects cross-origin pagination and loops with `ApiParseError` rather than warning/partial success.
 - Does not persist pagination/cursor state between calls.
 
 **Federal Register field mapping:**
@@ -242,7 +243,56 @@ downstream using the existing policy.
 
 - Normalize, deduplicate, persist, classify, or emit telemetry records.
 - Download Federal Register HTML bodies or GovInfo PDFs.
-- Implement `us_govinfo_legal` (Legal Corpus — separate planned connector).
+- Implement `us_govinfo_legal` (Legal Corpus — separate SO-005 connector).
+
+### 9.2 LegalCorpusConnector v1 boundary (SO-005)
+
+`LegalCorpusConnector` is implemented at
+`src/market_intelligence/connectors/legal_corpus.py`.
+
+**v1 scope:**
+
+- Accepts only `AcquisitionMethod.REST_API`.
+- Supports only `source_id: us_govinfo_legal`.
+- Supports only the GovInfo `PLAW` collection at the package level.
+- Refuses a source when `rights.can_fetch` is false.
+- Fails closed on any parse anomaly, missing API key, or invalid pagination counts.
+
+**Authentication & Environment:**
+
+- Requires a valid `GOVINFO_API_KEY` provided via environment variable.
+- Requires sending the API key securely via the `X-Api-Key` HTTP header.
+- The key must NEVER be appended to request URLs or logged.
+
+**Discovery & Pagination:**
+
+- Uses the GovInfo Collections Service (`/collections/PLAW`).
+- Discovers documents based on a rolling 7-day `lastModified` lookback derived from an injectable UTC clock.
+- Enforces strict limits: `1 <= max_items <= 1000`.
+- Raises `CorpusBoundsError` if the returned `count` exceeds `max_items`.
+- Does not concurrently fetch packages (sequential package summary fetching only).
+
+**GovInfo Field Mapping:**
+
+| API summary field | RawArticle field |
+|---|---|
+| `packageId` | `source_item_id` |
+| Constructed URL (`https://www.govinfo.gov/app/details/{packageId}`) | `url` |
+| `title` | `title` |
+| `None` | `description` |
+| `dateIssued` | `published_at_raw` |
+| source `language` | `language_hint` |
+| connector clock | `retrieved_at` |
+| source `source_id` | `source_id` |
+
+**Metadata & Timestamp preservation:**
+- The `dateIssued` field (e.g. `2026-08-10`) is mapped to `published_at_raw`.
+- The `lastModified` timestamp from GovInfo is captured in `raw_metadata` but is NOT synthesized into `published_at_raw`.
+
+**Connector does NOT:**
+- Normalize, deduplicate, persist, classify, or emit telemetry records.
+- Download full-text granule PDFs or XML files.
+- Aggregate multiple GovInfo collections in v1.
 
 ## 10. HTML
 

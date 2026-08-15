@@ -13,16 +13,14 @@ and is not duplicated here.
 |---|---|---|
 | SO-002 | Adopt Official Source Architecture v1 in documentation | `Implemented (documentation/design only)` |
 | SO-003 | Rights-safe `SourceConfig` / content-scope contract | `Implemented` |
-| SO-004 | Low-cost/RSS official onboarding | `Implemented` |
-| SO-005 | Government API Connector | `Implemented (SO-005)` |
-| SO-006 | Legal Corpus Connector | `Planned / documented only` |
-| SO-007 | Official Listing Connector | `Planned / documented only` |
-| SO-008 | Remaining MUST source onboarding | `Planned / documented only` |
-| SO-009 | Four-market production verification | `Planned / documented only` |
+| SO-004 | RSS + Government API official sources | `Implemented` |
+| SO-005 | Legal Corpus sources | `Implemented (SO-005 v1: PLAW package-level)` |
+| SO-006 | Official Listing sources | `Planned / documented only` |
+| SO-007 | Complete 25-source portfolio | `Planned / documented only` |
+| SO-008 | Production verification | `Planned / documented only` |
 
-SO-001 and SO-004 remain the implemented six-source RSS pilot described in
-[`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--production-source-registry).
-SO-005 adds `us_federal_register` with `GovernmentApiConnector` v1. This roadmap does not
+SO-001 and SO-004 remain the implemented pilot, with SO-004 now expanding to cover seven sources (six RSS/Atom, one REST API for `us_federal_register`).
+SO-005 adds `us_govinfo_legal` with `LegalCorpusConnector` v1. This roadmap does not
 resume or renumber DE work. DE-013 remains `PAUSED`.
 
 ## Phase 0 — Repository foundations

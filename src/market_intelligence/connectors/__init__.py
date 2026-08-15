@@ -7,6 +7,14 @@ from market_intelligence.connectors.government_api import (
     GovernmentApiConnector,
     GovernmentApiConnectorError,
 )
+from market_intelligence.connectors.legal_corpus import (
+    CorpusBoundsError,
+    CorpusConfigurationError,
+    CorpusFetchError,
+    CorpusParseError,
+    LegalCorpusConnector,
+    LegalCorpusConnectorError,
+)
 from market_intelligence.connectors.rss_atom import (
     FeedConfigurationError,
     FeedFetchError,
@@ -26,4 +34,10 @@ __all__ = [
     "FeedParseError",
     "RssAtomConnector",
     "RssAtomConnectorError",
+    "CorpusConfigurationError",
+    "CorpusFetchError",
+    "CorpusParseError",
+    "CorpusBoundsError",
+    "LegalCorpusConnector",
+    "LegalCorpusConnectorError",
 ]
