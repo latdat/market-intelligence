@@ -557,7 +557,10 @@ Contract rules:
   precedence in DE-010;
 - empty interest/mute collections are valid; the meaning of an empty preference is handled
   by later matching/product behavior rather than rejected by the shared contract;
-- notification flags are strict booleans.
+- empty positive collections mean "not subscribed to that dimension", never "match all";
+- mute rules override positive matches;
+- notification flags are strict booleans;
+- hourly/daily delivery flags are consumed downstream and do not change DE-011 semantic matching.
 
 DE-010 defines a backend-neutral `UserPreferenceReader` with `get(user_id)` and bounded
 `list_page(after_user_id, limit)` operations. The limit semantics are strictly defined:
@@ -600,6 +603,13 @@ Important:
 - `match_reasons` should allow debugging
 - a score must not hide deterministic reasons
 - producing `AlertCandidate` must be idempotent
+- candidate identity is stable for `(user_id, article_id)`
+- `match_reasons` are deterministic and ordered market -> category -> topic
+- market reasons use `ClassifiedArticle.markets`, not provenance `CanonicalArticle.market`
+- `importance` values currently: `NORMAL`, `HIGH`
+- `relevance_score` is a deterministic ranking signal in [0,1], not a probability
+- `breaking_eligible` is eligibility only, not proof an immediate notification will be sent
+- persistence/idempotent storage remains DE-012
 
 ---
 

@@ -251,6 +251,20 @@ Test combinations:
 - hourly disabled
 - multiple matching reasons
 - same article/user pair processed twice
+- article/classification identity mismatch
+- irrelevant classification
+- market-only/category-only/topic-only
+- empty dimension not wildcard
+- all positive dimensions empty
+- muted source/topic precedence
+- exactly 24h and >24h freshness boundaries
+- published_at fallback to discovered_at
+- deterministic reason ordering
+- score uses matched dimensions, not topic count
+- NORMAL/HIGH threshold boundary
+- hourly/daily disabled do not suppress candidate
+- breaking disabled and 2h breaking freshness boundary
+- deterministic candidate ID
 
 Matching output should remain explainable.
 

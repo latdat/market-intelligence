@@ -158,6 +158,8 @@ Goal:
 
 ### DE-011 Rule-based matching
 
+Status: implemented and offline-tested. No alert-candidate persistence is introduced; DE-012 owns durable candidate idempotency.
+
 Rules include:
 
 - market

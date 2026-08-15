@@ -367,18 +367,20 @@ Avoid:
 
 No recommendation ML in current phase.
 
+DE-011 is pure deterministic logic over `CanonicalArticle + ClassifiedArticle + UserPreference`.
+
 Baseline matching is rule-based:
 
-```text
-market match
-+ category match
-+ topic match
-+ mute rules
-+ freshness
-+ basic importance
-```
+- Mute rules veto positive matches.
+- Positive dimensions use OR semantics: market OR category OR topic.
+- Empty preference dimensions are not wildcards.
+- Normal freshness is 24 hours, using `published_at` when present and not in the future, otherwise `discovered_at`.
+- `hourly_update_enabled` and `daily_digest_enabled` do not suppress semantic candidates.
+- `relevance_score = classification.confidence * matched_dimension_coverage`.
+- `HIGH` importance requires at least two matched dimensions and score >= 0.90.
+- `breaking_eligible` additionally requires user opt-in and `discovered_at` within 2 hours.
 
-The output of DE matching should be an `AlertCandidate` or equivalent shared contract.
+The output of DE matching is an `AlertCandidate`. DE-011 does not persist candidates. Durable idempotency/concurrency belongs to DE-012.
 
 ## 10. Email behavior
 
