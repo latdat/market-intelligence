@@ -8,9 +8,10 @@ import pytest
 from market_intelligence.connectors.official_listing import (
     ListingConfigurationError,
     ListingFetchError,
+    ListingParseError,
     OfficialListingConnector,
 )
-from market_intelligence.source_registry import load_source_config
+from market_intelligence.source_registry import AcquisitionMethod, load_source_config
 
 FIXTURES_DIR = Path(__file__).parents[2] / "fixtures" / "sbv_listing"
 CONFIG_DIR = Path(__file__).parents[3] / "config" / "sources"
@@ -34,47 +35,34 @@ def fetch_once(source, handler, **connector_options):
     return asyncio.run(run())
 
 
-def test_official_listing_configuration_validation(sbv_config, tmp_path):
+def test_official_listing_configuration_validation(sbv_config):
     connector = OfficialListingConnector()
 
     # Valid config passes
     connector._validate_source(sbv_config)
 
     # Wrong acquisition method
-    wrong_method_path = tmp_path / "wrong.toml"
-    wrong_method_path.write_text(
-        (CONFIG_DIR / "vn_sbv_regulatory_docs.toml")
-        .read_text(encoding="utf-8")
-        .replace('method = "HTML"', 'method = "REST_API"'),
-        encoding="utf-8",
+    wrong_method = sbv_config.model_copy(
+        update={
+            "acquisition": sbv_config.acquisition.model_copy(
+                update={"method": AcquisitionMethod.REST_API}
+            )
+        }
     )
-    wrong_method = load_source_config(wrong_method_path)
     with pytest.raises(ListingConfigurationError, match="does not use HTML acquisition"):
         connector._validate_source(wrong_method)
 
     # Unsupported source
-    unsupported_path = tmp_path / "unsupported.toml"
-    unsupported_path.write_text(
-        (CONFIG_DIR / "vn_sbv_regulatory_docs.toml")
-        .read_text(encoding="utf-8")
-        .replace('source_id = "vn_sbv_regulatory_docs"', 'source_id = "vn_fake_source"'),
-        encoding="utf-8",
-    )
-    unsupported_source = load_source_config(unsupported_path)
+    unsupported_source = sbv_config.model_copy(update={"source_id": "vn_fake_source"})
     with pytest.raises(
         ListingConfigurationError, match="not supported by OfficialListingConnector v1"
     ):
         connector._validate_source(unsupported_source)
 
     # Missing rights
-    no_rights_path = tmp_path / "no_rights.toml"
-    no_rights_path.write_text(
-        (CONFIG_DIR / "vn_sbv_regulatory_docs.toml")
-        .read_text(encoding="utf-8")
-        .replace("can_fetch = true", "can_fetch = false"),
-        encoding="utf-8",
+    no_rights = sbv_config.model_copy(
+        update={"rights": sbv_config.rights.model_copy(update={"can_fetch": False})}
     )
-    no_rights = load_source_config(no_rights_path)
     with pytest.raises(ListingConfigurationError, match="not approved for fetching"):
         connector._validate_source(no_rights)
 
@@ -204,3 +192,65 @@ def test_official_listing_http_failure(sbv_config):
 
     assert exc_info.value.status_code == 404
     assert not exc_info.value.retryable
+
+
+def test_layout_drift_with_nonempty_items_fails_closed(sbv_config):
+    html = b"""
+    <div class="danh-sach-tin-tuc-v32"><ul>
+      <li><a class="renamed-link" href="/vi/w/item">Regulatory item</a></li>
+    </ul></div>
+    """
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            content=html,
+            headers={"Content-Type": "text/html; charset=utf-8"},
+            request=request,
+        )
+
+    with pytest.raises(ListingParseError, match="no usable articles"):
+        fetch_once(sbv_config, handler)
+
+
+def test_pagination_has_a_hard_page_budget(sbv_config):
+    request_count = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal request_count
+        request_count += 1
+        page = request_count + 1
+        html = f"""
+        <div class="danh-sach-tin-tuc-v32"><ul>
+          <li><a class="title-news-link" href="/vi/w/item-{request_count}">Item</a></li>
+        </ul></div>
+        <a rel="next" href="?page={page}">Next</a>
+        <a title="Trang káº¿ tiáº¿p" href="?page={page}">Next</a>
+        """.encode()
+        return httpx.Response(
+            200,
+            content=html,
+            headers={"Content-Type": "text/html; charset=utf-8"},
+            request=request,
+        )
+
+    with pytest.raises(ListingParseError, match="max_pages=2"):
+        fetch_once(sbv_config, handler, max_items=10, max_pages=2)
+
+    assert request_count == 2
+
+
+def test_pagination_cannot_leave_the_configured_listing_path(sbv_config):
+    html = """
+    <div class="danh-sach-tin-tuc-v32"><ul>
+      <li><a class="title-news-link" href="/vi/w/item">Item</a></li>
+    </ul></div>
+    <a rel="next" href="/vi/unrelated?page=2">Next</a>
+    <a title="Trang káº¿ tiáº¿p" href="/vi/unrelated?page=2">Next</a>
+    """.encode()
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, content=html, request=request)
+
+    with pytest.raises(ListingParseError, match="unexpected path"):
+        fetch_once(sbv_config, handler)

@@ -8,11 +8,12 @@ import time
 from collections.abc import Awaitable, Callable
 from datetime import UTC, datetime, timedelta
 from typing import Literal
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlparse
 
 import httpx
 
 from market_intelligence.articles import RawArticle
+from market_intelligence.connectors.request_rate_limiter import RequestRateLimiter
 from market_intelligence.source_registry import AcquisitionMethod, SourceConfig
 
 logger = logging.getLogger(__name__)
@@ -106,6 +107,7 @@ class LegalCorpusConnector:
         base_retry_delay_seconds: float = 0.5,
         max_retry_delay_seconds: float = 30.0,
         max_items: int = 100,
+        max_pages: int = 10,
         sleep: SleepFunction = asyncio.sleep,
         clock: Clock = _utc_now,
         random_value: RandomFunction = random.random,
@@ -122,6 +124,8 @@ class LegalCorpusConnector:
             raise ValueError("max_retry_delay_seconds must be positive")
         if isinstance(max_items, bool) or max_items < 1 or max_items > 1000:
             raise ValueError("max_items must be between 1 and 1000")
+        if isinstance(max_pages, bool) or max_pages < 1:
+            raise ValueError("max_pages must be a positive integer")
 
         self._api_key = api_key.strip()
         self._client = client
@@ -130,6 +134,7 @@ class LegalCorpusConnector:
         self._base_retry_delay_seconds = base_retry_delay_seconds
         self._max_retry_delay_seconds = max_retry_delay_seconds
         self._max_items = max_items
+        self._max_pages = max_pages
         self._sleep = sleep
         self._clock = clock
         self._random_value = random_value
@@ -142,7 +147,9 @@ class LegalCorpusConnector:
             if self._client is not None:
                 articles = await self._fetch_with_client(self._client, source)
             else:
-                async with httpx.AsyncClient(timeout=self._timeout, follow_redirects=False) as client:
+                async with httpx.AsyncClient(
+                    timeout=self._timeout, follow_redirects=False
+                ) as client:
                     articles = await self._fetch_with_client(client, source)
         except LegalCorpusConnectorError as error:
             logger.error(
@@ -197,19 +204,63 @@ class LegalCorpusConnector:
         retrieved_at = self._current_utc_time()
         start_date = retrieved_at - timedelta(days=7)
 
-        url = f"{source.acquisition.endpoint_url}/{start_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
-        params = {
+        collection_url = (
+            f"{source.acquisition.endpoint_url}/{start_date.strftime('%Y-%m-%dT%H:%M:%SZ')}"
+        )
+        url = collection_url
+        params: dict[str, str] = {
             "offsetMark": "*",
             "pageSize": str(self._max_items),
         }
+        package_ids: list[str] = []
+        seen_package_ids: set[str] = set()
+        visited_urls: set[str] = set()
+        pages_fetched = 0
+        limiter = RequestRateLimiter(source.acquisition.rate_limit, sleep=self._sleep)
 
-        response = await self._request_with_retries(client, source, url, params)
-        package_ids = self._parse_collection_response(source, response.content)
+        while len(package_ids) < self._max_items:
+            if pages_fetched >= self._max_pages:
+                raise CorpusBoundsError(
+                    source.source_id,
+                    f"pagination exceeded max_pages={self._max_pages}",
+                )
+            request_identity = str(httpx.URL(url, params=params))
+            if request_identity in visited_urls:
+                raise CorpusParseError(source.source_id, "pagination loop detected")
+            visited_urls.add(request_identity)
+            pages_fetched += 1
+
+            response = await self._request_with_retries(client, source, url, params, limiter)
+            page_package_ids, raw_next_page = self._parse_collection_response(
+                source, response.content
+            )
+            new_package_ids = [
+                package_id for package_id in page_package_ids if package_id not in seen_package_ids
+            ]
+            remaining = self._max_items - len(package_ids)
+            package_ids.extend(new_package_ids[:remaining])
+            seen_package_ids.update(new_package_ids)
+
+            if len(package_ids) >= self._max_items or raw_next_page is None:
+                break
+            if not new_package_ids:
+                raise CorpusParseError(
+                    source.source_id,
+                    "pagination made no package progress",
+                )
+            url = self._validate_next_page_url(
+                source,
+                raw_next_page,
+                collection_url,
+            )
+            params = {}
 
         articles: list[RawArticle] = []
         for package_id in package_ids:
             summary_url = f"{_GOVINFO_PLAW_ORIGIN}/packages/{package_id}/summary"
-            summary_response = await self._request_with_retries(client, source, summary_url, {})
+            summary_response = await self._request_with_retries(
+                client, source, summary_url, {}, limiter
+            )
             article = self._parse_summary_response(
                 source, package_id, summary_response.content, retrieved_at
             )
@@ -223,12 +274,14 @@ class LegalCorpusConnector:
         source: SourceConfig,
         url: str,
         params: dict[str, str],
+        limiter: RequestRateLimiter,
     ) -> httpx.Response:
         headers = {
             "User-Agent": _DEFAULT_USER_AGENT,
             "X-Api-Key": self._api_key,
         }
         for attempt in range(1, self._max_attempts + 1):
+            await limiter.wait()
             try:
                 response = await client.get(
                     url,
@@ -353,7 +406,7 @@ class LegalCorpusConnector:
         self,
         source: SourceConfig,
         content: bytes,
-    ) -> list[str]:
+    ) -> tuple[list[str], str | None]:
         import json
 
         try:
@@ -370,30 +423,27 @@ class LegalCorpusConnector:
         if not isinstance(count, int) or isinstance(count, bool) or count < 0:
             raise CorpusParseError(source.source_id, "missing or invalid count")
 
-        if count > self._max_items:
-            raise CorpusBoundsError(
-                source.source_id, f"collection count {count} > max_items {self._max_items}"
-            )
-
         packages = payload.get("packages")
         if not isinstance(packages, list):
             raise CorpusParseError(source.source_id, "missing or invalid packages list")
 
-        if len(packages) != count:
+        if len(packages) > count:
             raise CorpusParseError(
                 source.source_id,
-                f"inconsistent packages/count/pagination: count={count} but {len(packages)} packages",
+                f"inconsistent packages/count: count={count} but {len(packages)} packages",
             )
 
         next_page = payload.get("nextPage")
-        if next_page is not None and str(next_page).strip():
-            raise CorpusParseError(
-                source.source_id,
-                f"inconsistent envelope: count {count} <= max_items {self._max_items} but nextPage is present",
-            )
+        if next_page is not None and not isinstance(next_page, str):
+            raise CorpusParseError(source.source_id, "invalid nextPage")
+        normalized_next_page = next_page.strip() if isinstance(next_page, str) else None
+        if normalized_next_page == "":
+            normalized_next_page = None
 
         if count == 0 and len(packages) == 0:
-            return []
+            if normalized_next_page is not None:
+                raise CorpusParseError(source.source_id, "empty collection has nextPage")
+            return [], None
 
         package_ids: list[str] = []
         for pkg in packages:
@@ -404,7 +454,53 @@ class LegalCorpusConnector:
                 raise CorpusParseError(source.source_id, f"unsafe packageId: {pkg_id}")
             package_ids.append(pkg_id)
 
-        return package_ids
+        return package_ids, normalized_next_page
+
+    @staticmethod
+    def _validate_next_page_url(
+        source: SourceConfig,
+        raw_next_page: str,
+        collection_url: str,
+    ) -> str:
+        try:
+            parsed = urlparse(raw_next_page)
+        except ValueError as error:
+            raise CorpusParseError(source.source_id, "invalid nextPage URL") from error
+
+        expected = urlparse(collection_url)
+        if (
+            parsed.scheme != "https"
+            or parsed.username is not None
+            or parsed.password is not None
+            or parsed.netloc != expected.netloc
+            or parsed.path != expected.path
+            or parsed.fragment
+        ):
+            raise CorpusParseError(source.source_id, "unsafe nextPage URL")
+
+        query_items = parse_qsl(parsed.query, keep_blank_values=True)
+        query_names = [name for name, _ in query_items]
+        if (
+            any(name not in {"offsetMark", "pageSize"} for name in query_names)
+            or query_names.count("offsetMark") != 1
+        ):
+            raise CorpusParseError(source.source_id, "unsafe nextPage query")
+        offset_mark = next(value for name, value in query_items if name == "offsetMark")
+        if not offset_mark:
+            raise CorpusParseError(source.source_id, "empty nextPage offsetMark")
+
+        page_sizes = [value for name, value in query_items if name == "pageSize"]
+        if len(page_sizes) > 1:
+            raise CorpusParseError(source.source_id, "duplicate nextPage pageSize")
+        if page_sizes:
+            try:
+                page_size = int(page_sizes[0])
+            except ValueError as error:
+                raise CorpusParseError(source.source_id, "invalid nextPage pageSize") from error
+            if not 1 <= page_size <= 1000:
+                raise CorpusParseError(source.source_id, "invalid nextPage pageSize")
+
+        return raw_next_page
 
     def _parse_summary_response(
         self,

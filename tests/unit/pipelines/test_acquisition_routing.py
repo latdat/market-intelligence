@@ -2,10 +2,8 @@
 
 import asyncio
 
-import pytest
-
 from market_intelligence.articles import RawArticle
-from market_intelligence.pipelines import UnsupportedAcquisitionMethod, preflight_sources
+from market_intelligence.pipelines import preflight_sources
 from market_intelligence.source_registry import SourceConfig
 
 # ---------------------------------------------------------------------------
@@ -137,8 +135,8 @@ def test_rest_api_source_uses_injected_fetcher() -> None:
     assert result[0].fetched_count == 1
 
 
-def test_unsupported_acquisition_method_raises_before_network() -> None:
-    """A source with an unsupported acquisition method raises before any HTTP call."""
+def test_unsupported_acquisition_method_fails_closed_before_network() -> None:
+    """An unsupported source is a failed outcome without stopping the run."""
     # HTML is a valid SourceConfig method but has no connector registered.
     source = _make_source(
         "some_html_source",
@@ -146,8 +144,10 @@ def test_unsupported_acquisition_method_raises_before_network() -> None:
         "https://example.gov/listing",
     )
 
-    with pytest.raises(UnsupportedAcquisitionMethod, match="HTML"):
-        asyncio.run(preflight_sources([source], max_items=10))
+    result = asyncio.run(preflight_sources([source], max_items=10))
+
+    assert result[0].status == "FAILED"
+    assert result[0].error_type == "UnsupportedAcquisitionMethod"
 
 
 def test_mixed_rss_and_rest_sources_with_injected_fetcher() -> None:

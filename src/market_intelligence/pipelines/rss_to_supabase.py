@@ -4,7 +4,7 @@ import logging
 import os
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Protocol
+from typing import Literal, Protocol
 
 from market_intelligence.articles import CanonicalArticle, RawArticle
 from market_intelligence.connectors import (
@@ -14,7 +14,7 @@ from market_intelligence.connectors import (
 )
 from market_intelligence.deduplication import DedupReason, evaluate_duplicate
 from market_intelligence.normalization import ArticleNormalizationError, normalize_article
-from market_intelligence.persistence import ArticleRepository
+from market_intelligence.persistence import ArticlePersistenceError, ArticleRepository
 from market_intelligence.source_registry import AcquisitionMethod, SourceConfig
 
 logger = logging.getLogger(__name__)
@@ -72,6 +72,8 @@ class SourcePreflightResult:
     selected_count: int
     normalized_count: int
     rejected_count: int
+    status: Literal["SUCCESS", "FAILED"] = "SUCCESS"
+    error_type: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,6 +99,8 @@ class SourceIngestionResult:
     persisted_count: int
     storage_skipped_count: int
     article_ids: tuple[str, ...]
+    status: Literal["SUCCESS", "FAILED"] = "SUCCESS"
+    error_type: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -130,8 +134,31 @@ async def preflight_sources(
     _validate_max_items(max_items)
     results: list[SourcePreflightResult] = []
     for source in sources:
-        fetcher = connector or _create_connector_for_source(source, max_items)
-        prepared = await _prepare_source(source, fetcher, max_items)
+        try:
+            fetcher = connector or _create_connector_for_source(source, max_items)
+            prepared = await _prepare_source(source, fetcher, max_items)
+        except Exception as error:
+            logger.error(
+                "source_preflight_failed",
+                extra={
+                    "source_id": source.source_id,
+                    "stage": "fetch_normalize",
+                    "status": "FAILED",
+                    "error_type": type(error).__name__,
+                },
+            )
+            results.append(
+                SourcePreflightResult(
+                    source_id=source.source_id,
+                    fetched_count=0,
+                    selected_count=0,
+                    normalized_count=0,
+                    rejected_count=0,
+                    status="FAILED",
+                    error_type=type(error).__name__,
+                )
+            )
+            continue
         results.append(
             SourcePreflightResult(
                 source_id=source.source_id,
@@ -168,11 +195,39 @@ async def run_rss_ingestion(
     source_results: list[SourceIngestionResult] = []
 
     for source in sources:
-        fetcher = connector or _create_connector_for_source(source, max_items)
-        prepared = await _prepare_source(source, fetcher, max_items)
+        try:
+            fetcher = connector or _create_connector_for_source(source, max_items)
+            prepared = await _prepare_source(source, fetcher, max_items)
+        except Exception as error:
+            logger.error(
+                "source_ingestion_failed",
+                extra={
+                    "source_id": source.source_id,
+                    "stage": "fetch_normalize",
+                    "status": "FAILED",
+                    "error_type": type(error).__name__,
+                },
+            )
+            source_results.append(
+                SourceIngestionResult(
+                    source_id=source.source_id,
+                    fetched_count=0,
+                    selected_count=0,
+                    normalized_count=0,
+                    rejected_count=0,
+                    duplicate_count=0,
+                    persisted_count=0,
+                    storage_skipped_count=0,
+                    article_ids=(),
+                    status="FAILED",
+                    error_type=type(error).__name__,
+                )
+            )
+            continue
         duplicate_count = 0
         persisted_count = 0
         storage_skipped_count = 0
+        persistence_error: ArticlePersistenceError | None = None
 
         for article in prepared.articles:
             match = _first_batch_duplicate(article, batch_articles)
@@ -182,7 +237,11 @@ async def run_rss_ingestion(
 
             batch_articles.append(article)
             if source.rights.can_store_metadata:
-                repository.save(article)
+                try:
+                    repository.save(article)
+                except ArticlePersistenceError as error:
+                    persistence_error = error
+                    break
                 persisted_count += 1
             else:
                 storage_skipped_count += 1
@@ -197,14 +256,24 @@ async def run_rss_ingestion(
             persisted_count=persisted_count,
             storage_skipped_count=storage_skipped_count,
             article_ids=tuple(article.article_id for article in prepared.articles),
+            status="FAILED" if persistence_error is not None else "SUCCESS",
+            error_type=(
+                type(persistence_error).__name__ if persistence_error is not None else None
+            ),
         )
         source_results.append(result)
-        logger.info(
-            "rss_source_ingestion_completed",
+        log = logger.error if persistence_error is not None else logger.info
+        log(
+            (
+                "source_ingestion_failed"
+                if persistence_error is not None
+                else "source_ingestion_completed"
+            ),
             extra={
                 "source_id": source.source_id,
-                "stage": "rss_to_persistence",
-                "status": "SUCCESS",
+                "stage": "source_to_persistence",
+                "status": result.status,
+                "error_type": result.error_type,
                 "fetched_count": result.fetched_count,
                 "selected_count": result.selected_count,
                 "normalized_count": result.normalized_count,

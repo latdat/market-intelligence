@@ -13,6 +13,7 @@ from urllib.parse import urlparse
 import httpx
 
 from market_intelligence.articles import RawArticle
+from market_intelligence.connectors.request_rate_limiter import RequestRateLimiter
 from market_intelligence.source_registry import AcquisitionMethod, SourceConfig
 
 logger = logging.getLogger(__name__)
@@ -181,6 +182,7 @@ class GovernmentApiConnector:
         articles: list[RawArticle] = []
         visited_urls: set[str] = set()
         next_url: str | None = str(source.acquisition.endpoint_url)
+        limiter = RequestRateLimiter(source.acquisition.rate_limit, sleep=self._sleep)
 
         while next_url is not None and len(articles) < self._max_items:
             if next_url in visited_urls:
@@ -190,7 +192,7 @@ class GovernmentApiConnector:
                 )
 
             visited_urls.add(next_url)
-            response = await self._request_with_retries(client, source, next_url)
+            response = await self._request_with_retries(client, source, next_url, limiter)
             remaining = self._max_items - len(articles)
             page_articles, raw_next_url = self._parse_response(
                 source, response.content, retrieved_at, remaining
@@ -263,8 +265,10 @@ class GovernmentApiConnector:
         client: httpx.AsyncClient,
         source: SourceConfig,
         url: str,
+        limiter: RequestRateLimiter,
     ) -> httpx.Response:
         for attempt in range(1, self._max_attempts + 1):
+            await limiter.wait()
             try:
                 response = await client.get(
                     url,

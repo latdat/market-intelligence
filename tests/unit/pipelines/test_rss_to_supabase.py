@@ -5,6 +5,7 @@ import pytest
 
 from market_intelligence.articles import CanonicalArticle, RawArticle
 from market_intelligence.deduplication import DedupReason
+from market_intelligence.persistence import ArticlePersistenceError
 from market_intelligence.pipelines import preflight_rss_sources, run_rss_ingestion
 from market_intelligence.source_registry import SourceConfig
 
@@ -80,6 +81,32 @@ class RecordingRepository:
 
     def save(self, article: CanonicalArticle) -> None:
         self.saved.append(article)
+
+
+class SelectiveFailureFetcher(StaticFetcher):
+    def __init__(
+        self,
+        articles_by_source: dict[str, list[RawArticle]],
+        failed_source_id: str,
+    ) -> None:
+        super().__init__(articles_by_source)
+        self.failed_source_id = failed_source_id
+
+    async def fetch(self, source: SourceConfig) -> list[RawArticle]:
+        if source.source_id == self.failed_source_id:
+            raise RuntimeError("simulated source failure")
+        return await super().fetch(source)
+
+
+class SelectiveFailureRepository(RecordingRepository):
+    def __init__(self, failed_source_id: str) -> None:
+        super().__init__()
+        self.failed_source_id = failed_source_id
+
+    def save(self, article: CanonicalArticle) -> None:
+        if article.source_id == self.failed_source_id:
+            raise ArticlePersistenceError(article.article_id)
+        super().save(article)
 
 
 def test_ingestion_respects_max_items_and_persists_metadata() -> None:
@@ -175,6 +202,56 @@ def test_preflight_never_requires_repository() -> None:
     assert result[0].fetched_count == 3
     assert result[0].selected_count == 2
     assert result[0].normalized_count == 2
+
+
+def test_fetch_failure_is_reported_without_blocking_later_sources() -> None:
+    sources = [source_config(f"source_{index}") for index in range(1, 4)]
+    fetcher = SelectiveFailureFetcher(
+        {source.source_id: [raw_article(source.source_id, 1)] for source in sources},
+        failed_source_id="source_2",
+    )
+    repository = RecordingRepository()
+
+    result = asyncio.run(run_rss_ingestion(sources, repository, max_items=1, connector=fetcher))
+
+    assert [source.status for source in result.sources] == [
+        "SUCCESS",
+        "FAILED",
+        "SUCCESS",
+    ]
+    assert result.sources[1].error_type == "RuntimeError"
+    assert [article.source_id for article in repository.saved] == ["source_1", "source_3"]
+
+
+def test_preflight_fetch_failure_is_reported_without_blocking_later_sources() -> None:
+    sources = [source_config(f"source_{index}") for index in range(1, 4)]
+    fetcher = SelectiveFailureFetcher(
+        {source.source_id: [raw_article(source.source_id, 1)] for source in sources},
+        failed_source_id="source_2",
+    )
+
+    result = asyncio.run(preflight_rss_sources(sources, max_items=1, connector=fetcher))
+
+    assert [source.status for source in result] == ["SUCCESS", "FAILED", "SUCCESS"]
+    assert result[1].error_type == "RuntimeError"
+
+
+def test_persistence_failure_is_reported_without_blocking_later_sources() -> None:
+    sources = [source_config(f"source_{index}") for index in range(1, 4)]
+    fetcher = StaticFetcher(
+        {source.source_id: [raw_article(source.source_id, 1)] for source in sources}
+    )
+    repository = SelectiveFailureRepository("source_2")
+
+    result = asyncio.run(run_rss_ingestion(sources, repository, max_items=1, connector=fetcher))
+
+    assert [source.status for source in result.sources] == [
+        "SUCCESS",
+        "FAILED",
+        "SUCCESS",
+    ]
+    assert result.sources[1].error_type == "ArticlePersistenceError"
+    assert [article.source_id for article in repository.saved] == ["source_1", "source_3"]
 
 
 @pytest.mark.parametrize("max_items", [0, -1, True])

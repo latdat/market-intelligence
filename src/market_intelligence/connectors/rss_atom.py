@@ -13,6 +13,7 @@ import feedparser  # type: ignore[import-untyped]
 import httpx
 
 from market_intelligence.articles import RawArticle
+from market_intelligence.connectors.request_rate_limiter import RequestRateLimiter
 from market_intelligence.source_registry import AcquisitionMethod, SourceConfig
 
 logger = logging.getLogger(__name__)
@@ -158,7 +159,8 @@ class RssAtomConnector:
         client: httpx.AsyncClient,
         source: SourceConfig,
     ) -> list[RawArticle]:
-        response = await self._request_with_retries(client, source)
+        limiter = RequestRateLimiter(source.acquisition.rate_limit, sleep=self._sleep)
+        response = await self._request_with_retries(client, source, limiter)
         retrieved_at = self._current_utc_time()
         return self._parse_response(source, response.content, retrieved_at)
 
@@ -166,10 +168,12 @@ class RssAtomConnector:
         self,
         client: httpx.AsyncClient,
         source: SourceConfig,
+        limiter: RequestRateLimiter,
     ) -> httpx.Response:
         endpoint_url = str(source.acquisition.endpoint_url)
 
         for attempt in range(1, self._max_attempts + 1):
+            await limiter.wait()
             try:
                 response = await client.get(
                     endpoint_url,

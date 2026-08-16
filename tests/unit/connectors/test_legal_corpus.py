@@ -16,7 +16,7 @@ from market_intelligence.connectors.legal_corpus import (
     CorpusParseError,
     LegalCorpusConnector,
 )
-from market_intelligence.source_registry import SourceConfig
+from market_intelligence.source_registry import RateLimitConfig, SourceConfig
 
 FIXED_TIME = datetime(2026, 8, 15, 12, 0, tzinfo=UTC)
 
@@ -238,22 +238,37 @@ def test_repeated_stateless_fetch_produces_same_results() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_count_greater_than_max_items_raises_bounds_error() -> None:
-    def handler(request: httpx.Request) -> httpx.Response:
-        return httpx.Response(200, content=b'{"count": 5, "packages": []}', request=request)
+def test_collection_total_greater_than_max_items_is_bounded_without_outage() -> None:
+    request_urls: list[str] = []
 
-    with pytest.raises(CorpusBoundsError, match="count 5 > max_items 2"):
-        fetch_once(govinfo_source(), handler, clock=lambda: FIXED_TIME, max_items=2)
+    def handler(request: httpx.Request) -> httpx.Response:
+        request_urls.append(str(request.url))
+        if "/summary" in str(request.url):
+            package_id = request.url.path.split("/")[-2]
+            content = (
+                f'{{"packageId": "{package_id}", "collectionCode": "PLAW", '
+                f'"title": "{package_id}"}}'
+            ).encode()
+            return httpx.Response(200, content=content, request=request)
+        content = b'{"count": 5, "nextPage": "https://api.govinfo.gov/collections/PLAW/2026-08-08T12:00:00Z?offsetMark=next&pageSize=2", "packages": [{"packageId": "PLAW-1"}, {"packageId": "PLAW-2"}]}'
+        return httpx.Response(200, content=content, request=request)
+
+    articles = fetch_once(govinfo_source(), handler, clock=lambda: FIXED_TIME, max_items=2)
+
+    assert [article.source_item_id for article in articles] == ["PLAW-1", "PLAW-2"]
+    assert len([url for url in request_urls if "/collections/" in url]) == 1
 
 
 def test_malformed_collection_envelope() -> None:
     with pytest.raises(CorpusParseError, match="not valid JSON"):
         fetch_once(govinfo_source(), single_page_handler(b"not json"))
 
+
 def test_boolean_count_is_invalid() -> None:
     content = b'{"count": true, "packages": []}'
     with pytest.raises(CorpusParseError, match="missing or invalid count"):
         fetch_once(govinfo_source(), single_page_handler(content))
+
 
 def test_non_dict_package_entry() -> None:
     content = b'{"count": 1, "packages": ["PLAW-118publ1"]}'
@@ -262,8 +277,8 @@ def test_non_dict_package_entry() -> None:
 
 
 def test_inconsistent_packages_count() -> None:
-    content = b'{"count": 2, "packages": [{"packageId": "PLAW-1"}]}'
-    with pytest.raises(CorpusParseError, match="inconsistent packages/count/pagination"):
+    content = b'{"count": 0, "packages": [{"packageId": "PLAW-1"}]}'
+    with pytest.raises(CorpusParseError, match="inconsistent packages/count"):
         fetch_once(govinfo_source(), single_page_handler(content))
 
 
@@ -276,10 +291,104 @@ def test_unsafe_package_id(bad_id: str) -> None:
         fetch_once(govinfo_source(), single_page_handler(content))
 
 
-def test_next_page_present_fails_closed() -> None:
-    content = b'{"count": 1, "nextPage": "https://api.govinfo.gov/collections/PLAW/2026-08-08T12:00:00Z?offsetMark=next", "packages": [{"packageId": "PLAW-1"}]}'
-    with pytest.raises(CorpusParseError, match="nextPage is present"):
-        fetch_once(govinfo_source(), single_page_handler(content))
+def test_safe_next_page_is_followed_with_a_bounded_result() -> None:
+    collection_requests = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal collection_requests
+        if "/summary" in str(request.url):
+            package_id = request.url.path.split("/")[-2]
+            content = (
+                f'{{"packageId": "{package_id}", "collectionCode": "PLAW", '
+                f'"title": "{package_id}"}}'
+            ).encode()
+            return httpx.Response(200, content=content, request=request)
+        collection_requests += 1
+        if collection_requests == 1:
+            content = b'{"count": 2, "nextPage": "https://api.govinfo.gov/collections/PLAW/2026-08-08T12:00:00Z?offsetMark=next&pageSize=1", "packages": [{"packageId": "PLAW-1"}]}'
+        else:
+            content = b'{"count": 2, "packages": [{"packageId": "PLAW-2"}]}'
+        return httpx.Response(200, content=content, request=request)
+
+    articles = fetch_once(govinfo_source(), handler, clock=lambda: FIXED_TIME, max_items=2)
+
+    assert [article.source_item_id for article in articles] == ["PLAW-1", "PLAW-2"]
+    assert collection_requests == 2
+
+
+def test_cross_origin_next_page_fails_before_following_it() -> None:
+    content = b'{"count": 2, "nextPage": "https://evil.example/collections/PLAW/2026-08-08T12:00:00Z?offsetMark=next", "packages": [{"packageId": "PLAW-1"}]}'
+
+    with pytest.raises(CorpusParseError, match="unsafe nextPage URL"):
+        fetch_once(
+            govinfo_source(),
+            single_page_handler(content),
+            clock=lambda: FIXED_TIME,
+            max_items=2,
+        )
+
+
+def test_collection_pagination_has_a_hard_page_budget() -> None:
+    request_count = 0
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        nonlocal request_count
+        request_count += 1
+        content = (
+            f'{{"count": 10, "nextPage": '
+            f'"https://api.govinfo.gov/collections/PLAW/2026-08-08T12:00:00Z'
+            f'?offsetMark=next-{request_count}&pageSize=1", '
+            f'"packages": [{{"packageId": "PLAW-{request_count}"}}]}}'
+        ).encode()
+        return httpx.Response(200, content=content, request=request)
+
+    with pytest.raises(CorpusBoundsError, match="max_pages=2"):
+        fetch_once(
+            govinfo_source(),
+            handler,
+            clock=lambda: FIXED_TIME,
+            max_items=10,
+            max_pages=2,
+        )
+
+    assert request_count == 2
+
+
+def test_connector_applies_source_rate_limit_to_collection_and_summary_requests() -> None:
+    delays: list[float] = []
+    source = govinfo_source()
+    source = source.model_copy(
+        update={
+            "acquisition": source.acquisition.model_copy(
+                update={
+                    "rate_limit": RateLimitConfig(
+                        max_requests=1,
+                        period_seconds=10,
+                    )
+                }
+            )
+        }
+    )
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if "/summary" in str(request.url):
+            content = b'{"packageId": "PLAW-1", "collectionCode": "PLAW", "title": "Law"}'
+        else:
+            content = b'{"count": 1, "packages": [{"packageId": "PLAW-1"}]}'
+        return httpx.Response(200, content=content, request=request)
+
+    async def record_sleep(delay: float) -> None:
+        delays.append(delay)
+
+    articles = fetch_once(
+        source,
+        handler,
+        clock=lambda: FIXED_TIME,
+        sleep=record_sleep,
+    )
+
+    assert len(articles) == 1
+    assert delays == [10.0]
 
 
 def test_malformed_summary() -> None:

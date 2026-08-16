@@ -287,6 +287,10 @@ Suggested health inputs:
 
 ## 5. Polling
 
+Canonical rule:
+`poll_interval_minutes` is scheduler-owned scheduling metadata.
+The ingestion runner performs bounded one-shot execution and does not sleep to enforce polling cadence.
+
 Default target is approximately 15 minutes where practical.
 
 A source may use 30/60 minute polling when:

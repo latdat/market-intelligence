@@ -14,6 +14,7 @@ import httpx
 from bs4 import BeautifulSoup
 
 from market_intelligence.articles import RawArticle
+from market_intelligence.connectors.request_rate_limiter import RequestRateLimiter
 from market_intelligence.source_registry import AcquisitionMethod, SourceConfig
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,7 @@ _DEFAULT_USER_AGENT = "market-intelligence/0.1 official-listing-connector"
 # Only the State Bank of Vietnam is supported in v1.
 _SUPPORTED_SOURCE_IDS = frozenset({"vn_sbv_regulatory_docs"})
 _SBV_ORIGIN = "https://sbv.gov.vn"
+_SBV_PAGINATION_PATH = "/vi/vbdh"
 
 
 def _utc_now() -> datetime:
@@ -96,6 +98,7 @@ class OfficialListingConnector:
         base_retry_delay_seconds: float = 0.5,
         max_retry_delay_seconds: float = 30.0,
         max_items: int = 100,
+        max_pages: int = 10,
         sleep: SleepFunction = asyncio.sleep,
         clock: Clock = _utc_now,
         random_value: RandomFunction = random.random,
@@ -110,6 +113,8 @@ class OfficialListingConnector:
             raise ValueError("max_retry_delay_seconds must be positive")
         if isinstance(max_items, bool) or max_items < 1:
             raise ValueError("max_items must be a positive integer")
+        if isinstance(max_pages, bool) or max_pages < 1:
+            raise ValueError("max_pages must be a positive integer")
 
         self._client = client
         self._timeout = httpx.Timeout(timeout_seconds)
@@ -117,6 +122,7 @@ class OfficialListingConnector:
         self._base_retry_delay_seconds = base_retry_delay_seconds
         self._max_retry_delay_seconds = max_retry_delay_seconds
         self._max_items = max_items
+        self._max_pages = max_pages
         self._sleep = sleep
         self._clock = clock
         self._random_value = random_value
@@ -183,8 +189,16 @@ class OfficialListingConnector:
         articles: list[RawArticle] = []
         visited_urls: set[str] = set()
         next_url: str | None = str(source.acquisition.endpoint_url)
+        listing_path = str(urlparse(next_url).path)
+        pages_fetched = 0
+        limiter = RequestRateLimiter(source.acquisition.rate_limit, sleep=self._sleep)
 
         while next_url is not None and len(articles) < self._max_items:
+            if pages_fetched >= self._max_pages:
+                raise ListingParseError(
+                    source.source_id,
+                    f"pagination exceeded max_pages={self._max_pages}",
+                )
             if next_url in visited_urls:
                 raise ListingParseError(
                     source.source_id,
@@ -192,7 +206,8 @@ class OfficialListingConnector:
                 )
 
             visited_urls.add(next_url)
-            response = await self._request_with_retries(client, source, next_url)
+            pages_fetched += 1
+            response = await self._request_with_retries(client, source, next_url, limiter)
             remaining = self._max_items - len(articles)
 
             # Use strict fail-closed parsing
@@ -203,8 +218,18 @@ class OfficialListingConnector:
             articles.extend(page_articles)
             if len(articles) >= self._max_items:
                 break
+            if raw_next_url is not None and not page_articles:
+                raise ListingParseError(
+                    source.source_id,
+                    "pagination made no article progress",
+                )
 
-            next_url = self._validate_next_page_url(source, raw_next_url, visited_urls)
+            next_url = self._validate_next_page_url(
+                source,
+                raw_next_url,
+                visited_urls,
+                listing_path,
+            )
 
         return articles
 
@@ -213,6 +238,7 @@ class OfficialListingConnector:
         source: SourceConfig,
         raw_next_url: str | None,
         visited_urls: set[str],
+        listing_path: str,
     ) -> str | None:
         if raw_next_url is None:
             return None
@@ -244,6 +270,12 @@ class OfficialListingConnector:
                 f"invalid pagination URL (cross-origin): {raw_next_url}",
             )
 
+        if parsed.path not in {listing_path, _SBV_PAGINATION_PATH}:
+            raise ListingParseError(
+                source.source_id,
+                f"invalid pagination URL (unexpected path): {raw_next_url}",
+            )
+
         if raw_next_url in visited_urls:
             raise ListingParseError(
                 source.source_id,
@@ -257,8 +289,10 @@ class OfficialListingConnector:
         client: httpx.AsyncClient,
         source: SourceConfig,
         url: str,
+        limiter: RequestRateLimiter,
     ) -> httpx.Response:
         for attempt in range(1, self._max_attempts + 1):
+            await limiter.wait()
             try:
                 response = await client.get(
                     url,
@@ -411,6 +445,10 @@ class OfficialListingConnector:
 
             link = item.find("a", class_="title-news-link")
             if not link:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_article_link"
+                )
                 continue
 
             href = link.get("href")
@@ -470,6 +508,8 @@ class OfficialListingConnector:
         # Pagination: Look for next page link in pagination container
         next_page_url = None
         next_link = soup.find("a", title="Trang kế tiếp")
+        if next_link is None:
+            next_link = soup.find("a", rel="next")
         if next_link and next_link.get("href"):
             raw_href = str(next_link.get("href")).strip()
             if not raw_href.startswith("javascript"):
