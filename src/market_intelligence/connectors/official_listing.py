@@ -28,10 +28,23 @@ _RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
 _RETRY_AFTER_STATUS_CODES = frozenset({429, 503})
 _DEFAULT_USER_AGENT = "market-intelligence/0.1 official-listing-connector"
 
-# Only the State Bank of Vietnam is supported in v1.
-_SUPPORTED_SOURCE_IDS = frozenset({"vn_sbv_regulatory_docs"})
+# Supported sources
+_SUPPORTED_SOURCE_IDS = frozenset(
+    {
+        "vn_sbv_regulatory_docs",
+        "vn_moit_regulatory_docs",
+        "vn_mst_regulatory_docs",
+    }
+)
+
 _SBV_ORIGIN = "https://sbv.gov.vn"
 _SBV_PAGINATION_PATH = "/vi/vbdh"
+
+_MOIT_ORIGIN = "https://moit.gov.vn"
+_MOIT_PAGINATION_PATH = "/van-ban-phap-luat/van-ban-phap-quy"
+
+_MST_ORIGIN = "https://mst.gov.vn"
+_MST_PAGINATION_PATH = "/van-ban-phap-luat.htm"
 
 
 def _utc_now() -> datetime:
@@ -210,10 +223,21 @@ class OfficialListingConnector:
             response = await self._request_with_retries(client, source, next_url, limiter)
             remaining = self._max_items - len(articles)
 
-            # Use strict fail-closed parsing
-            page_articles, raw_next_url = self._parse_sbv_html(
-                source, response.text, next_url, retrieved_at, remaining
-            )
+            # Use strict fail-closed parsing based on source
+            if source.source_id == "vn_sbv_regulatory_docs":
+                page_articles, raw_next_url = self._parse_sbv_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
+            elif source.source_id == "vn_moit_regulatory_docs":
+                page_articles, raw_next_url = self._parse_moit_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
+            elif source.source_id == "vn_mst_regulatory_docs":
+                page_articles, raw_next_url = self._parse_mst_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
+            else:
+                raise ListingParseError(source.source_id, "unsupported source_id")
 
             articles.extend(page_articles)
             if len(articles) >= self._max_items:
@@ -264,13 +288,28 @@ class OfficialListingConnector:
             )
 
         origin = f"{parsed.scheme}://{parsed.netloc}"
-        if origin != _SBV_ORIGIN:
+        if source.source_id == "vn_sbv_regulatory_docs" and origin != _SBV_ORIGIN:
             raise ListingParseError(
-                source.source_id,
-                f"invalid pagination URL (cross-origin): {raw_next_url}",
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "vn_moit_regulatory_docs" and origin != _MOIT_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "vn_mst_regulatory_docs" and origin != _MST_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
             )
 
-        if parsed.path not in {listing_path, _SBV_PAGINATION_PATH}:
+        allowed_paths = {listing_path}
+        if source.source_id == "vn_sbv_regulatory_docs":
+            allowed_paths.add(_SBV_PAGINATION_PATH)
+        elif source.source_id == "vn_moit_regulatory_docs":
+            allowed_paths.add(_MOIT_PAGINATION_PATH)
+        elif source.source_id == "vn_mst_regulatory_docs":
+            allowed_paths.add(_MST_PAGINATION_PATH)
+
+        if parsed.path not in allowed_paths:
             raise ListingParseError(
                 source.source_id,
                 f"invalid pagination URL (unexpected path): {raw_next_url}",
@@ -534,3 +573,201 @@ class OfficialListingConnector:
                 "item_index": item_index,
             },
         )
+
+    @staticmethod
+    def _parse_moit_html(
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+    ) -> tuple[list[RawArticle], str | None]:
+        """Parse MOIT regulatory document listing page."""
+        import re
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        rows = soup.find_all("tr")
+        for item_index, row in enumerate(rows):
+            if len(articles) >= max_items:
+                break
+
+            tds = row.find_all("td")
+            if not tds or len(tds) < 4:
+                continue
+
+            link = row.find("a")
+            if not link:
+                continue
+
+            href = link.get("href")
+            if not href or not str(href).strip():
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_href"
+                )
+                continue
+
+            absolute_url = urljoin(base_url, str(href).strip())
+            parsed_url = urlparse(absolute_url)
+            query_params = parse_qsl(parsed_url.query, keep_blank_values=True)
+            filtered_query = [(k, v) for k, v in query_params if k != "redirect"]
+            canonical_url = urlunparse(parsed_url._replace(query=urlencode(filtered_query)))
+
+            title = tds[1].get_text(strip=True)
+            if not title:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_title"
+                )
+                continue
+
+            doc_num_raw = tds[2].get_text(strip=True)
+            published_at_raw = tds[3].get_text(strip=True)
+
+            # Clean and determine identity
+            source_item_id = None
+            if doc_num_raw:
+                doc_num_clean = re.sub(r"^[Ss]ố[:\s]*", "", doc_num_raw).strip()
+                if re.search(r"[0-9]+/[0-9]{4}/", doc_num_clean):
+                    source_item_id = doc_num_clean
+
+            raw_metadata: dict[str, object] = {}
+            if doc_num_raw:
+                raw_metadata["document_number"] = doc_num_raw
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=canonical_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw or None,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata=raw_metadata,
+                )
+            )
+
+        # Pagination
+        next_page_url = None
+        next_link = soup.find("a", class_="next") or soup.find("a", rel="next")
+        if not next_link:
+            next_link = soup.find("a", string=re.compile(r"Sau"))
+        if next_link and next_link.get("href"):
+            raw_href = str(next_link.get("href")).strip()
+            if not raw_href.startswith("javascript"):
+                next_page_url = urljoin(base_url, raw_href)
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, next_page_url
+
+    @staticmethod
+    def _parse_mst_html(
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+    ) -> tuple[list[RawArticle], str | None]:
+        """Parse MST regulatory document listing page."""
+        import re
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        rows = soup.find_all("tr")
+        for item_index, row in enumerate(rows):
+            if len(articles) >= max_items:
+                break
+
+            tds = row.find_all("td")
+            if not tds or len(tds) < 6:
+                continue
+
+            # Look for detail link in the 5th column or anywhere in the row
+            link = row.find("a", href=re.compile(r"\.htm$"))
+            if not link:
+                continue
+
+            href = link.get("href")
+            if not href or not str(href).strip():
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_href"
+                )
+                continue
+
+            absolute_url = urljoin(base_url, str(href).strip())
+            parsed_url = urlparse(absolute_url)
+            query_params = parse_qsl(parsed_url.query, keep_blank_values=True)
+            filtered_query = [(k, v) for k, v in query_params if k != "redirect"]
+            canonical_url = urlunparse(parsed_url._replace(query=urlencode(filtered_query)))
+
+            # Extract numeric record ID from the detail href
+            source_item_id = None
+            match = re.search(r"/van-ban-phap-luat/(\d+)\.htm", canonical_url)
+            if match:
+                source_item_id = match.group(1)
+
+            title_cell_text = tds[4].get_text(strip=True)
+            title = re.sub(r"Xem chi tiết$", "", title_cell_text, flags=re.IGNORECASE).strip()
+            if not title:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_title"
+                )
+                continue
+
+            doc_num = tds[0].get_text(strip=True)
+            issuer = tds[1].get_text(strip=True)
+            doc_type = tds[2].get_text(strip=True)
+            field = tds[3].get_text(strip=True)
+            published_at_raw = tds[5].get_text(strip=True)
+
+            raw_metadata: dict[str, object] = {}
+            if doc_num:
+                raw_metadata["document_number"] = doc_num
+            if issuer:
+                raw_metadata["issuer"] = issuer
+            if doc_type:
+                raw_metadata["document_type"] = doc_type
+            if field:
+                raw_metadata["field"] = field
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=canonical_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw or None,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata=raw_metadata,
+                )
+            )
+
+        # Pagination
+        next_page_url = None
+        next_link = soup.find("a", string=re.compile(r"Sau")) or soup.find("a", rel="next")
+        if next_link and next_link.get("href"):
+            raw_href = str(next_link.get("href")).strip()
+            if not raw_href.startswith("javascript"):
+                next_page_url = urljoin(base_url, raw_href)
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, next_page_url

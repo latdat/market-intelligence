@@ -5,7 +5,7 @@ import json
 import logging
 import unicodedata
 from collections.abc import Sequence
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from urllib.parse import unquote_plus, urlsplit, urlunsplit
@@ -235,6 +235,15 @@ def _parse_published_at(value: str | None, source_id: str) -> datetime | None:
                 parsed = parsedate_to_datetime(stripped_value)
             except (TypeError, ValueError, OverflowError):
                 parsed = None
+
+        if parsed is None:
+            vn_tz = timezone(timedelta(hours=7))
+            for fmt in ("%d/%m/%Y", "%d/%m/%Y | %H:%M:%S", "%d/%m/%Y %H:%M:%S"):
+                try:
+                    parsed = datetime.strptime(stripped_value, fmt).replace(tzinfo=vn_tz)
+                    break
+                except ValueError:
+                    continue
 
     if parsed is None or parsed.tzinfo is None or parsed.utcoffset() is None:
         logger.warning(

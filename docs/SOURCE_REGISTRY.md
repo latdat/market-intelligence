@@ -119,8 +119,8 @@ in DE-002.
 
 ### 2.2 Current implementation — production source registry
 
-`CURRENT IMPLEMENTATION` contains exactly nine static `SourceConfig` files under
-`config/sources/`: six RSS/Atom sources (SO-001/SO-004), two REST API sources (SO-004, SO-005), and one HTML source (SO-006).
+`CURRENT IMPLEMENTATION` contains exactly 11 static `SourceConfig` files under
+`config/sources/`: six RSS/Atom sources (SO-001/SO-004), two REST API sources (SO-004, SO-005), and three HTML sources (SO-006, SO-007).
 
 | Source ID | Market | Acquisition | Current role | Official v1 MUST? |
 |---|---|---|---|---|
@@ -133,12 +133,14 @@ in DE-002.
 | `us_federal_register` | US | REST_API | Federal Register regulatory event spine (SO-004) | Yes |
 | `us_govinfo_legal` | US | REST_API | GovInfo canonical legal corpus (SO-005 v1: PLAW package-level) | Yes |
 | `vn_sbv_regulatory_docs` | VN | HTML | State Bank of Vietnam regulatory documents (SO-006) | Yes |
+| `vn_moit_regulatory_docs` | VN | HTML | Ministry of Industry and Trade regulatory documents (SO-007) | Yes |
+| `vn_mst_regulatory_docs` | VN | HTML | Ministry of Science and Technology regulatory documents (SO-007) | Yes |
 
-Of the 25 official MUST sources, **7** are currently implemented: `us_fed_press_releases`,
-`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, and `vn_sbv_regulatory_docs`. The
-remaining **18** MUST sources are `Planned / documented only`.
+Of the 25 official MUST sources, **9** are currently implemented: `us_fed_press_releases`,
+`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, and `vn_mst_regulatory_docs`. The
+remaining **16** MUST sources are `Planned / documented only`.
 
-All nine records use conservative metadata-only rights with
+All 11 records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
 metadata persistence but does not approve full-text storage, AI processing, snippet
 display, or redistribution.
@@ -146,7 +148,7 @@ display, or redistribution.
 Content scope:
 - `EDITORIAL_NEWS`: `vn_mst_news_events`, `us_fed_press_releases`, `eu_ecb_press`,
   `cn_nbs_latest_releases`, `eu_ec_policy_news`
-- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`
+- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`
 
 **us_federal_register event-spine vs. GovInfo corpus boundary:**
 The `us_federal_register` source is the Federal Register **regulatory event spine** — it
@@ -180,8 +182,8 @@ the remaining 21 rows are `Planned / documented only`.
 | VN | `vn_vbpl_legal` | Canonical legal spine (VBPL) | `Planned / documented only` |
 | VN | `vn_sbv_regulatory_docs` | State Bank regulatory documents | `Implemented (SO-006 SourceConfig)` |
 | VN | `vn_ssc_regulatory_docs` | Securities regulatory documents | `Planned / documented only` |
-| VN | `vn_moit_regulatory_docs` | Industry/trade/energy regulatory documents | `Planned / documented only` |
-| VN | `vn_mst_regulatory_docs` | Technology regulatory documents | `Planned / documented only` |
+| VN | `vn_moit_regulatory_docs` | Industry/trade/energy regulatory documents | `Implemented (SO-007 SourceConfig)` |
+| VN | `vn_mst_regulatory_docs` | Technology regulatory documents | `Implemented (SO-007 SourceConfig)` |
 | VN | `vn_moc_regulatory_docs` | Construction/real-estate regulatory documents | `Planned / documented only` |
 | US | `us_federal_register` | Federal Register event spine | `Implemented (SO-004 SourceConfig)` |
 | US | `us_govinfo_legal` | GovInfo canonical legal corpus | `Implemented (SO-005 v1: PLAW package-level)` |

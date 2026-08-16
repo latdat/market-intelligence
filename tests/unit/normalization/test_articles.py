@@ -187,6 +187,9 @@ def test_source_id_mismatch_is_rejected() -> None:
         ("2026-08-14T10:00:00-04:00", datetime(2026, 8, 14, 14, 0, tzinfo=UTC)),
         ("Fri, 14 Aug 2026 14:00:00 GMT", datetime(2026, 8, 14, 14, 0, tzinfo=UTC)),
         ("2026-08-14T14:00:00Z", datetime(2026, 8, 14, 14, 0, tzinfo=UTC)),
+        ("14/08/2026", datetime(2026, 8, 13, 17, 0, tzinfo=UTC)),
+        ("14/08/2026 10:00:00", datetime(2026, 8, 14, 3, 0, tzinfo=UTC)),
+        ("14/08/2026 | 10:00:00", datetime(2026, 8, 14, 3, 0, tzinfo=UTC)),
     ],
 )
 def test_supported_publication_timestamps_are_normalized_to_utc(

@@ -55,7 +55,11 @@ def _create_connector_for_source(source: SourceConfig, max_items: int) -> Source
             return LegalCorpusConnector(api_key=api_key, max_items=max_items)
         return GovernmentApiConnector(max_items=max_items)
     if method is AcquisitionMethod.HTML:
-        if source.source_id == "vn_sbv_regulatory_docs":
+        if source.source_id in {
+            "vn_sbv_regulatory_docs",
+            "vn_moit_regulatory_docs",
+            "vn_mst_regulatory_docs",
+        }:
             return OfficialListingConnector(max_items=max_items)
     raise UnsupportedAcquisitionMethod(
         f"source {source.source_id} uses acquisition method {method.value!r} "
