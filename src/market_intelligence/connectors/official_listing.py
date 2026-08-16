@@ -34,6 +34,9 @@ _SUPPORTED_SOURCE_IDS = frozenset(
         "vn_sbv_regulatory_docs",
         "vn_moit_regulatory_docs",
         "vn_mst_regulatory_docs",
+        "us_bis_regulatory",
+        "us_fhfa_regulatory",
+        "eu_esma_regulatory",
     }
 )
 
@@ -45,6 +48,15 @@ _MOIT_PAGINATION_PATH = "/van-ban-phap-luat/van-ban-phap-quy"
 
 _MST_ORIGIN = "https://mst.gov.vn"
 _MST_PAGINATION_PATH = "/van-ban-phap-luat.htm"
+
+_BIS_ORIGIN = "https://www.bis.gov"
+_BIS_PAGINATION_PATH = "/regulations/federal-register-notices"
+
+_FHFA_ORIGIN = "https://www.fhfa.gov"
+_FHFA_PAGINATION_PATH = "/regulation/federal-register"
+
+_ESMA_ORIGIN = "https://www.esma.europa.eu"
+_ESMA_PAGINATION_PATH = "/databases-library/esma-library"
 
 
 def _utc_now() -> datetime:
@@ -236,9 +248,20 @@ class OfficialListingConnector:
                 page_articles, raw_next_url = self._parse_mst_html(
                     source, response.text, next_url, retrieved_at, remaining
                 )
+            elif source.source_id == "us_bis_regulatory":
+                page_articles, raw_next_url = self._parse_bis_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
+            elif source.source_id == "us_fhfa_regulatory":
+                page_articles, raw_next_url = self._parse_fhfa_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
+            elif source.source_id == "eu_esma_regulatory":
+                page_articles, raw_next_url = self._parse_esma_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
             else:
                 raise ListingParseError(source.source_id, "unsupported source_id")
-
             articles.extend(page_articles)
             if len(articles) >= self._max_items:
                 break
@@ -300,6 +323,26 @@ class OfficialListingConnector:
             raise ListingParseError(
                 source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
             )
+        elif source.source_id == "us_bis_regulatory" and origin != _BIS_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "us_fhfa_regulatory" and origin != _FHFA_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "eu_esma_regulatory" and origin != _ESMA_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "vn_moit_regulatory_docs" and origin != _MOIT_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "vn_mst_regulatory_docs" and origin != _MST_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
 
         allowed_paths = {listing_path}
         if source.source_id == "vn_sbv_regulatory_docs":
@@ -308,6 +351,17 @@ class OfficialListingConnector:
             allowed_paths.add(_MOIT_PAGINATION_PATH)
         elif source.source_id == "vn_mst_regulatory_docs":
             allowed_paths.add(_MST_PAGINATION_PATH)
+        elif source.source_id == "us_bis_regulatory":
+            allowed_paths.add(_BIS_PAGINATION_PATH)
+        elif source.source_id == "us_fhfa_regulatory":
+            allowed_paths.add(_FHFA_PAGINATION_PATH)
+        elif source.source_id == "eu_esma_regulatory":
+            allowed_paths.add(_ESMA_PAGINATION_PATH)
+            query_params = dict(parse_qsl(parsed.query, keep_blank_values=True))
+            if query_params.get("f[0]") != "basic_section:35":
+                raise ListingParseError(
+                    source.source_id, "invalid pagination URL (missing/changed section filter)"
+                )
 
         if parsed.path not in allowed_paths:
             raise ListingParseError(
@@ -760,6 +814,341 @@ class OfficialListingConnector:
         # Pagination
         next_page_url = None
         next_link = soup.find("a", string=re.compile(r"Sau")) or soup.find("a", rel="next")
+        if next_link and next_link.get("href"):
+            raw_href = str(next_link.get("href")).strip()
+            if not raw_href.startswith("javascript"):
+                next_page_url = urljoin(base_url, raw_href)
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, next_page_url
+
+    @staticmethod
+    def _parse_bis_html(
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+    ) -> tuple[list[RawArticle], str | None]:
+        import json
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        script_tag = soup.find("script", id="__NEXT_DATA__", type="application/json")
+        if not script_tag or not script_tag.string:
+            raise ListingParseError(source.source_id, "missing __NEXT_DATA__ script block")
+
+        try:
+            data = json.loads(script_tag.string)
+        except json.JSONDecodeError as error:
+            raise ListingParseError(
+                source.source_id, f"malformed JSON in __NEXT_DATA__: {error}"
+            ) from error
+
+        frns = None
+
+        def find_frns(node: object) -> None:
+            nonlocal frns
+            if isinstance(node, dict):
+                for k, v in node.items():
+                    if k == "frns" and isinstance(v, list):
+                        frns = v
+                        return
+                for v in node.values():
+                    if frns is not None:
+                        return
+                    find_frns(v)
+            elif isinstance(node, list):
+                for item in node:
+                    if frns is not None:
+                        return
+                    find_frns(item)
+
+        find_frns(data)
+
+        if frns is None:
+            raise ListingParseError(source.source_id, "missing frns structure in JSON")
+
+        if not isinstance(frns, list):
+            raise ListingParseError(source.source_id, "frns structure is not a list")
+
+        for item_index, item in enumerate(frns):
+            if len(articles) >= max_items:
+                break
+
+            title = item.get("frnTitle")
+            if not title:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_title"
+                )
+                continue
+
+            frn_url = item.get("frnUrl", {}).get("url")
+            if not frn_url:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_frn_url"
+                )
+                continue
+
+            published_at_raw = item.get("frnPublicationDate", {}).get("time")
+            fr_citation = item.get("frnCitation")
+
+            # Extract Federal Register Document Number from frn_url
+            source_item_id = None
+            if "federalregister.gov" in frn_url:
+                match = re.search(r"/documents/\d{4}/\d{2}/\d{2}/([^/]+)/", frn_url)
+                if match:
+                    source_item_id = match.group(1)
+
+            raw_metadata: dict[str, object] = {}
+            if fr_citation:
+                raw_metadata["fr_citation"] = fr_citation
+            if "frnEffectiveOnDate" in item and isinstance(item["frnEffectiveOnDate"], dict):
+                if "time" in item["frnEffectiveOnDate"]:
+                    raw_metadata["effective_date"] = item["frnEffectiveOnDate"]["time"]
+            if item.get("frnDocumentType"):
+                raw_metadata["document_category"] = item["frnDocumentType"]
+            if item.get("frnRegulationType"):
+                raw_metadata["regulation_set"] = item["frnRegulationType"]
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=frn_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata=raw_metadata,
+                )
+            )
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, None
+
+    @staticmethod
+    def _parse_fhfa_html(
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        rows = soup.find_all("tr")
+        for item_index, row in enumerate(rows):
+            if len(articles) >= max_items:
+                break
+
+            tds = row.find_all(["td", "th"])
+            if not tds or len(tds) < 5:
+                continue
+
+            # Skip header row
+            if "DateSort ascending" in tds[0].get_text():
+                continue
+
+            date_raw = tds[0].get_text(strip=True)
+            title = tds[1].get_text(strip=True)
+            number = tds[2].get_text(strip=True)
+            doc_type = tds[3].get_text(strip=True)
+            volume_page = tds[4].get_text(strip=True)
+
+            if not title:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_title"
+                )
+                continue
+
+            fhfa_detail_link = None
+            fr_link = None
+            for link in row.find_all("a", href=True):
+                href = str(link.get("href")).strip()
+                if "federalregister.gov" in href:
+                    fr_link = href
+                elif href.startswith("/regulation/federal-register/"):
+                    fhfa_detail_link = href
+
+            if not fhfa_detail_link:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_detail_link"
+                )
+                continue
+
+            absolute_url = urljoin(base_url, fhfa_detail_link)
+
+            source_item_id = None
+            if fr_link:
+                match = re.search(r"/documents/\d{4}/\d{2}/\d{2}/([^/]+)/", fr_link)
+                if match:
+                    source_item_id = match.group(1)
+
+            raw_metadata: dict[str, object] = {}
+            if number:
+                raw_metadata["fhfa_number"] = number
+            if doc_type:
+                raw_metadata["type"] = doc_type
+            if volume_page:
+                raw_metadata["fr_citation"] = volume_page
+            if fr_link:
+                raw_metadata["federal_register_url"] = fr_link
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=date_raw or None,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata=raw_metadata,
+                )
+            )
+
+        next_page_url = None
+        next_link = soup.find("a", string=re.compile(r"Next", re.I))
+        if not next_link:
+            next_link = soup.find("a", class_=re.compile(r"next", re.I))
+        if next_link and next_link.get("href"):
+            raw_href = str(next_link.get("href")).strip()
+            if not raw_href.startswith("javascript"):
+                next_page_url = urljoin(base_url, raw_href)
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, next_page_url
+
+    @staticmethod
+    def _parse_esma_html(
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        rows = soup.find_all("tr")
+        for item_index, row in enumerate(rows):
+            if len(articles) >= max_items:
+                break
+
+            tds = row.find_all(["td", "th"])
+            if not tds or len(tds) < 6:
+                continue
+
+            if "DateSort ascending" in tds[0].get_text():
+                continue
+
+            date_raw = tds[0].get_text(strip=True)
+            reference = tds[1].get_text(strip=True)
+            title = tds[2].get_text(strip=True)
+            sections = tds[3].get_text(strip=True)
+            doc_type = tds[4].get_text(strip=True)
+
+            if not title:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_title"
+                )
+                continue
+
+            if "Guidelines and Technical standards" not in sections:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_required_section"
+                )
+                continue
+
+            detail_link = None
+            for link in row.find_all("a", href=True):
+                href = str(link.get("href")).strip()
+                if href.startswith("/document/"):
+                    detail_link = href
+                    break
+
+            if not detail_link:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_detail_link"
+                )
+                continue
+
+            absolute_url = urljoin(base_url, detail_link)
+
+            source_item_id = None
+            # e.g., ESMA75-113276571-1525
+            if reference and re.match(r"^ESMA\d+-[a-zA-Z0-9\-]+$", reference):
+                source_item_id = reference
+
+            raw_metadata: dict[str, object] = {}
+            if reference:
+                raw_metadata["reference"] = reference
+            if sections:
+                raw_metadata["sections"] = sections
+            if doc_type:
+                raw_metadata["document_type"] = doc_type
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=date_raw or None,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata=raw_metadata,
+                )
+            )
+
+        next_page_url = None
+        next_link = soup.find("a", string=re.compile(r"Next", re.I))
+        if not next_link:
+            next_link = soup.find("a", class_=re.compile(r"next", re.I))
+            if not next_link:
+                li = soup.find("li", class_=re.compile(r"pager__item--next", re.I))
+                if li:
+                    next_link = li.find("a")
+
         if next_link and next_link.get("href"):
             raw_href = str(next_link.get("href")).strip()
             if not raw_href.startswith("javascript"):

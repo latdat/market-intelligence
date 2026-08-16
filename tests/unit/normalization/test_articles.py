@@ -317,3 +317,22 @@ def test_repeated_normalization_is_stable() -> None:
     source = source_config()
 
     assert normalize_article(raw, source) == normalize_article(raw, source)
+
+
+@pytest.mark.parametrize(
+    ("source_id", "raw_timestamp", "expected"),
+    [
+        ("us_fhfa_regulatory", "07/13/2026", datetime(2026, 7, 13, 4, 0, tzinfo=UTC)),
+        ("us_fhfa_regulatory", "01/13/2026", datetime(2026, 1, 13, 5, 0, tzinfo=UTC)),
+        ("eu_esma_regulatory", "11/08/2026", datetime(2026, 8, 10, 22, 0, tzinfo=UTC)),
+        ("eu_esma_regulatory", "11/01/2026", datetime(2026, 1, 10, 23, 0, tzinfo=UTC)),
+    ],
+)
+def test_dst_aware_date_normalization(
+    source_id: str, raw_timestamp: str, expected: datetime
+) -> None:
+    article = normalize_article(
+        raw_article(source_id=source_id, published_at_raw=raw_timestamp),
+        source_config(source_id=source_id),
+    )
+    assert article.published_at == expected

@@ -20,14 +20,19 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "cn_nbs_latest_releases",
         "eu_ec_policy_news",
         "eu_ecb_press",
+        "eu_esma_regulatory",
+        "us_bis_regulatory",
         "us_fed_press_releases",
         "us_federal_register",
+        "us_fhfa_regulatory",
         "us_govinfo_legal",
         "us_sec_regulatory",
+        "vn_moit_regulatory_docs",
         "vn_mst_news_events",
+        "vn_mst_regulatory_docs",
         "vn_sbv_regulatory_docs",
     ]
-    assert len(sources) == 9
+    assert len(sources) == 14
     assert all(source.rights.can_fetch for source in sources)
 
     # Rights baseline: all sources use conservative PENDING metadata-only rights
@@ -46,6 +51,11 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "us_federal_register",
         "us_govinfo_legal",
         "vn_sbv_regulatory_docs",
+        "vn_moit_regulatory_docs",
+        "vn_mst_regulatory_docs",
+        "us_bis_regulatory",
+        "us_fhfa_regulatory",
+        "eu_esma_regulatory",
     }
     editorial_sources = [s for s in sources if s.source_id not in formal_sources]
     assert all(source.content_scope is ContentScope.EDITORIAL_NEWS for source in editorial_sources)

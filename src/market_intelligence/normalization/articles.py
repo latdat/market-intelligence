@@ -9,6 +9,7 @@ from datetime import UTC, datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from html.parser import HTMLParser
 from urllib.parse import unquote_plus, urlsplit, urlunsplit
+from zoneinfo import ZoneInfo
 
 from market_intelligence.articles import CanonicalArticle, RawArticle
 from market_intelligence.source_registry import SourceConfig
@@ -237,13 +238,25 @@ def _parse_published_at(value: str | None, source_id: str) -> datetime | None:
                 parsed = None
 
         if parsed is None:
-            vn_tz = timezone(timedelta(hours=7))
-            for fmt in ("%d/%m/%Y", "%d/%m/%Y | %H:%M:%S", "%d/%m/%Y %H:%M:%S"):
-                try:
-                    parsed = datetime.strptime(stripped_value, fmt).replace(tzinfo=vn_tz)
-                    break
-                except ValueError:
-                    continue
+            tz: timezone | ZoneInfo | None = None
+            formats: tuple[str, ...] = ()
+            if source_id == "us_fhfa_regulatory":
+                tz = ZoneInfo("America/New_York")
+                formats = ("%m/%d/%Y",)
+            elif source_id == "eu_esma_regulatory":
+                tz = ZoneInfo("Europe/Paris")
+                formats = ("%d/%m/%Y",)
+            else:
+                tz = timezone(timedelta(hours=7))
+                formats = ("%d/%m/%Y", "%d/%m/%Y | %H:%M:%S", "%d/%m/%Y %H:%M:%S")
+
+            if tz is not None:
+                for fmt in formats:
+                    try:
+                        parsed = datetime.strptime(stripped_value, fmt).replace(tzinfo=tz)
+                        break
+                    except ValueError:
+                        continue
 
     if parsed is None or parsed.tzinfo is None or parsed.utcoffset() is None:
         logger.warning(

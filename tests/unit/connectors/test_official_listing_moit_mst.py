@@ -6,12 +6,9 @@ import httpx
 import pytest
 
 from market_intelligence.connectors.official_listing import (
-    ListingConfigurationError,
-    ListingFetchError,
-    ListingParseError,
     OfficialListingConnector,
 )
-from market_intelligence.source_registry import AcquisitionMethod, load_source_config
+from market_intelligence.source_registry import load_source_config
 
 CONFIG_DIR = Path(__file__).parents[3] / "config" / "sources"
 FIXED_TIME = datetime(2026, 8, 15, 12, 0, tzinfo=UTC)
@@ -58,7 +55,7 @@ def test_moit_listing_parse_success(moit_config):
       </table>
       <a rel="next" href="/van-ban-phap-luat/van-ban-phap-quy?page=2">Sau</a>
     </body></html>
-    """.encode("utf-8")
+    """.encode()
 
     def handler(request: httpx.Request) -> httpx.Response:
         if "page=2" in str(request.url):
@@ -97,7 +94,7 @@ def test_mst_listing_parse_success(mst_config):
       </table>
       <a rel="next" href="/van-ban-phap-luat.htm?page=2">Sau</a>
     </body></html>
-    """.encode("utf-8")
+    """.encode()
 
     def handler(request: httpx.Request) -> httpx.Response:
         if "page=2" in str(request.url):
@@ -118,6 +115,7 @@ def test_mst_listing_parse_success(mst_config):
     assert a1.raw_metadata["issuer"] == "Bộ Khoa học và Công nghệ"
     assert a1.raw_metadata["document_type"] == "Thông tư"
 
+
 def test_moit_idempotency_and_identity_regression(moit_config):
     html = """
     <html><body><table><tr>
@@ -126,7 +124,7 @@ def test_moit_idempotency_and_identity_regression(moit_config):
       <td>Số: 42/2026/TT-BCT</td>
       <td>05/06/2026</td>
     </tr></table></body></html>
-    """.encode("utf-8")
+    """.encode()
 
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, content=html, request=request)
@@ -140,13 +138,14 @@ def test_moit_idempotency_and_identity_regression(moit_config):
         assert a1.url == a2.url
         assert a1.title == a2.title
 
+
 def test_mst_idempotency_and_identity_regression(mst_config):
     html = """
     <html><body><table><tr>
       <td>49/2026/TT-BKHCN</td><td>Bộ KHCN</td><td>Thông tư</td><td></td>
       <td>Test Xem chi tiết<a href="/van-ban-phap-luat/25489.htm"></a></td><td>01/08/2026</td>
     </tr></table></body></html>
-    """.encode("utf-8")
+    """.encode()
 
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, content=html, request=request)

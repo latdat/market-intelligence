@@ -59,6 +59,9 @@ def _create_connector_for_source(source: SourceConfig, max_items: int) -> Source
             "vn_sbv_regulatory_docs",
             "vn_moit_regulatory_docs",
             "vn_mst_regulatory_docs",
+            "us_bis_regulatory",
+            "us_fhfa_regulatory",
+            "eu_esma_regulatory",
         }:
             return OfficialListingConnector(max_items=max_items)
     raise UnsupportedAcquisitionMethod(

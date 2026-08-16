@@ -119,8 +119,8 @@ in DE-002.
 
 ### 2.2 Current implementation — production source registry
 
-`CURRENT IMPLEMENTATION` contains exactly 11 static `SourceConfig` files under
-`config/sources/`: six RSS/Atom sources (SO-001/SO-004), two REST API sources (SO-004, SO-005), and three HTML sources (SO-006, SO-007).
+`CURRENT IMPLEMENTATION` contains exactly 14 static `SourceConfig` files under
+`config/sources/`: six RSS/Atom sources (SO-001/SO-004), two REST API sources (SO-004, SO-005), and six HTML sources (SO-006, SO-007).
 
 | Source ID | Market | Acquisition | Current role | Official v1 MUST? |
 |---|---|---|---|---|
@@ -135,10 +135,13 @@ in DE-002.
 | `vn_sbv_regulatory_docs` | VN | HTML | State Bank of Vietnam regulatory documents (SO-006) | Yes |
 | `vn_moit_regulatory_docs` | VN | HTML | Ministry of Industry and Trade regulatory documents (SO-007) | Yes |
 | `vn_mst_regulatory_docs` | VN | HTML | Ministry of Science and Technology regulatory documents (SO-007) | Yes |
+| `us_bis_regulatory` | US | HTML | Industry/security/trade-control regulation (SO-007) | Yes |
+| `us_fhfa_regulatory` | US | HTML | Housing-finance regulation (SO-007) | Yes |
+| `eu_esma_regulatory` | EU | HTML | Securities/markets regulation (SO-007) | Yes |
 
-Of the 25 official MUST sources, **9** are currently implemented: `us_fed_press_releases`,
-`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, and `vn_mst_regulatory_docs`. The
-remaining **16** MUST sources are `Planned / documented only`.
+Of the 25 official MUST sources, **12** are currently implemented: `us_fed_press_releases`,
+`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, and `eu_esma_regulatory`. The
+remaining **13** MUST sources are `Planned / documented only`.
 
 All 11 records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
@@ -148,7 +151,7 @@ display, or redistribution.
 Content scope:
 - `EDITORIAL_NEWS`: `vn_mst_news_events`, `us_fed_press_releases`, `eu_ecb_press`,
   `cn_nbs_latest_releases`, `eu_ec_policy_news`
-- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`
+- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`
 
 **us_federal_register event-spine vs. GovInfo corpus boundary:**
 The `us_federal_register` source is the Federal Register **regulatory event spine** — it
@@ -190,12 +193,12 @@ the remaining 21 rows are `Planned / documented only`.
 | US | `us_fed_press_releases` | Federal Reserve press releases | `Implemented (SO-001 SourceConfig)` |
 | US | `us_sec_regulatory` | Securities regulation | `Implemented (SO-004 SourceConfig)` |
 | US | `us_ferc_regulatory` | Energy regulation | `Planned / documented only` |
-| US | `us_bis_regulatory` | Industry/security/trade-control regulation | `Planned / documented only` |
-| US | `us_fhfa_regulatory` | Housing-finance regulation | `Planned / documented only` |
+| US | `us_bis_regulatory` | Industry/security/trade-control regulation | `Implemented (SO-007 SourceConfig)` |
+| US | `us_fhfa_regulatory` | Housing-finance regulation | `Implemented (SO-007 SourceConfig)` |
 | EU | `eu_eurlex_cellar` | Canonical legal spine (EUR-Lex/CELLAR) | `Planned / documented only` |
 | EU | `eu_ec_policy_news` | European Commission policy news | `Implemented (SO-004 SourceConfig)` |
 | EU | `eu_ecb_press` | ECB press releases | `Implemented (SO-001 SourceConfig)` |
-| EU | `eu_esma_regulatory` | Securities/markets regulation | `Planned / documented only` |
+| EU | `eu_esma_regulatory` | Securities/markets regulation | `Implemented (SO-007 SourceConfig)` |
 | CN | `cn_npc_law_db` | Canonical legal spine (NPC Laws DB) | `Planned / documented only` |
 | CN | `cn_state_council_policy_docs` | State Council formal policy documents | `Planned / documented only` |
 | CN | `cn_pboc_regulatory_docs` | Central-bank regulatory documents | `Planned / documented only` |
