@@ -1,0 +1,27 @@
+source_id = "eu_eurlex_cellar"
+name = "EUR-Lex / CELLAR"
+market = "EU"
+language = "en"
+source_type = "GOVERNMENT"
+authority_level = "PRIMARY"
+domains = ["LAW_POLICY"]
+content_scope = "FORMAL_REGULATORY_LEGAL"
+priority = 100
+
+[acquisition]
+method = "REST_API"
+endpoint_url = "https://publications.europa.eu/webapi/rdf/sparql"
+poll_interval_minutes = 15
+
+[rights]
+can_fetch = true
+can_store_metadata = true
+can_store_full_text = false
+can_ai_process = false
+can_show_snippet = false
+can_redistribute_full_text = false
+rights_review_status = "PENDING"
+
+[cost]
+type = "FREE"
+monthly_fixed_usd = 0

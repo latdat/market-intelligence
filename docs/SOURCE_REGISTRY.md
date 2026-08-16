@@ -197,7 +197,7 @@ the remaining 21 rows are `Planned / documented only`.
 | US | `us_ferc_regulatory` | Energy regulation | `Planned / documented only` |
 | US | `us_bis_regulatory` | Industry/security/trade-control regulation | `Implemented (SO-007 SourceConfig)` |
 | US | `us_fhfa_regulatory` | Housing-finance regulation | `Implemented (SO-007 SourceConfig)` |
-| EU | `eu_eurlex_cellar` | Canonical legal spine (EUR-Lex/CELLAR) | `Planned / documented only` |
+| EU | `eu_eurlex_cellar` | Canonical legal spine (EUR-Lex/CELLAR) | `Implemented (SO-007D1 SourceConfig)` |
 | EU | `eu_ec_policy_news` | European Commission policy news | `Implemented (SO-004 SourceConfig)` |
 | EU | `eu_ecb_press` | ECB press releases | `Implemented (SO-001 SourceConfig)` |
 | EU | `eu_esma_regulatory` | Securities/markets regulation | `Implemented (SO-007 SourceConfig)` |

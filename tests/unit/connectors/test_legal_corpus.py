@@ -67,9 +67,7 @@ def fetch_once(
         transport = httpx.MockTransport(handler)
         async with httpx.AsyncClient(transport=transport) as client:
             api_key = connector_options.pop("api_key", "test-key")
-            connector = LegalCorpusConnector(
-                api_key=str(api_key), client=client, **connector_options
-            )
+            connector = LegalCorpusConnector(api_key=api_key, client=client, **connector_options)
             return list(await connector.fetch(source))
 
     return asyncio.run(run())
@@ -89,8 +87,11 @@ def single_page_handler(content: bytes) -> Callable[[httpx.Request], httpx.Respo
 
 @pytest.mark.parametrize("bad_key", ["", "   ", None])
 def test_missing_blank_api_key_fails(bad_key: str | None) -> None:
+    def unexpected(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("unexpected HTTP request")
+
     with pytest.raises(CorpusConfigurationError, match="GOVINFO_API_KEY must be provided"):
-        LegalCorpusConnector(api_key=bad_key)  # type: ignore
+        fetch_once(govinfo_source(), unexpected, api_key=bad_key)  # type: ignore
 
 
 @pytest.mark.parametrize(

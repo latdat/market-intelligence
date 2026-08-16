@@ -27,9 +27,10 @@ _RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
 _RETRY_AFTER_STATUS_CODES = frozenset({429, 503})
 _DEFAULT_USER_AGENT = "market-intelligence/0.1 legal-corpus-connector"
 
-_SUPPORTED_SOURCE_IDS = frozenset({"us_govinfo_legal"})
+_SUPPORTED_SOURCE_IDS = frozenset({"us_govinfo_legal", "eu_eurlex_cellar"})
 _GOVINFO_PLAW_ORIGIN = "https://api.govinfo.gov"
 _GOVINFO_PLAW_COLLECTION_PATH = "/collections/PLAW"
+_CELLAR_SPARQL_ENDPOINT = "https://publications.europa.eu/webapi/rdf/sparql"
 
 _SAFE_PACKAGE_ID_PATTERN = re.compile(r"^PLAW-[A-Za-z0-9-]+$")
 
@@ -93,13 +94,13 @@ class LegalCorpusConnector:
 
     v1 supports:
     - AcquisitionMethod.REST_API
-    - source_id: us_govinfo_legal only
-    - package-level PLAW only
+    - source_id: us_govinfo_legal (package-level PLAW)
+    - source_id: eu_eurlex_cellar (SPARQL canonical legal spine)
     """
 
     def __init__(
         self,
-        api_key: str,
+        api_key: str = "",
         client: httpx.AsyncClient | None = None,
         *,
         timeout_seconds: float = 10.0,
@@ -112,8 +113,6 @@ class LegalCorpusConnector:
         clock: Clock = _utc_now,
         random_value: RandomFunction = random.random,
     ) -> None:
-        if not api_key or not api_key.strip():
-            raise CorpusConfigurationError("GOVINFO_API_KEY must be provided")
         if timeout_seconds <= 0:
             raise ValueError("timeout_seconds must be positive")
         if isinstance(max_attempts, bool) or max_attempts < 1:
@@ -127,7 +126,7 @@ class LegalCorpusConnector:
         if isinstance(max_pages, bool) or max_pages < 1:
             raise ValueError("max_pages must be a positive integer")
 
-        self._api_key = api_key.strip()
+        self._api_key = api_key.strip() if api_key else ""
         self._client = client
         self._timeout = httpx.Timeout(timeout_seconds)
         self._max_attempts = max_attempts
@@ -145,12 +144,18 @@ class LegalCorpusConnector:
         try:
             self._validate_source(source)
             if self._client is not None:
-                articles = await self._fetch_with_client(self._client, source)
+                if source.source_id == "eu_eurlex_cellar":
+                    articles = await self._fetch_cellar_with_client(self._client, source)
+                else:
+                    articles = await self._fetch_with_client(self._client, source)
             else:
                 async with httpx.AsyncClient(
                     timeout=self._timeout, follow_redirects=False
                 ) as client:
-                    articles = await self._fetch_with_client(client, source)
+                    if source.source_id == "eu_eurlex_cellar":
+                        articles = await self._fetch_cellar_with_client(client, source)
+                    else:
+                        articles = await self._fetch_with_client(client, source)
         except LegalCorpusConnectorError as error:
             logger.error(
                 "legal_corpus_fetch_failed",
@@ -191,16 +196,27 @@ class LegalCorpusConnector:
                 f"source {source.source_id} is not approved for fetching"
             )
 
-        parsed = urlparse(str(source.acquisition.endpoint_url))
-        origin = f"{parsed.scheme}://{parsed.netloc}"
-        if origin != _GOVINFO_PLAW_ORIGIN or parsed.path != _GOVINFO_PLAW_COLLECTION_PATH:
-            raise CorpusConfigurationError("source endpoint must be exact PLAW collection endpoint")
+        if source.source_id == "us_govinfo_legal":
+            parsed = urlparse(str(source.acquisition.endpoint_url))
+            origin = f"{parsed.scheme}://{parsed.netloc}"
+            if origin != _GOVINFO_PLAW_ORIGIN or parsed.path != _GOVINFO_PLAW_COLLECTION_PATH:
+                raise CorpusConfigurationError(
+                    "source endpoint must be exact PLAW collection endpoint"
+                )
+        elif source.source_id == "eu_eurlex_cellar":
+            if str(source.acquisition.endpoint_url) != _CELLAR_SPARQL_ENDPOINT:
+                raise CorpusConfigurationError(
+                    "source endpoint must be exact CELLAR SPARQL endpoint"
+                )
 
     async def _fetch_with_client(
         self,
         client: httpx.AsyncClient,
         source: SourceConfig,
     ) -> list[RawArticle]:
+        if not self._api_key or not self._api_key.strip():
+            raise CorpusConfigurationError("GOVINFO_API_KEY must be provided")
+
         retrieved_at = self._current_utc_time()
         start_date = retrieved_at - timedelta(days=7)
 
@@ -230,7 +246,10 @@ class LegalCorpusConnector:
             visited_urls.add(request_identity)
             pages_fetched += 1
 
-            response = await self._request_with_retries(client, source, url, params, limiter)
+            headers = {"X-Api-Key": self._api_key}
+            response = await self._request_with_retries(
+                client, source, url, params, limiter, headers=headers
+            )
             page_package_ids, raw_next_page = self._parse_collection_response(
                 source, response.content
             )
@@ -259,7 +278,7 @@ class LegalCorpusConnector:
         for package_id in package_ids:
             summary_url = f"{_GOVINFO_PLAW_ORIGIN}/packages/{package_id}/summary"
             summary_response = await self._request_with_retries(
-                client, source, summary_url, {}, limiter
+                client, source, summary_url, {}, limiter, headers={"X-Api-Key": self._api_key}
             )
             article = self._parse_summary_response(
                 source, package_id, summary_response.content, retrieved_at
@@ -275,18 +294,21 @@ class LegalCorpusConnector:
         url: str,
         params: dict[str, str],
         limiter: RequestRateLimiter,
+        headers: dict[str, str] | None = None,
     ) -> httpx.Response:
-        headers = {
+        request_headers = {
             "User-Agent": _DEFAULT_USER_AGENT,
-            "X-Api-Key": self._api_key,
         }
+        if headers:
+            request_headers.update(headers)
+
         for attempt in range(1, self._max_attempts + 1):
             await limiter.wait()
             try:
                 response = await client.get(
                     url,
                     params=params,
-                    headers=headers,
+                    headers=request_headers,
                     timeout=self._timeout,
                     follow_redirects=False,
                 )
@@ -562,3 +584,158 @@ class LegalCorpusConnector:
             retrieved_at=retrieved_at,
             raw_metadata=raw_metadata,
         )
+
+    async def _fetch_cellar_with_client(
+        self,
+        client: httpx.AsyncClient,
+        source: SourceConfig,
+    ) -> list[RawArticle]:
+        retrieved_at = self._current_utc_time()
+        limiter = RequestRateLimiter(source.acquisition.rate_limit, sleep=self._sleep)
+
+        query_limit = min(self._max_items * 3, 5000)
+        query = f"""
+PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+SELECT DISTINCT ?work ?celex ?type ?date ?title
+WHERE {{
+  ?work cdm:resource_legal_id_celex ?celex .
+  ?work cdm:work_has_resource-type ?type .
+  ?work cdm:work_date_document ?date .
+  FILTER( ?type IN (
+    <http://publications.europa.eu/resource/authority/resource-type/REG>,
+    <http://publications.europa.eu/resource/authority/resource-type/REG_DEL>,
+    <http://publications.europa.eu/resource/authority/resource-type/REG_IMPL>,
+    <http://publications.europa.eu/resource/authority/resource-type/DIR>,
+    <http://publications.europa.eu/resource/authority/resource-type/DIR_DEL>,
+    <http://publications.europa.eu/resource/authority/resource-type/DIR_IMPL>,
+    <http://publications.europa.eu/resource/authority/resource-type/DEC>,
+    <http://publications.europa.eu/resource/authority/resource-type/DEC_DEL>,
+    <http://publications.europa.eu/resource/authority/resource-type/DEC_IMPL>
+  ) )
+  ?exp cdm:expression_belongs_to_work ?work .
+  ?exp cdm:expression_uses_language <http://publications.europa.eu/resource/authority/language/ENG> .
+  ?exp cdm:expression_title ?title .
+}}
+ORDER BY DESC(?date) DESC(?celex)
+LIMIT {query_limit}
+"""
+        params = {"query": query.strip()}
+        headers = {"Accept": "application/sparql-results+json"}
+        response = await self._request_with_retries(
+            client, source, _CELLAR_SPARQL_ENDPOINT, params, limiter, headers=headers
+        )
+
+        return self._parse_cellar_sparql_response(source, response.content, retrieved_at)
+
+    def _parse_cellar_sparql_response(
+        self,
+        source: SourceConfig,
+        content: bytes,
+        retrieved_at: datetime,
+    ) -> list[RawArticle]:
+        import json
+        import re
+
+        try:
+            payload = json.loads(content)
+        except (json.JSONDecodeError, ValueError) as error:
+            raise CorpusParseError(
+                source.source_id, f"SPARQL response is not valid JSON: {error}"
+            ) from error
+
+        if not isinstance(payload, dict):
+            raise CorpusParseError(
+                source.source_id, "expected JSON object at root of SPARQL response"
+            )
+
+        results = payload.get("results")
+        if not isinstance(results, dict):
+            raise CorpusParseError(source.source_id, "missing or invalid results object")
+
+        bindings = results.get("bindings")
+        if not isinstance(bindings, list):
+            raise CorpusParseError(source.source_id, "missing or invalid bindings list")
+
+        articles: list[RawArticle] = []
+        seen_celex: set[str] = set()
+
+        for binding in bindings:
+            if len(articles) >= self._max_items:
+                break
+
+            if not isinstance(binding, dict):
+                raise CorpusParseError(source.source_id, "malformed binding entry")
+
+            celex_obj = binding.get("celex")
+            if not isinstance(celex_obj, dict) or "value" not in celex_obj:
+                raise CorpusParseError(source.source_id, "missing or invalid celex in binding")
+            celex = celex_obj["value"].strip()
+            if not celex:
+                continue
+
+            if not re.match(r"^3\d{4}[RLD]", celex):
+                continue
+
+            # Multiple expressions might yield duplicate rows for the same CELEX
+            if celex in seen_celex:
+                continue
+
+            work_obj = binding.get("work")
+            work_uri = (
+                work_obj["value"].strip()
+                if isinstance(work_obj, dict) and "value" in work_obj
+                else None
+            )
+
+            type_obj = binding.get("type")
+            resource_type = (
+                type_obj["value"].strip()
+                if isinstance(type_obj, dict) and "value" in type_obj
+                else None
+            )
+
+            date_obj = binding.get("date")
+            document_date = (
+                date_obj["value"].strip()
+                if isinstance(date_obj, dict) and "value" in date_obj
+                else None
+            )
+
+            title_obj = binding.get("title")
+            title = (
+                title_obj["value"].strip()
+                if isinstance(title_obj, dict) and "value" in title_obj
+                else ""
+            )
+            if not title:
+                continue
+
+            seen_celex.add(celex)
+
+            url = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
+
+            raw_metadata = {}
+            if work_uri:
+                raw_metadata["cellar_work_uri"] = work_uri
+            if resource_type:
+                raw_metadata["resource_type"] = resource_type
+            if document_date:
+                raw_metadata["document_date"] = document_date
+
+            raw_metadata["is_corrigendum"] = re.search(r"R\(\d{2}\)$", celex) is not None
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=celex,
+                    url=url,
+                    title=title,
+                    description=None,
+                    published_at_raw=None,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata=raw_metadata,
+                )
+            )
+
+        return articles

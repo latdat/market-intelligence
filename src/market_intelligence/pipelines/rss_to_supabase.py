@@ -48,7 +48,7 @@ def _create_connector_for_source(source: SourceConfig, max_items: int) -> Source
     if method in (AcquisitionMethod.RSS, AcquisitionMethod.ATOM):
         return RssAtomConnector()
     if method is AcquisitionMethod.REST_API:
-        if source.source_id == "us_govinfo_legal":
+        if source.source_id in {"us_govinfo_legal", "eu_eurlex_cellar"}:
             from market_intelligence.connectors.legal_corpus import LegalCorpusConnector
 
             api_key = os.environ.get("GOVINFO_API_KEY", "")
