@@ -119,8 +119,8 @@ in DE-002.
 
 ### 2.2 Current implementation — production source registry
 
-`CURRENT IMPLEMENTATION` contains exactly 14 static `SourceConfig` files under
-`config/sources/`: six RSS/Atom sources (SO-001/SO-004), two REST API sources (SO-004, SO-005), and six HTML sources (SO-006, SO-007).
+`CURRENT IMPLEMENTATION` contains exactly 16 static `SourceConfig` files under
+`config/sources/`: six RSS/Atom sources (SO-001/SO-004), two REST API sources (SO-004, SO-005), and eight HTML sources (SO-006, SO-007).
 
 | Source ID | Market | Acquisition | Current role | Official v1 MUST? |
 |---|---|---|---|---|
@@ -138,10 +138,12 @@ in DE-002.
 | `us_bis_regulatory` | US | HTML | Industry/security/trade-control regulation (SO-007) | Yes |
 | `us_fhfa_regulatory` | US | HTML | Housing-finance regulation (SO-007) | Yes |
 | `eu_esma_regulatory` | EU | HTML | Securities/markets regulation (SO-007) | Yes |
+| `cn_samr_market_regulation_bulletins` | CN | HTML | Market regulation bulletins (SO-007C1) | Yes |
+| `cn_miit_policy_listing` | CN | HTML | Industry/technology policy documents (SO-007C1) | Yes |
 
-Of the 25 official MUST sources, **12** are currently implemented: `us_fed_press_releases`,
-`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, and `eu_esma_regulatory`. The
-remaining **13** MUST sources are `Planned / documented only`.
+Of the 25 official MUST sources, **14** are currently implemented: `us_fed_press_releases`,
+`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`, `cn_samr_market_regulation_bulletins`, and `cn_miit_policy_listing`. The
+remaining **11** MUST sources are `Planned / documented only`.
 
 All 11 records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
@@ -151,7 +153,7 @@ display, or redistribution.
 Content scope:
 - `EDITORIAL_NEWS`: `vn_mst_news_events`, `us_fed_press_releases`, `eu_ecb_press`,
   `cn_nbs_latest_releases`, `eu_ec_policy_news`
-- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`
+- `FORMAL_REGULATORY_LEGAL`: `us_sec_regulatory`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`, `cn_samr_market_regulation_bulletins`, `cn_miit_policy_listing`
 
 **us_federal_register event-spine vs. GovInfo corpus boundary:**
 The `us_federal_register` source is the Federal Register **regulatory event spine** — it
@@ -204,7 +206,8 @@ the remaining 21 rows are `Planned / documented only`.
 | CN | `cn_pboc_regulatory_docs` | Central-bank regulatory documents | `Planned / documented only` |
 | CN | `cn_nfra_regulatory_docs` | Financial regulation | `Planned / documented only` |
 | CN | `cn_csrc_regulatory_docs` | Securities regulation | `Planned / documented only` |
-| CN | `cn_miit_regulatory_docs` | Industry/technology regulation | `Planned / documented only` |
+| CN | `cn_samr_market_regulation_bulletins` | Market regulation bulletins | `Implemented (SO-007C1 SourceConfig)` |
+| CN | `cn_miit_policy_listing` | Industry/technology policy documents | `Implemented (SO-007C1 SourceConfig)` |
 | CN | `cn_nea_regulatory_docs` | Energy regulation | `Planned / documented only` |
 | CN | `cn_mohurd_regulatory_docs` | Housing/urban-rural development regulation | `Planned / documented only` |
 

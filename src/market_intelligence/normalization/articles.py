@@ -237,7 +237,7 @@ def _parse_published_at(value: str | None, source_id: str) -> datetime | None:
             except (TypeError, ValueError, OverflowError):
                 parsed = None
 
-        if parsed is None:
+        if parsed is None or parsed.tzinfo is None or parsed.utcoffset() is None:
             tz: timezone | ZoneInfo | None = None
             formats: tuple[str, ...] = ()
             if source_id == "us_fhfa_regulatory":
@@ -246,6 +246,9 @@ def _parse_published_at(value: str | None, source_id: str) -> datetime | None:
             elif source_id == "eu_esma_regulatory":
                 tz = ZoneInfo("Europe/Paris")
                 formats = ("%d/%m/%Y",)
+            elif source_id in ("cn_samr_market_regulation_bulletins", "cn_miit_policy_listing"):
+                tz = ZoneInfo("Asia/Shanghai")
+                formats = ("%Y-%m-%d",)
             else:
                 tz = timezone(timedelta(hours=7))
                 formats = ("%d/%m/%Y", "%d/%m/%Y | %H:%M:%S", "%d/%m/%Y %H:%M:%S")

@@ -37,6 +37,8 @@ _SUPPORTED_SOURCE_IDS = frozenset(
         "us_bis_regulatory",
         "us_fhfa_regulatory",
         "eu_esma_regulatory",
+        "cn_samr_market_regulation_bulletins",
+        "cn_miit_policy_listing",
     }
 )
 
@@ -57,6 +59,11 @@ _FHFA_PAGINATION_PATH = "/regulation/federal-register"
 
 _ESMA_ORIGIN = "https://www.esma.europa.eu"
 _ESMA_PAGINATION_PATH = "/databases-library/esma-library"
+
+_SAMR_LISTING_ORIGIN = "https://zwfw.samr.gov.cn"
+_SAMR_DETAIL_ORIGIN = "https://www.samr.gov.cn"
+
+_MIIT_ORIGIN = "https://www.miit.gov.cn"
 
 
 def _utc_now() -> datetime:
@@ -260,6 +267,14 @@ class OfficialListingConnector:
                 page_articles, raw_next_url = self._parse_esma_html(
                     source, response.text, next_url, retrieved_at, remaining
                 )
+            elif source.source_id == "cn_samr_market_regulation_bulletins":
+                page_articles, raw_next_url = self._parse_samr_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
+            elif source.source_id == "cn_miit_policy_listing":
+                page_articles, raw_next_url = self._parse_miit_html(
+                    source, response.text, next_url, retrieved_at, remaining
+                )
             else:
                 raise ListingParseError(source.source_id, "unsupported source_id")
             articles.extend(page_articles)
@@ -335,7 +350,14 @@ class OfficialListingConnector:
             raise ListingParseError(
                 source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
             )
-        elif source.source_id == "vn_moit_regulatory_docs" and origin != _MOIT_ORIGIN:
+        elif (
+            source.source_id == "cn_samr_market_regulation_bulletins"
+            and origin != _SAMR_LISTING_ORIGIN
+        ):
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "cn_miit_policy_listing" and origin != _MIIT_ORIGIN:
             raise ListingParseError(
                 source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
             )
@@ -1160,3 +1182,202 @@ class OfficialListingConnector:
             )
 
         return articles, next_page_url
+
+    @staticmethod
+    def _parse_samr_html(
+        source: "SourceConfig",
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        list_items = soup.find_all("li")
+        for item_index, item in enumerate(list_items):
+            if len(articles) >= max_items:
+                break
+
+            link = item.find("a")
+            if not link:
+                continue
+
+            href = link.get("href")
+            if not href or not str(href).strip():
+                continue
+
+            absolute_url = urljoin(base_url, str(href).strip())
+            parsed_url = urlparse(absolute_url)
+
+            if parsed_url.netloc != "www.samr.gov.cn":
+                continue
+
+            if "/art/" not in parsed_url.path:
+                continue
+
+            # Normalize to HTTPS canonical URL
+            if parsed_url.scheme == "http":
+                absolute_url = "https" + absolute_url[4:]
+                parsed_url = urlparse(absolute_url)
+
+            title_val = link.get("title")
+            title = str(title_val) if title_val else link.get_text(strip=True)
+            if not title:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_title"
+                )
+                continue
+
+            source_item_id = None
+            match = re.search(r"/(art_[0-9a-fA-F]{32})\.html", parsed_url.path)
+            if match:
+                source_item_id = match.group(1).lower()
+
+            published_at_raw = None
+            date_span = item.find("span")
+            if date_span:
+                date_text = date_span.get_text(strip=True)
+                date_match = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
+                if date_match:
+                    published_at_raw = date_match.group(0)
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata={"structural_category": "通知通告"},
+                )
+            )
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, None
+
+    @staticmethod
+    def _parse_miit_html(
+        source: "SourceConfig",
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        target_tabbox_bd = None
+        for hd in soup.find_all("div", class_=re.compile(r"tabbox-hd")):
+            tabs = hd.find_all("a")
+            has_policy = False
+            for i, tab in enumerate(tabs):
+                if "政策文件" in tab.get_text():
+                    if i == 0:
+                        has_policy = True
+                    break
+
+            if has_policy:
+                bd = hd.find_next_sibling("div", class_=re.compile(r"tabbox-bd"))
+                if bd:
+                    target_tabbox_bd = bd
+                break
+
+        if not target_tabbox_bd:
+            raise ListingParseError(source.source_id, "layout drift: could not find 政策文件 panel")
+
+        panel_0 = target_tabbox_bd.find("div")
+        if not panel_0:
+            raise ListingParseError(
+                source.source_id, "layout drift: missing policy panel container"
+            )
+
+        for item_index, item in enumerate(panel_0.find_all("li")):
+            if len(articles) >= max_items:
+                break
+
+            link = item.find("a")
+            if not link:
+                continue
+
+            href = link.get("href")
+            if not href or not str(href).strip():
+                continue
+
+            if str(href).startswith("javascript:"):
+                continue
+
+            absolute_url = urljoin(base_url, str(href).strip())
+            parsed_url = urlparse(absolute_url)
+
+            if parsed_url.scheme != "https":
+                continue
+            if parsed_url.username or parsed_url.password:
+                continue
+
+            origin = f"{parsed_url.scheme}://{parsed_url.netloc}"
+            if origin != _MIIT_ORIGIN:
+                continue
+
+            if not parsed_url.path.startswith("/zwgk/zcwj/"):
+                continue
+
+            title_val = link.get("title")
+            title = str(title_val) if title_val else link.get_text(strip=True)
+            if not title:
+                invalid_items += 1
+                OfficialListingConnector._log_unusable_item(
+                    source.source_id, item_index, "missing_title"
+                )
+                continue
+
+            source_item_id = None
+            match = re.search(r"/(art_[0-9a-fA-F]{32})\.html", parsed_url.path)
+            if match:
+                source_item_id = match.group(1).lower()
+
+            published_at_raw = None
+            date_span = item.find("span")
+            if date_span:
+                date_text = date_span.get_text(strip=True)
+                date_match = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
+                if date_match:
+                    published_at_raw = date_match.group(0)
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                )
+            )
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, None
