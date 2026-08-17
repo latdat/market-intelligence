@@ -17,9 +17,13 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
     sources = load_source_configs(SOURCE_DIRECTORY)
 
     assert [source.source_id for source in sources] == [
+        "cn_csrc_regulatory_docs",
         "cn_miit_policy_listing",
         "cn_nbs_latest_releases",
+        "cn_nea_regulatory_docs",
+        "cn_pboc_regulatory_docs",
         "cn_samr_market_regulation_bulletins",
+        "cn_state_council_policy_docs",
         "eu_ec_policy_news",
         "eu_ecb_press",
         "eu_esma_regulatory",
@@ -35,7 +39,7 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "vn_mst_regulatory_docs",
         "vn_sbv_regulatory_docs",
     ]
-    assert len(sources) == 17
+    assert len(sources) == 21
     assert all(source.rights.can_fetch for source in sources)
 
     # Rights baseline: all sources use conservative PENDING metadata-only rights
@@ -62,6 +66,10 @@ def test_loads_all_production_sources_in_deterministic_order() -> None:
         "cn_samr_market_regulation_bulletins",
         "cn_miit_policy_listing",
         "eu_eurlex_cellar",
+        "cn_csrc_regulatory_docs",
+        "cn_nea_regulatory_docs",
+        "cn_pboc_regulatory_docs",
+        "cn_state_council_policy_docs",
     }
     editorial_sources = [s for s in sources if s.source_id not in formal_sources]
     assert all(source.content_scope is ContentScope.EDITORIAL_NEWS for source in editorial_sources)

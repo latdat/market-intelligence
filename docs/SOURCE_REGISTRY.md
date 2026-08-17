@@ -119,8 +119,8 @@ in DE-002.
 
 ### 2.2 Current implementation — production source registry
 
-`CURRENT IMPLEMENTATION` contains exactly 16 static `SourceConfig` files under
-`config/sources/`: six RSS/Atom sources (SO-001/SO-004), two REST API sources (SO-004, SO-005), and eight HTML sources (SO-006, SO-007).
+`CURRENT IMPLEMENTATION` contains exactly 17 static `SourceConfig` files under
+`config/sources/`: six RSS/Atom sources, two REST API sources, eight HTML sources, and one SPARQL legal corpus source.
 
 | Source ID | Market | Acquisition | Current role | Official v1 MUST? |
 |---|---|---|---|---|
@@ -138,14 +138,15 @@ in DE-002.
 | `us_bis_regulatory` | US | HTML | Industry/security/trade-control regulation (SO-007) | Yes |
 | `us_fhfa_regulatory` | US | HTML | Housing-finance regulation (SO-007) | Yes |
 | `eu_esma_regulatory` | EU | HTML | Securities/markets regulation (SO-007) | Yes |
-| `cn_samr_market_regulation_bulletins` | CN | HTML | Market regulation bulletins (SO-007C1) | Yes |
+| `eu_eurlex_cellar` | EU | SPARQL | Canonical legal spine (SO-007D1) | Yes |
+| `cn_samr_market_regulation_bulletins` | CN | HTML | Implemented official supplemental/non-core source | No |
 | `cn_miit_policy_listing` | CN | HTML | Industry/technology policy documents (SO-007C1) | Yes |
 
-Of the 25 official MUST sources, **14** are currently implemented: `us_fed_press_releases`,
-`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`, `cn_samr_market_regulation_bulletins`, and `cn_miit_policy_listing`. The
-remaining **11** MUST sources are `Planned / documented only`.
+Of the 25 official MUST sources, **18** are currently implemented: `us_fed_press_releases`,
+`eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`, `eu_eurlex_cellar`, `cn_miit_policy_listing`, `cn_state_council_policy_docs`, `cn_pboc_regulatory_docs`, `cn_csrc_regulatory_docs`, and `cn_nea_regulatory_docs`. The
+remaining **7** MUST sources are `SOURCE-LEVEL BLOCKED` or `DEFERRED_PENDING_POST_PILOT`.
 
-All 11 records use conservative metadata-only rights with
+All remaining non-live records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
 metadata persistence but does not approve full-text storage, AI processing, snippet
 display, or redistribution.
@@ -178,40 +179,91 @@ published_at = null and never substitutes discovered_at.
 ### 2.3 Target Official Architecture v1 — canonical matrix
 
 `TARGET OFFICIAL ARCHITECTURE v1` contains 25 MUST official core sources. `MUST` is a
-target priority, not an implementation claim. Only the four rows explicitly marked
-`Implemented (SO-001 SourceConfig)` or `Implemented (SO-004 SourceConfig)` currently have production source config records;
-the remaining 21 rows are `Planned / documented only`.
+target priority, not an implementation claim. 18 rows are `Implemented`, 5 rows are `BLOCKED`, and 2 rows are `DEFERRED_PENDING_POST_PILOT`.
 
 | Market | Source ID | Target role | Implementation status |
 |---|---|---|---|
-| VN | `vn_vbpl_legal` | Canonical legal spine (VBPL) | `Planned / documented only` |
+| VN | `vn_vbpl_legal` | Canonical legal spine (VBPL) | `BLOCKED (JS-rendered discovery; no approved deterministic listing/API)` |
 | VN | `vn_sbv_regulatory_docs` | State Bank regulatory documents | `Implemented (SO-006 SourceConfig)` |
-| VN | `vn_ssc_regulatory_docs` | Securities regulatory documents | `Planned / documented only` |
+| VN | `vn_ssc_regulatory_docs` | Securities regulatory documents | `BLOCKED (JavaScript-required listing shell)` |
 | VN | `vn_moit_regulatory_docs` | Industry/trade/energy regulatory documents | `Implemented (SO-007 SourceConfig)` |
 | VN | `vn_mst_regulatory_docs` | Technology regulatory documents | `Implemented (SO-007 SourceConfig)` |
-| VN | `vn_moc_regulatory_docs` | Construction/real-estate regulatory documents | `Planned / documented only` |
+| VN | `vn_moc_regulatory_docs` | Construction/real-estate regulatory documents | `BLOCKED (TLS validation failure)` |
 | US | `us_federal_register` | Federal Register event spine | `Implemented (SO-004 SourceConfig)` |
 | US | `us_govinfo_legal` | GovInfo canonical legal corpus | `Implemented (SO-005 v1: PLAW package-level)` |
 | US | `us_fed_press_releases` | Federal Reserve press releases | `Implemented (SO-001 SourceConfig)` |
 | US | `us_sec_regulatory` | Securities regulation | `Implemented (SO-004 SourceConfig)` |
-| US | `us_ferc_regulatory` | Energy regulation | `Planned / documented only` |
+| US | `us_ferc_regulatory` | Energy regulation | `DEFERRED_PENDING_POST_PILOT` |
 | US | `us_bis_regulatory` | Industry/security/trade-control regulation | `Implemented (SO-007 SourceConfig)` |
 | US | `us_fhfa_regulatory` | Housing-finance regulation | `Implemented (SO-007 SourceConfig)` |
 | EU | `eu_eurlex_cellar` | Canonical legal spine (EUR-Lex/CELLAR) | `Implemented (SO-007D1 SourceConfig)` |
 | EU | `eu_ec_policy_news` | European Commission policy news | `Implemented (SO-004 SourceConfig)` |
 | EU | `eu_ecb_press` | ECB press releases | `Implemented (SO-001 SourceConfig)` |
 | EU | `eu_esma_regulatory` | Securities/markets regulation | `Implemented (SO-007 SourceConfig)` |
-| CN | `cn_npc_law_db` | Canonical legal spine (NPC Laws DB) | `Planned / documented only` |
-| CN | `cn_state_council_policy_docs` | State Council formal policy documents | `Planned / documented only` |
-| CN | `cn_pboc_regulatory_docs` | Central-bank regulatory documents | `Planned / documented only` |
-| CN | `cn_nfra_regulatory_docs` | Financial regulation | `Planned / documented only` |
-| CN | `cn_csrc_regulatory_docs` | Securities regulation | `Planned / documented only` |
-| CN | `cn_samr_market_regulation_bulletins` | Market regulation bulletins | `Implemented (SO-007C1 SourceConfig)` |
+| CN | `cn_npc_law_db` | Canonical legal spine (NPC Laws DB) | `BLOCKED (JS-rendered listing; no approved public discovery interface)` |
+| CN | `cn_state_council_policy_docs` | State Council formal policy documents | `Implemented (SO-007 SourceConfig)` |
+| CN | `cn_pboc_regulatory_docs` | Central-bank regulatory documents | `Implemented (SO-007 SourceConfig)` |
+| CN | `cn_nfra_regulatory_docs` | Financial regulation | `BLOCKED (JS-rendered discovery; no deterministic public interface)` |
+| CN | `cn_csrc_regulatory_docs` | Securities regulation | `Implemented (SO-007 SourceConfig)` |
 | CN | `cn_miit_policy_listing` | Industry/technology policy documents | `Implemented (SO-007C1 SourceConfig)` |
-| CN | `cn_nea_regulatory_docs` | Energy regulation | `Planned / documented only` |
-| CN | `cn_mohurd_regulatory_docs` | Housing/urban-rural development regulation | `Planned / documented only` |
+| CN | `cn_nea_regulatory_docs` | Energy regulation | `Implemented (SO-007 SourceConfig)` |
+| CN | `cn_mohurd_regulatory_docs` | Housing/urban-rural development regulation | `DEFERRED_PENDING_POST_PILOT` |
 
 Market totals are VN 6, US 7, EU 4, and CN 8: 25 MUST sources in total.
+Resulting accounting: IMPLEMENTED = 18, SOURCE-LEVEL BLOCKED = 5, DEFERRED_PENDING_POST_PILOT = 2, TOTAL MUST = 25.
+
+### 2.4 China Implementation Batch (SO-007 U2)
+
+Four formal Chinese regulatory sources were implemented and validated offline in the SO-007 U2 batch:
+
+- **cn_state_council_policy_docs**
+  - scope: 国务院文件 only
+  - source_item_id: official State Council document number
+  - published_at_raw: 成文日期
+  - implementation: OfficialListingConnector
+  - implementation validation: offline PASS
+  - current-runtime live status: LIVE_PREFLIGHT_ENVIRONMENT_BLOCKED (probe returned HTTP 200 policy-library shell, ~958 bytes, with no static document links; do NOT claim WAF/challenge as proven)
+  - production live validation: PENDING
+
+- **cn_pboc_regulatory_docs**
+  - scope: 部门规章 only
+  - source_item_id: official decree/rule number
+  - publication date: official departmental-rule publication date
+  - implementation: OfficialListingConnector
+  - touched-scope/offline validation: PASS
+  - live preflight: PASS, 3 valid records
+
+- **cn_csrc_regulatory_docs**
+  - scope: 证监会公告
+  - source_item_id: 索引号
+  - 文号: metadata only
+  - published_at_raw: 发文日期
+  - implementation: OfficialListingConnector
+  - offline validation: PASS
+  - current-runtime live status: LIVE_PREFLIGHT_ENVIRONMENT_BLOCKED (HTTPS deep listing request currently receives HTTP 302 with Location http://www.csrc.gov.cn; do NOT state WAF as proven fact)
+  - production live validation: PENDING
+
+- **cn_nea_regulatory_docs**
+  - scope: 通知 / 公告
+  - source_item_id: 索引号
+  - published_at_raw: 制发日期
+  - implementation: OfficialListingConnector
+  - live preflight: PASS, 3 valid records
+
+### 2.5 Deferred post-pilot sources
+
+- **us_ferc_regulatory**
+  - status: DEFERRED_PENDING_POST_PILOT
+  - Reason: current permitted runtime returned HTTP 403 / challenge response; mandatory 3-record proof was not closed; eLibrary accession numbers were NOT OBSERVED; eLibrary Posted Dates were NOT OBSERVED; source-level blocker was NOT proven.
+  - Required contract remains: `source_item_id = eLibrary accession number`, `published_at_raw = eLibrary Posted Date`. Explicitly: docket number is NOT source_item_id.
+  - Note: Do not claim source requires browser automation, private API, is permanently unavailable, or is source-level BLOCKED.
+
+- **cn_mohurd_regulatory_docs**
+  - status: DEFERRED_PENDING_POST_PILOT
+  - Reason: current permitted runtime could not resolve/reach the ministry host due to DNS/network failure; required 3-record proof could not be obtained; 索引号 was NOT OBSERVED; 发文日期 was NOT OBSERVED; source-level blocker was NOT proven.
+  - Required contract remains: `source_item_id = 索引号`, `published_at_raw = 发文日期`. 文号 remains metadata only.
+  - Forbidden identity fallback remains: 文号, title, date, title+date, URL hash, synthetic ID.
+  - Note: Do not classify the source as BLOCKED.
 
 ## 3. Suggested enums
 

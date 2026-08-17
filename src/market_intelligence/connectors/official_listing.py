@@ -39,6 +39,10 @@ _SUPPORTED_SOURCE_IDS = frozenset(
         "eu_esma_regulatory",
         "cn_samr_market_regulation_bulletins",
         "cn_miit_policy_listing",
+        "cn_state_council_policy_docs",
+        "cn_pboc_regulatory_docs",
+        "cn_csrc_regulatory_docs",
+        "cn_nea_regulatory_docs",
     }
 )
 
@@ -64,6 +68,16 @@ _SAMR_LISTING_ORIGIN = "https://zwfw.samr.gov.cn"
 _SAMR_DETAIL_ORIGIN = "https://www.samr.gov.cn"
 
 _MIIT_ORIGIN = "https://www.miit.gov.cn"
+
+_STATE_COUNCIL_ORIGIN = "https://sousuo.www.gov.cn"
+_STATE_COUNCIL_DETAIL_ORIGIN = "https://www.gov.cn"
+
+_PBOC_ORIGIN = "https://www.pbc.gov.cn"
+
+_CSRC_ORIGIN = "http://www.csrc.gov.cn"
+_CSRC_DETAIL_ORIGIN = "https://www.csrc.gov.cn"
+
+_NEA_ORIGIN = "https://www.nea.gov.cn"
 
 
 def _utc_now() -> datetime:
@@ -275,6 +289,22 @@ class OfficialListingConnector:
                 page_articles, raw_next_url = self._parse_miit_html(
                     source, response.text, next_url, retrieved_at, remaining
                 )
+            elif source.source_id == "cn_state_council_policy_docs":
+                page_articles, raw_next_url = await self._parse_state_council_html_async(
+                    source, response.text, next_url, retrieved_at, remaining, client, limiter
+                )
+            elif source.source_id == "cn_pboc_regulatory_docs":
+                page_articles, raw_next_url = await self._parse_pboc_html_async(
+                    source, response.text, next_url, retrieved_at, remaining, client, limiter
+                )
+            elif source.source_id == "cn_csrc_regulatory_docs":
+                page_articles, raw_next_url = await self._parse_csrc_html_async(
+                    source, response.text, next_url, retrieved_at, remaining, client, limiter
+                )
+            elif source.source_id == "cn_nea_regulatory_docs":
+                page_articles, raw_next_url = await self._parse_nea_html_async(
+                    source, response.text, next_url, retrieved_at, remaining, client, limiter
+                )
             else:
                 raise ListingParseError(source.source_id, "unsupported source_id")
             articles.extend(page_articles)
@@ -361,7 +391,22 @@ class OfficialListingConnector:
             raise ListingParseError(
                 source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
             )
-        elif source.source_id == "vn_mst_regulatory_docs" and origin != _MST_ORIGIN:
+        elif source.source_id == "cn_state_council_policy_docs" and origin != _STATE_COUNCIL_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "cn_pboc_regulatory_docs" and origin != _PBOC_ORIGIN:
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "cn_csrc_regulatory_docs" and origin not in (
+            _CSRC_ORIGIN,
+            _CSRC_DETAIL_ORIGIN,
+        ):
+            raise ListingParseError(
+                source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
+            )
+        elif source.source_id == "cn_nea_regulatory_docs" and origin != _NEA_ORIGIN:
             raise ListingParseError(
                 source.source_id, f"invalid pagination URL (cross-origin): {raw_next_url}"
             )
@@ -1361,6 +1406,528 @@ class OfficialListingConnector:
                 date_match = re.search(r"\d{4}-\d{2}-\d{2}", date_text)
                 if date_match:
                     published_at_raw = date_match.group(0)
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                )
+            )
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, None
+
+    async def _parse_state_council_html_async(
+        self,
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+        client: httpx.AsyncClient,
+        limiter: RequestRateLimiter,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        # In policyDocumentLibrary we look for content links
+        links = soup.find_all("a", href=re.compile(r"zhengce/(content|zhengceku)/"))
+        # De-duplicate links while preserving order
+        seen = set()
+        unique_links = []
+        for a in links:
+            if str(a.get("href")) not in seen:
+                seen.add(str(a.get("href")))
+                unique_links.append(a)
+
+        for item_index, link in enumerate(unique_links):
+            if len(articles) >= max_items:
+                break
+
+            href = str(link.get("href")).strip()
+            absolute_url = urljoin(base_url, href)
+
+            # The detail URL for State Council must be gov.cn not sousuo.www.gov.cn
+            if absolute_url.startswith(_STATE_COUNCIL_ORIGIN):
+                absolute_url = absolute_url.replace(
+                    _STATE_COUNCIL_ORIGIN, _STATE_COUNCIL_DETAIL_ORIGIN
+                )
+
+            parsed_url = urlparse(absolute_url)
+            if parsed_url.netloc != "www.gov.cn" or not parsed_url.path.startswith(
+                "/zhengce/content/"
+            ):
+                invalid_items += 1
+                self._log_unusable_item(
+                    source.source_id, item_index, "cross_origin_or_invalid_path"
+                )
+                continue
+
+            title = link.get_text(strip=True)
+            if not title:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_title")
+                continue
+
+            # Fetch detail page
+            try:
+                response = await self._request_with_retries(client, source, absolute_url, limiter)
+            except ListingFetchError as e:
+                self._log_unusable_item(
+                    source.source_id, item_index, f"detail_fetch_error:{e.category}"
+                )
+                invalid_items += 1
+                continue
+
+            d_soup = BeautifulSoup(response.text, "html.parser")
+            text_clean = d_soup.text.replace("\n", "").replace(" ", "").replace("\xa0", "")
+
+            idx_date = text_clean.find("成文日期")
+            published_at_raw = None
+            if idx_date != -1:
+                slice_text = text_clean[idx_date : idx_date + 25]
+                date_match = re.search(
+                    r"成文日期[:：]?(\d{4}年\d{1,2}月\d{1,2}日|\d{4}-\d{2}-\d{2})", slice_text
+                )
+                if date_match:
+                    published_at_raw = (
+                        date_match.group(1).replace("年", "-").replace("月", "-").replace("日", "")
+                    )
+
+            idx_id = text_clean.find("发文字号")
+            source_item_id = None
+            if idx_id != -1:
+                slice_text = text_clean[idx_id : idx_id + 25]
+                id_match = re.search(
+                    r"发文字号[:：]?(国[a-zA-Z0-9\u4e00-\u9fa5]+〔\d{4}〕\d+号|国令第\d+号|国函〔\d{4}〕\d+号)",
+                    slice_text,
+                )
+                if id_match:
+                    source_item_id = id_match.group(1)
+
+            for meta in d_soup.find_all("meta"):
+                name = str(meta.get("name", ""))
+                if "发文字号" in name and not source_item_id:
+                    source_item_id = str(meta.get("content"))
+
+            if not source_item_id:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_document_number")
+                continue
+
+            if not published_at_raw:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_publication_date")
+                continue
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                )
+            )
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, None
+
+    async def _parse_pboc_html_async(
+        self,
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+        client: httpx.AsyncClient,
+        limiter: RequestRateLimiter,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        breadcrumb = soup.find(class_=re.compile(r"(Position|breadcrumb|nav|hui12)", re.IGNORECASE))
+        if not breadcrumb or "部门规章" not in breadcrumb.get_text():
+            raise ListingParseError(
+                source.source_id, "layout drift or scope leak: not in 部门规章 channel"
+            )
+
+        links = soup.find_all("a", href=True)
+        target_links = [
+            a
+            for a in links
+            if "index.html" in str(a.get("href"))
+            and re.search(r"/\d{8,}/index\.html", str(a.get("href")))
+        ]
+
+        for item_index, link in enumerate(target_links):
+            if len(articles) >= max_items:
+                break
+
+            href = str(link.get("href")).strip()
+            absolute_url = urljoin(base_url, href)
+
+            parsed_url = urlparse(absolute_url)
+            if (
+                parsed_url.scheme != "https"
+                or parsed_url.netloc != "www.pbc.gov.cn"
+                or not parsed_url.path.startswith("/tiaofasi/144941/144957/")
+            ):
+                invalid_items += 1
+                self._log_unusable_item(
+                    source.source_id, item_index, "cross_origin_or_invalid_path"
+                )
+                continue
+
+            title = link.get_text(strip=True)
+            if not title:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_title")
+                continue
+
+            try:
+                response = await self._request_with_retries(client, source, absolute_url, limiter)
+            except ListingFetchError as e:
+                self._log_unusable_item(
+                    source.source_id, item_index, f"detail_fetch_error:{e.category}"
+                )
+                invalid_items += 1
+                continue
+
+            d_soup = BeautifulSoup(response.text, "html.parser")
+
+            d_breadcrumb = d_soup.find(
+                class_=re.compile(r"(Position|breadcrumb|nav|hui12)", re.IGNORECASE)
+            )
+            if not d_breadcrumb or "部门规章" not in d_breadcrumb.get_text():
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "detail_scope_leak")
+                continue
+
+            source_item_id = None
+            published_at_raw = None
+
+            for meta in d_soup.find_all("meta"):
+                name = str(meta.get("name", ""))
+                if "PubDate" in name:
+                    published_at_raw = str(meta.get("content"))
+
+            id_match = re.search(
+                r"(中国人民银行令〔\d{4}〕第\d+号|中国人民银行等\w+令〔\d{4}〕第\d+号|中国人民银行令\d{4}年第\d+号)",
+                title,
+            )
+            if not id_match:
+                id_match = re.search(
+                    r"(中国人民银行令〔\d{4}〕第\d+号|中国人民银行等\w+令〔\d{4}〕第\d+号|中国人民银行令\d{4}年第\d+号)",
+                    d_soup.text,
+                )
+
+            if id_match:
+                source_item_id = id_match.group(1)
+
+            if not source_item_id:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_document_number")
+                continue
+
+            if not published_at_raw:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_publication_date")
+                continue
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                )
+            )
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, None
+
+    async def _parse_csrc_html_async(
+        self,
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+        client: httpx.AsyncClient,
+        limiter: RequestRateLimiter,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        title_tag = soup.find("title")
+        if not title_tag or "证监会公告" not in title_tag.get_text():
+            raise ListingParseError(
+                source.source_id, "layout drift or scope leak: not in 证监会公告 channel"
+            )
+
+        links = soup.find_all("a", href=True)
+        target_links = []
+        seen = set()
+        for a in links:
+            href = a["href"]
+            text = a.text.strip()
+            if "content.shtml" in href and len(text) > 5 and href not in seen:
+                seen.add(href)
+                target_links.append(a)
+
+        for item_index, link in enumerate(target_links):
+            if len(articles) >= max_items:
+                break
+
+            href = str(link.get("href")).strip()
+            absolute_url = urljoin(base_url, href)
+
+            parsed_url = urlparse(absolute_url)
+            if (
+                parsed_url.scheme != "https"
+                or parsed_url.netloc != "www.csrc.gov.cn"
+                or not parsed_url.path.startswith("/csrc/c101954/")
+            ):
+                invalid_items += 1
+                self._log_unusable_item(
+                    source.source_id, item_index, "cross_origin_or_invalid_path"
+                )
+                continue
+
+            title = link.get_text(strip=True)
+            if not title:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_title")
+                continue
+
+            try:
+                response = await self._request_with_retries(client, source, absolute_url, limiter)
+            except ListingFetchError as e:
+                self._log_unusable_item(
+                    source.source_id, item_index, f"detail_fetch_error:{e.category}"
+                )
+                invalid_items += 1
+                continue
+
+            d_soup = BeautifulSoup(response.text, "html.parser")
+
+            d_breadcrumb = d_soup.find(
+                class_=re.compile(r"(Position|breadcrumb|nav)", re.IGNORECASE)
+            )
+            if d_breadcrumb and "证监会公告" not in d_breadcrumb.get_text():
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "detail_scope_leak")
+                continue
+
+            source_item_id = None
+            published_at_raw = None
+            wenhao = None
+
+            for meta in d_soup.find_all("meta"):
+                name = str(meta.get("name", ""))
+                if "ArticleTitle" in name:
+                    title = str(meta.get("content"))
+
+            text_clean = d_soup.text.replace("\n", "").replace(" ", "").replace("\xa0", "")
+            idx1 = text_clean.find("索引号")
+            if idx1 != -1:
+                slice_text = text_clean[idx1 + 3 : idx1 + 40]
+                id_match = re.search(r"([a-zA-Z0-9]+/\d{4}-\d+)", slice_text)
+                if id_match:
+                    source_item_id = id_match.group(1)
+
+            idx2 = text_clean.find("文号")
+            if idx2 != -1:
+                slice_text = text_clean[idx2 + 2 : idx2 + 40]
+                wenhao_match = re.search(r"(证监会公告〔\d{4}〕\d+号)", slice_text)
+                if wenhao_match:
+                    wenhao = wenhao_match.group(1)
+
+            idx3 = text_clean.find("发文日期")
+            if idx3 != -1:
+                slice_text = text_clean[idx3 : idx3 + 30]
+                date_match = re.search(
+                    r"发文日期[:：]?(\d{4}年\d{1,2}月\d{1,2}日|\d{4}-\d{2}-\d{2})", slice_text
+                )
+                if date_match:
+                    published_at_raw = (
+                        date_match.group(1).replace("年", "-").replace("月", "-").replace("日", "")
+                    )
+
+            if not source_item_id:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_document_number")
+                continue
+
+            if not published_at_raw:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_publication_date")
+                continue
+
+            raw_metadata = {}
+            if wenhao:
+                raw_metadata["document_number"] = wenhao
+
+            articles.append(
+                RawArticle(
+                    source_id=source.source_id,
+                    source_item_id=source_item_id,
+                    url=absolute_url,
+                    title=title,
+                    description=None,
+                    published_at_raw=published_at_raw,
+                    language_hint=source.language,
+                    retrieved_at=retrieved_at,
+                    raw_metadata=raw_metadata,
+                )
+            )
+
+        if not articles and invalid_items:
+            raise ListingParseError(
+                source.source_id, "Listing container found but no usable articles were extracted"
+            )
+
+        return articles, None
+
+    async def _parse_nea_html_async(
+        self,
+        source: SourceConfig,
+        html_content: str,
+        base_url: str,
+        retrieved_at: datetime,
+        max_items: int,
+        client: httpx.AsyncClient,
+        limiter: RequestRateLimiter,
+    ) -> tuple[list[RawArticle], str | None]:
+        import re
+
+        from bs4 import BeautifulSoup
+
+        soup = BeautifulSoup(html_content, "html.parser")
+        articles: list[RawArticle] = []
+        invalid_items = 0
+
+        target_links = []
+        seen = set()
+        for box in soup.find_all("div"):
+            header = box.find(re.compile(r"^h\d$|div|span"), string=re.compile(r"^(通知|公告)$"))
+            if header:
+                for a in box.find_all("a", href=True):
+                    href = a["href"]
+                    if href not in seen and "/c.html" in href:
+                        seen.add(href)
+                        target_links.append(a)
+
+        for item_index, link in enumerate(target_links):
+            if len(articles) >= max_items:
+                break
+
+            href = str(link.get("href")).strip()
+            absolute_url = urljoin(base_url, href)
+
+            parsed_url = urlparse(absolute_url)
+            if parsed_url.scheme != "https" or parsed_url.netloc != "www.nea.gov.cn":
+                invalid_items += 1
+                self._log_unusable_item(
+                    source.source_id, item_index, "cross_origin_or_invalid_path"
+                )
+                continue
+
+            title = link.get_text(strip=True)
+            if not title:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_title")
+                continue
+
+            try:
+                response = await self._request_with_retries(client, source, absolute_url, limiter)
+            except ListingFetchError as e:
+                self._log_unusable_item(
+                    source.source_id, item_index, f"detail_fetch_error:{e.category}"
+                )
+                invalid_items += 1
+                continue
+
+            d_soup = BeautifulSoup(response.text, "html.parser")
+
+            d_breadcrumb = d_soup.find(
+                class_=re.compile(r"(Position|breadcrumb|nav)", re.IGNORECASE)
+            )
+            if d_breadcrumb and re.search(
+                r"(新闻发布|解读|其他|项目核准)", d_breadcrumb.get_text()
+            ):
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "detail_scope_leak")
+                continue
+
+            source_item_id = None
+            published_at_raw = None
+
+            text_clean = d_soup.text.replace("\n", "").replace(" ", "").replace("\xa0", "")
+            idx1 = text_clean.find("索引号")
+            if idx1 != -1:
+                slice_text = text_clean[idx1 + 3 : idx1 + 40]
+                id_match = re.search(r"(\d{9,}/\d{4}-\d+)", slice_text)
+                if id_match:
+                    source_item_id = id_match.group(1)
+
+            idx2 = text_clean.find("制发日期")
+            if idx2 != -1:
+                slice_text = text_clean[idx2 + 4 : idx2 + 40]
+                date_match = re.search(r"(\d{4}-\d{2}-\d{2})", slice_text)
+                if date_match:
+                    published_at_raw = date_match.group(1)
+
+            if not source_item_id:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_document_number")
+                continue
+
+            if not published_at_raw:
+                invalid_items += 1
+                self._log_unusable_item(source.source_id, item_index, "missing_publication_date")
+                continue
 
             articles.append(
                 RawArticle(
