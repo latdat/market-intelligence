@@ -1,0 +1,26 @@
+# Synthetic publisher routes for GDELT-002A tests only.
+#
+# These entries are illustrative test data. They are NOT real routing decisions, NOT real
+# rights decisions, and NOT approved production configuration. Production routes belong to a
+# reviewed `config/discovery/` namespace that intentionally ships empty in GDELT-002A.
+
+[[routes]]
+hostname = "editorial.example.test"
+path_prefix = "/news/business/"
+target_source_id = "xx_editorial_fixture_source"
+content_scope = "EDITORIAL_NEWS"
+identity_mode = "CANONICAL_URL_FALLBACK"
+
+[[routes]]
+hostname = "regulator.example.test"
+path_prefix = "/documents/"
+target_source_id = "xx_regulatory_fixture_source"
+content_scope = "FORMAL_REGULATORY_LEGAL"
+identity_mode = "NATIVE_SOURCE_ITEM_ID_REQUIRED"
+
+[[routes]]
+hostname = "blocked.example.test"
+path_prefix = "/press/"
+target_source_id = "xx_rights_denied_fixture_source"
+content_scope = "EDITORIAL_NEWS"
+identity_mode = "CANONICAL_URL_FALLBACK"

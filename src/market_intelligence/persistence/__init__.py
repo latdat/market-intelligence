@@ -36,6 +36,23 @@ from market_intelligence.persistence.classifications import (
     LeaseRenewalOutcome,
     LeaseRenewalResult,
 )
+from market_intelligence.persistence.discovery_observations import (
+    BENCHMARK_EVIDENCE_RETENTION_DAYS,
+    MAX_OBSERVATION_SAMPLES,
+    OBSERVATION_RETENTION_DAYS,
+    SAMPLE_RETENTION_DAYS,
+    DiscoveryBenchmarkEvidence,
+    DiscoveryBenchmarkEvidenceRecordResult,
+    DiscoveryObservation,
+    DiscoveryObservationKey,
+    DiscoveryObservationRecordResult,
+    DiscoveryObservationRepository,
+    DiscoveryObservationSample,
+    DiscoveryPersistenceError,
+    DiscoveryPruneResult,
+    DiscoveryRecordOutcome,
+    DiscoveryRetentionCutoffs,
+)
 from market_intelligence.persistence.supabase_alert_candidate_repository import (
     SupabaseAlertCandidateRepository,
     create_alert_candidate_repository_from_environment,
@@ -47,6 +64,10 @@ from market_intelligence.persistence.supabase_classification_repository import (
 from market_intelligence.persistence.supabase_classification_work_reader import (
     SupabaseClassificationWorkReader,
     create_classification_work_reader_from_environment,
+)
+from market_intelligence.persistence.supabase_discovery_repository import (
+    SupabaseDiscoveryRepository,
+    create_discovery_repository_from_environment,
 )
 from market_intelligence.persistence.supabase_repository import (
     SupabaseArticleRepository,
@@ -98,4 +119,21 @@ __all__ = [
     "AlertCandidateSaveResult",
     "SupabaseAlertCandidateRepository",
     "create_alert_candidate_repository_from_environment",
+    "BENCHMARK_EVIDENCE_RETENTION_DAYS",
+    "MAX_OBSERVATION_SAMPLES",
+    "OBSERVATION_RETENTION_DAYS",
+    "SAMPLE_RETENTION_DAYS",
+    "DiscoveryBenchmarkEvidence",
+    "DiscoveryBenchmarkEvidenceRecordResult",
+    "DiscoveryObservation",
+    "DiscoveryObservationKey",
+    "DiscoveryObservationRecordResult",
+    "DiscoveryObservationRepository",
+    "DiscoveryObservationSample",
+    "DiscoveryPersistenceError",
+    "DiscoveryPruneResult",
+    "DiscoveryRecordOutcome",
+    "DiscoveryRetentionCutoffs",
+    "SupabaseDiscoveryRepository",
+    "create_discovery_repository_from_environment",
 ]
