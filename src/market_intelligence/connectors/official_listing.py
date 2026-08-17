@@ -130,7 +130,8 @@ class OfficialListingConnector:
 
     v1 supports:
     - AcquisitionMethod.HTML
-    - source_id: vn_sbv_regulatory_docs only
+    - Supports the explicitly allowlisted official-listing source_ids declared by
+      _SUPPORTED_SOURCE_IDS.
 
     The connector is stateless.
     """

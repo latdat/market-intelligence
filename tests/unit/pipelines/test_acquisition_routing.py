@@ -2,8 +2,12 @@
 
 import asyncio
 
+import pytest
+
 from market_intelligence.articles import RawArticle
+from market_intelligence.connectors import OfficialListingConnector
 from market_intelligence.pipelines import preflight_sources
+from market_intelligence.pipelines.rss_to_supabase import _create_connector_for_source
 from market_intelligence.source_registry import SourceConfig
 
 # ---------------------------------------------------------------------------
@@ -148,6 +152,39 @@ def test_unsupported_acquisition_method_fails_closed_before_network() -> None:
 
     assert result[0].status == "FAILED"
     assert result[0].error_type == "UnsupportedAcquisitionMethod"
+
+
+# ---------------------------------------------------------------------------
+# Dispatcher-level regression: OfficialListingConnector HTML routing (P1 fix)
+# ---------------------------------------------------------------------------
+#
+# The China batch source (SO-007 U2) tests in
+# tests/unit/connectors/test_official_listing_china_batch.py exercise
+# OfficialListingConnector directly and therefore never caught that
+# _create_connector_for_source() had not been updated to route these four
+# source_ids. These tests call the real dispatcher (no connector override)
+# to prove the routing itself, not just the connector's own behavior.
+
+_CHINA_OFFICIAL_LISTING_SOURCE_IDS = [
+    "cn_state_council_policy_docs",
+    "cn_pboc_regulatory_docs",
+    "cn_csrc_regulatory_docs",
+    "cn_nea_regulatory_docs",
+]
+
+
+@pytest.mark.parametrize("source_id", _CHINA_OFFICIAL_LISTING_SOURCE_IDS)
+def test_china_html_sources_route_to_official_listing_connector(source_id: str) -> None:
+    """Regression (P1 fix): the real dispatcher must route these four HTML
+    source_ids to OfficialListingConnector instead of raising
+    UnsupportedAcquisitionMethod. No network call is made; only the
+    connector selection is verified.
+    """
+    source = _make_source(source_id, "HTML", "https://example.gov.cn/listing")
+
+    connector = _create_connector_for_source(source, max_items=10)
+
+    assert isinstance(connector, OfficialListingConnector)
 
 
 def test_mixed_rss_and_rest_sources_with_injected_fetcher() -> None:

@@ -119,8 +119,8 @@ in DE-002.
 
 ### 2.2 Current implementation — production source registry
 
-`CURRENT IMPLEMENTATION` contains exactly 17 static `SourceConfig` files under
-`config/sources/`: six RSS/Atom sources, two REST API sources, eight HTML sources, and one SPARQL legal corpus source.
+`CURRENT IMPLEMENTATION` contains exactly 21 static `SourceConfig` files under
+`config/sources/`: six RSS/Atom sources, two REST API sources, twelve HTML sources, and one SPARQL legal corpus source.
 
 | Source ID | Market | Acquisition | Current role | Official v1 MUST? |
 |---|---|---|---|---|
@@ -141,6 +141,10 @@ in DE-002.
 | `eu_eurlex_cellar` | EU | SPARQL | Canonical legal spine (SO-007D1) | Yes |
 | `cn_samr_market_regulation_bulletins` | CN | HTML | Implemented official supplemental/non-core source | No |
 | `cn_miit_policy_listing` | CN | HTML | Industry/technology policy documents (SO-007C1) | Yes |
+| `cn_state_council_policy_docs` | CN | HTML | State Council formal policy documents (SO-007 U2) | Yes |
+| `cn_pboc_regulatory_docs` | CN | HTML | Central-bank regulatory documents (SO-007 U2) | Yes |
+| `cn_csrc_regulatory_docs` | CN | HTML | Securities regulation (SO-007 U2) | Yes |
+| `cn_nea_regulatory_docs` | CN | HTML | Energy regulation (SO-007 U2) | Yes |
 
 Of the 25 official MUST sources, **18** are currently implemented: `us_fed_press_releases`,
 `eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`, `eu_eurlex_cellar`, `cn_miit_policy_listing`, `cn_state_council_policy_docs`, `cn_pboc_regulatory_docs`, `cn_csrc_regulatory_docs`, and `cn_nea_regulatory_docs`. The
