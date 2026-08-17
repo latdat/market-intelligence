@@ -55,12 +55,15 @@ email_sent_at
 
 ## 3. Current implementation and approved platform flow
 
-Current source-onboarding implementation covers nine configured `SourceConfig` records:
-six RSS/Atom records, two REST API records, and one HTML record (`vn_sbv_regulatory_docs` as part of SO-004, SO-005, and SO-006).
+Current source-onboarding implementation covers 21 configured `SourceConfig` records:
+6 RSS/Atom records, 3 REST API records, and 12 HTML records. `eu_eurlex_cellar` uses the
+`REST_API` acquisition abstraction against a SPARQL endpoint; `SPARQL` is not a separate
+`AcquisitionMethod` in the current code model.
 The exact implemented list and its rights state are maintained in
 [`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--production-source-registry).
-Seven of those nine records are members of the 25-source official-core target. The
-other 18 MUST sources, GNews, and Story/Event are not implemented.
+18 of those 21 records are members of the 25-source official-core target and the other 3 are
+non-MUST/context/supplemental configs. The remaining 7 MUST sources, GNews, and Story/Event
+are not implemented.
 
 The diagram below is the approved platform flow, not evidence that every box is deployed
 or operational. Section 7 records implementation boundaries for the downstream stages.
@@ -68,8 +71,8 @@ or operational. Section 7 records implementation boundaries for the downstream s
 ```text
 ┌───────────────────────────────────────────────────┐
 │                   DATA SOURCES                    │
-│ Official core: 25 MUST target; 5 current configs  │
-│ Non-MUST domain/context: 2 current configs        │
+│ Official core: 25 MUST target; 18 current configs │
+│ Non-MUST/context/supplemental: 3 current configs  │
 │ Future GNews: discovery/enrichment only           │
 └─────────────────────────┬─────────────────────────┘
                        ↓
@@ -125,10 +128,13 @@ Cloudflare Pages / Workers
 
 `CURRENT IMPLEMENTATION` and `TARGET OFFICIAL ARCHITECTURE v1` are different scopes:
 
-- `CURRENT IMPLEMENTATION`: nine SO-001/SO-004/SO-005/SO-006 `SourceConfig` records (six
-  RSS/Atom, two REST API, one HTML) and the RSS/Atom, Government API, Legal Corpus, and Official Listing connector paths;
+- `CURRENT IMPLEMENTATION`: 21 `SourceConfig` records (6 RSS/Atom, 3 REST API, 12 HTML) and
+  the RSS/Atom, Government API, Legal Corpus, and Official Listing connector paths. One of the
+  REST API records, `eu_eurlex_cellar`, targets a SPARQL endpoint through the same `REST_API`
+  acquisition abstraction;
 - `TARGET OFFICIAL ARCHITECTURE v1`: 25 MUST official core sources across VN, US, EU,
-  and CN;
+  and CN, of which 18 are currently implemented and 7 remain `SOURCE-LEVEL BLOCKED` or
+  `DEFERRED_PENDING_POST_PILOT` according to [`SOURCE_REGISTRY.md`](SOURCE_REGISTRY.md#22-current-implementation--production-source-registry);
 - SO-002 adopts the target as documentation/design only. It does not create the missing
   `SourceConfig` records, implement connectors, fetch data, or prove production readiness.
 

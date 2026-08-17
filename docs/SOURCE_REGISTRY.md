@@ -120,7 +120,10 @@ in DE-002.
 ### 2.2 Current implementation — production source registry
 
 `CURRENT IMPLEMENTATION` contains exactly 21 static `SourceConfig` files under
-`config/sources/`: six RSS/Atom sources, two REST API sources, twelve HTML sources, and one SPARQL legal corpus source.
+`config/sources/`, counted by their actual `acquisition.method` value: six RSS/Atom sources,
+three REST API sources, and twelve HTML sources. `SPARQL` is not an `AcquisitionMethod` member
+in the current code model; `eu_eurlex_cellar` therefore uses the `REST_API` acquisition
+abstraction over the EUR-Lex/CELLAR SPARQL endpoint and is counted among the REST API sources.
 
 | Source ID | Market | Acquisition | Current role | Official v1 MUST? |
 |---|---|---|---|---|
@@ -138,7 +141,7 @@ in DE-002.
 | `us_bis_regulatory` | US | HTML | Industry/security/trade-control regulation (SO-007) | Yes |
 | `us_fhfa_regulatory` | US | HTML | Housing-finance regulation (SO-007) | Yes |
 | `eu_esma_regulatory` | EU | HTML | Securities/markets regulation (SO-007) | Yes |
-| `eu_eurlex_cellar` | EU | SPARQL | Canonical legal spine (SO-007D1) | Yes |
+| `eu_eurlex_cellar` | EU | REST_API (SPARQL endpoint) | Canonical legal spine (SO-007D1) | Yes |
 | `cn_samr_market_regulation_bulletins` | CN | HTML | Implemented official supplemental/non-core source | No |
 | `cn_miit_policy_listing` | CN | HTML | Industry/technology policy documents (SO-007C1) | Yes |
 | `cn_state_council_policy_docs` | CN | HTML | State Council formal policy documents (SO-007 U2) | Yes |
