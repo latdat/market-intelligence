@@ -152,7 +152,186 @@ Tương tự: **không tạo cột `content` để lưu toàn văn bài báo.** 
 
 ---
 
-## 7. Kiểm chứng
+## 7. Kiểu dữ liệu và khoá — DE chốt, SWE làm theo
+
+Mọi quyết định về kiểu dữ liệu, khoá chính, khoá ngoại và ràng buộc của các entity dùng chung
+do DE chốt; SWE hiện thực theo. Thấy chỗ nào sai hoặc thiếu thì đề xuất, đừng tự đổi ở phía mình —
+một mapping lệch âm thầm chính là nguyên nhân của cả đợt rà soát vừa rồi.
+
+Các quy ước dưới đây đọc trực tiếp từ DDL đang chạy trong `supabase/migrations/`.
+
+### 7.1 Quy ước chung
+
+| Loại dữ liệu | Dùng | Không dùng |
+|---|---|---|
+| Chuỗi | `text` | `varchar(n)` — không giới hạn độ dài ở tầng DB |
+| Mảng | `text[]` | bảng phụ, chuỗi phân tách bằng dấu phẩy |
+| Thời gian | `timestamptz`, luôn UTC | `timestamp` trần, `date`, epoch dạng số |
+| Số thực | `double precision` + CHECK khoảng giá trị | `numeric`, `real`, `float4` |
+| Boolean | `boolean` | `smallint` 0/1, chuỗi `"true"` |
+| Tập giá trị cố định | **CHECK constraint** | Postgres `ENUM` type |
+
+Về điểm cuối: thêm topic thứ 9 vào một `ENUM` type cần `ALTER TYPE`, không rollback được trong
+transaction và khó đảo ngược. Với CHECK thì đó chỉ là một migration bình thường. DE đang làm vậy
+cho `market`, `category`, `topics` và `importance` — SWE làm giống hệt, lấy danh sách giá trị từ
+`vocabularies.json`.
+
+### 7.2 `user_id`
+
+- **Kiểu: `text`, không rỗng.** Không phải `uuid`, không phải `bigint`.
+- DE khai `alert_candidates.user_id text not null` kèm CHECK `length(btrim(user_id)) > 0`.
+- **SWE sinh giá trị; DE coi nó là chuỗi mờ** — không parse, không cast, không giả định định dạng.
+- Migrate user cũ từ Mongo: **giữ nguyên chuỗi 24 ký tự hex của `_id`**. JWT hiện tại đã mang đúng
+  chuỗi đó nên tầng auth không phải đổi gì.
+- Tạo mới từ đầu: UUID v4 lưu dạng `text`.
+- Một giá trị, một dạng biểu diễn, ở mọi nơi. Không có chỗ nào lưu dạng khác rồi convert khi join.
+
+### 7.3 Khoá ngoại
+
+**Không có khoá ngoại xuyên schema.** `public.alert_candidates.user_id` **không** tham chiếu bảng
+users của SWE, và sẽ không tham chiếu trong giai đoạn này. Nếu có, migration của DE sẽ phụ thuộc
+vào bảng của SWE tồn tại, và thứ tự deploy của hai repo bị ghép cứng vào nhau.
+
+> **Hệ quả SWE cần xử lý:** xoá một user **không** cascade. Không ràng buộc nào tự dọn
+> `alert_candidates` của user đó. Phải xử lý tường minh — soft-delete user, hoặc gọi thủ tục dọn
+> dẹp. Đừng cho rằng database tự lo.
+
+Trong cùng một schema thì dùng FK thoải mái. DE đã có:
+
+```sql
+alert_candidates.article_id → articles.article_id  ON DELETE RESTRICT
+```
+
+**Chú ý `RESTRICT`:** không xoá được một bài viết khi còn candidate trỏ tới nó. Job dọn dữ liệu
+theo retention phải xoá candidate trước, bài viết sau. Làm ngược lại sẽ báo lỗi ràng buộc chứ không
+phải lỗi logic, và sẽ mất thời gian truy nguyên.
+
+### 7.4 Bảng ánh xạ kiểu
+
+**CanonicalArticle** — `public.articles`
+
+| Thuộc tính | Postgres | TypeScript | Ghi chú |
+|---|---|---|---|
+| `article_id` | `text primary key` | `string` | Khoá join. DE sinh, SWE không tính lại |
+| `source_id` | `text not null` | `string` | Join sang `sources.sample.json` để kiểm quyền hiển thị |
+| `source_item_id` | `text null` | `string \| null` | |
+| `url` / `canonical_url` | `text not null` | `string` | `canonical_url` là bản đã bỏ tham số theo dõi |
+| `title` | `text not null` | `string` | Không giới hạn độ dài; gói mẫu có tiêu đề 190 ký tự |
+| `description` | `text null` | `string \| null` | `null` ≠ `""`. Giữ nguyên `null` |
+| `language` | `text not null` | `string` | Không mặc định. Gói mẫu có `en`, `vi`, `zh` |
+| `market` | `text not null` + CHECK 4 giá trị | `'VN'\|'US'\|'EU'\|'CN'` | Market của **nguồn**, không phải của nội dung |
+| `published_at` | `timestamptz null` | `string \| null` | ISO 8601 UTC. **Không bao giờ đắp giờ crawl vào** |
+| `discovered_at` | `timestamptz not null` | `string` | Thời điểm DE phát hiện lần đầu |
+| `content_hash` | `text not null` | `string` | DE tính. SWE không tính lại bằng thuật toán khác |
+
+Ngữ nghĩa: bản ghi `articles` là **ghi một lần**. DE chỉ có quyền `select, insert, delete` trên
+bảng này, không có `update`. Đừng thiết kế giao diện giả định sửa được nội dung bài.
+
+**ClassifiedArticle** — `public.article_classifications`
+
+| Thuộc tính | Postgres | TypeScript | Ghi chú |
+|---|---|---|---|
+| `article_id` + `classifier_version` | **khoá chính kép** | | Một bài có thể có nhiều bản phân loại |
+| `is_relevant` | `boolean` | `boolean` | Trường phân nhánh. Quyết định hình dạng của 3 dòng dưới — xem 7.4.1 |
+| `markets` | `text[]` | `Market[]` | **1–4** phần tử khi relevant (không được rỗng); **bắt buộc rỗng** khi irrelevant |
+| `category` | `text null` + CHECK 5 giá trị | `Domain \| null` | **Bắt buộc có** khi relevant; **bắt buộc `null`** khi irrelevant |
+| `topics` | `text[]` | `Topic[]` | **0–5** phần tử khi relevant (có thể rỗng); **bắt buộc rỗng** khi irrelevant |
+| `confidence` | `double precision` | `number` | Khoảng `[0, 1]` |
+| `classified_at` | `timestamptz` | `string` | Thời điểm DE phân loại, **không phải** thời điểm ghi |
+
+#### 7.4.1 Ràng buộc ngữ nghĩa của ClassifiedArticle
+
+Ba trường `markets`, `category`, `topics` **không độc lập với nhau**. Chúng bị ràng buộc theo
+`is_relevant` bằng một CHECK trong SQL (`20260816000000_create_article_classifications.sql`,
+`article_classifications_semantic_state_check`). Đây là ràng buộc ở tầng database, không phải
+quy ước — ghi sai thì insert bị từ chối.
+
+| `is_relevant` | `markets` | `category` | `topics` |
+|---|---|---|---|
+| `true` | 1–4 phần tử, **không rỗng** | bắt buộc có, 1 trong 5 giá trị | 0–5 phần tử, **có thể rỗng** |
+| `false` | **rỗng** | **`null`** | **rỗng** |
+
+Không có tổ hợp thứ ba. Một bài irrelevant kèm `category` là trạng thái không tồn tại được.
+
+Cách encode đúng trong TypeScript là **discriminated union**, để tổ hợp sai không biểu diễn được
+ngay từ lúc compile:
+
+```ts
+// Sinh từ vocabularies.json — đừng gõ tay
+type Market = 'VN' | 'US' | 'EU' | 'CN';
+type Domain = 'LAW_POLICY' | 'ENERGY' | 'TECHNOLOGY' | 'REAL_ESTATE' | 'FINANCE';
+type Topic =
+  | 'AI' | 'BANKING' | 'INTEREST_RATES' | 'OIL_GAS'
+  | 'REAL_ESTATE' | 'REGULATION' | 'RENEWABLE_ENERGY' | 'SEMICONDUCTORS';
+
+type ClassificationBase = {
+  article_id: string;
+  classifier_version: string;  // khớp /^classification-v[1-9][0-9]*$/
+  confidence: number;          // [0, 1]
+  classified_at: string;       // ISO 8601 UTC
+};
+
+export type ClassifiedArticle =
+  | (ClassificationBase & {
+      is_relevant: true;
+      markets: [Market, ...Market[]];  // tối đa 4 — TypeScript không chặn được cận trên
+      category: Domain;
+      topics: Topic[];                 // tối đa 5
+    })
+  | (ClassificationBase & {
+      is_relevant: false;
+      markets: [];
+      category: null;
+      topics: [];
+    });
+```
+
+Với kiểu này, `if (c.is_relevant) { c.category }` chạy được mà không cần optional chaining, còn
+nhánh `false` thì không truy cập được `category` — đúng như dữ liệu thật.
+
+**Thứ tự phần tử là cố định, không phải alphabet.** DE chuẩn hoá trước khi ghi
+(`classification/models.py:114-115`):
+
+- `markets` sắp theo thứ tự cố định **VN → US → EU → CN**. Đây *không phải* thứ tự chữ cái.
+- `topics` sắp theo thứ tự chữ cái của giá trị.
+
+Hiển thị theo thứ tự khác thì tuỳ SWE, nhưng **đừng sắp lại rồi so sánh mảng** — và đừng giả định
+`markets` đã theo alphabet.
+
+**Lọc theo `status` trước khi đọc.** Bảng `article_classifications` còn chứa các bản ghi đang chạy
+dở của pipeline. Khi `status <> 'SUCCEEDED'` thì **toàn bộ** `is_relevant`, `markets`, `category`,
+`topics`, `confidence`, `classified_at` đều là `NULL` — cũng do CHECK ở trên ép.
+
+Nghĩa là JSON Schema sinh ra chỉ mô tả **hình dạng của bản ghi đã hoàn tất**, còn bảng thì rộng hơn
+thế. Mọi truy vấn của SWE phải có `where status = 'SUCCEEDED'`. Thiếu điều kiện đó, bạn sẽ nhận về
+những dòng toàn `null` mà type nói là không thể null.
+
+
+**AlertCandidate** — `public.alert_candidates`
+
+| Thuộc tính | Postgres | TypeScript | Ghi chú |
+|---|---|---|---|
+| `candidate_id` | `text primary key` | `string` | DE sinh bằng SHA-256. **Không nối chuỗi `user_id + article_id`** |
+| `user_id` | `text not null` | `string` | Xem 7.2 |
+| `article_id` | `text not null`, FK RESTRICT | `string` | |
+| `matched_at` | `timestamptz not null` | `string` | Thời điểm khớp. Khác thời điểm ghi bản ghi |
+| `match_reasons` | `text[] not null` | `string[]` | **Luôn có ít nhất 1 phần tử** |
+| `importance` | `text not null` + CHECK | `'NORMAL' \| 'HIGH'` | Chỉ hai giá trị |
+| `relevance_score` | `double precision not null` | `number` | `[0, 1]`, loại trừ NaN và Infinity |
+| `breaking_eligible` | `boolean not null` | `boolean` | Đủ điều kiện kỹ thuật, không phải lệnh gửi |
+| | `unique (user_id, article_id)` | | Một user một bài chỉ một candidate |
+
+### 7.5 Ba điều không được làm
+
+1. **Không đổi tên khi ánh xạ.** `markets` vẫn là `markets` ở mọi tầng — DB, API, TypeScript.
+2. **Không thêm `DEFAULT` cho field DE luôn cung cấp.** Một default âm thầm biến "thiếu dữ liệu"
+   thành "dữ liệu sai", và không có cách nào phân biệt lại về sau.
+3. **Không tự tính lại giá trị DE đã cung cấp** — `content_hash`, `candidate_id`, `relevance_score`,
+   `importance`. Lưu đúng giá trị nhận được.
+
+---
+
+## 8. Kiểm chứng
 
 Chạy ở repo `market-intelligence`:
 
