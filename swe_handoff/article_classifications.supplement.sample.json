@@ -1,0 +1,126 @@
+[
+  {
+    "is_relevant": true,
+    "markets": [
+      "VN"
+    ],
+    "category": "FINANCE",
+    "topics": [
+      "BANKING",
+      "INTEREST_RATES"
+    ],
+    "confidence": 0.91,
+    "article_id": "24f1a9774a819c7be23e721502d5e0e84d613c4fb1be862657b1262919b60dc5",
+    "classifier_version": "classification-v2",
+    "classified_at": "2026-08-16T02:25:00Z"
+  },
+  {
+    "is_relevant": true,
+    "markets": [
+      "CN"
+    ],
+    "category": "FINANCE",
+    "topics": [
+      "BANKING",
+      "REGULATION"
+    ],
+    "confidence": 0.88,
+    "article_id": "84c01e2c2451dafcfdefb80861985669af5e64efb551c374bdce73766f4fdafa",
+    "classifier_version": "classification-v2",
+    "classified_at": "2026-08-16T03:10:00Z"
+  },
+  {
+    "is_relevant": true,
+    "markets": [
+      "US",
+      "EU"
+    ],
+    "category": "LAW_POLICY",
+    "topics": [
+      "REGULATION",
+      "SEMICONDUCTORS"
+    ],
+    "confidence": 0.74,
+    "article_id": "5eb9ca77bdf5d16058d83104bdce19219d9c947284ff729be6dfdd37726a620e",
+    "classifier_version": "classification-v2",
+    "classified_at": "2026-08-16T13:55:00Z"
+  },
+  {
+    "is_relevant": true,
+    "markets": [
+      "EU"
+    ],
+    "category": "TECHNOLOGY",
+    "topics": [
+      "REGULATION"
+    ],
+    "confidence": 0.63,
+    "article_id": "f52322dd3341cd1d0412feee3bb93b697f7008be9f93374042db609a7ead8836",
+    "classifier_version": "classification-v1",
+    "classified_at": "2026-08-17T09:10:00Z"
+  },
+  {
+    "is_relevant": true,
+    "markets": [
+      "EU"
+    ],
+    "category": "FINANCE",
+    "topics": [
+      "BANKING",
+      "REGULATION"
+    ],
+    "confidence": 0.94,
+    "article_id": "f52322dd3341cd1d0412feee3bb93b697f7008be9f93374042db609a7ead8836",
+    "classifier_version": "classification-v2",
+    "classified_at": "2026-08-17T11:30:00Z"
+  },
+  {
+    "is_relevant": true,
+    "markets": [
+      "US"
+    ],
+    "category": "FINANCE",
+    "topics": [
+      "REGULATION"
+    ],
+    "confidence": 0.81,
+    "article_id": "2cffb8f294323ff00c0294bbfb2778d957e7f98b2edb53af814d99db057baedf",
+    "classifier_version": "classification-v2",
+    "classified_at": "2026-08-17T15:40:00Z"
+  },
+  {
+    "is_relevant": true,
+    "markets": [
+      "US"
+    ],
+    "category": "LAW_POLICY",
+    "topics": [
+      "REGULATION"
+    ],
+    "confidence": 0.79,
+    "article_id": "c47cde5495461e7b93c01d1a6dd027d98337022de8ddd4aabb68a70fe4076a23",
+    "classifier_version": "classification-v2",
+    "classified_at": "2026-08-18T04:10:00Z"
+  },
+  {
+    "is_relevant": true,
+    "markets": [
+      "VN",
+      "US",
+      "EU",
+      "CN"
+    ],
+    "category": "LAW_POLICY",
+    "topics": [
+      "AI",
+      "BANKING",
+      "REGULATION",
+      "RENEWABLE_ENERGY",
+      "SEMICONDUCTORS"
+    ],
+    "confidence": 0.87,
+    "article_id": "8f62d3d2857e663902a1ebf05d24261b47b1ecf5abb546201c09cd5dfe153347",
+    "classifier_version": "classification-v2",
+    "classified_at": "2026-08-18T01:10:00Z"
+  }
+]

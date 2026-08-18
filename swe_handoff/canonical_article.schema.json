@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-intelligence.local/contracts/canonical_article.schema.json",
+  "$defs": {
+    "Market": {
+      "description": "Markets supported in the current product phase.",
+      "enum": [
+        "VN",
+        "US",
+        "EU",
+        "CN"
+      ],
+      "title": "Market",
+      "type": "string"
+    },
+    "NonEmptyString": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "SourceId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "type": "string"
+    },
+    "UtcDateTime": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Normalized article contract for deterministic downstream processing.",
+  "properties": {
+    "article_id": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    },
+    "source_item_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Item Id"
+    },
+    "url": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "canonical_url": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "title": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "language": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "market": {
+      "$ref": "#/$defs/Market"
+    },
+    "published_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UtcDateTime"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "discovered_at": {
+      "$ref": "#/$defs/UtcDateTime"
+    },
+    "content_hash": {
+      "$ref": "#/$defs/NonEmptyString"
+    }
+  },
+  "required": [
+    "article_id",
+    "source_id",
+    "url",
+    "canonical_url",
+    "title",
+    "language",
+    "market",
+    "discovered_at",
+    "content_hash"
+  ],
+  "title": "CanonicalArticle",
+  "type": "object"
+}

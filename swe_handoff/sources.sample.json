@@ -1,0 +1,680 @@
+[
+  {
+    "source_id": "cn_csrc_regulatory_docs",
+    "name": "CSRC Regulatory Documents",
+    "market": "CN",
+    "language": "zh",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "cn_miit_policy_listing",
+    "name": "MIIT",
+    "market": "CN",
+    "language": "zh",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "TECHNOLOGY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "cn_nbs_latest_releases",
+    "name": "National Bureau of Statistics of China — Latest Releases",
+    "market": "CN",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "cn_nea_regulatory_docs",
+    "name": "NEA Regulatory Documents",
+    "market": "CN",
+    "language": "zh",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "ENERGY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "cn_pboc_regulatory_docs",
+    "name": "PBOC Regulatory Documents",
+    "market": "CN",
+    "language": "zh",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "cn_samr_market_regulation_bulletins",
+    "name": "SAMR",
+    "market": "CN",
+    "language": "zh",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "cn_state_council_policy_docs",
+    "name": "State Council Policy Documents",
+    "market": "CN",
+    "language": "zh",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "eu_ec_policy_news",
+    "name": "European Commission Highlighted News",
+    "market": "EU",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "ENERGY",
+      "TECHNOLOGY",
+      "REAL_ESTATE",
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "eu_ecb_press",
+    "name": "European Central Bank — Press and News",
+    "market": "EU",
+    "language": "en",
+    "source_type": "REGULATOR",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "FINANCE",
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "eu_esma_regulatory",
+    "name": "European Securities and Markets Authority Library",
+    "market": "EU",
+    "language": "en",
+    "source_type": "REGULATOR",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "eu_eurlex_cellar",
+    "name": "EUR-Lex / CELLAR",
+    "market": "EU",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "REST_API",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "us_bis_regulatory",
+    "name": "Bureau of Industry and Security Regulatory Notices",
+    "market": "US",
+    "language": "en",
+    "source_type": "REGULATOR",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "TECHNOLOGY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "us_fed_press_releases",
+    "name": "Federal Reserve Board — Press Releases",
+    "market": "US",
+    "language": "en",
+    "source_type": "REGULATOR",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "FINANCE",
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "us_federal_register",
+    "name": "Federal Register",
+    "market": "US",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "ENERGY",
+      "TECHNOLOGY",
+      "REAL_ESTATE",
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "REST_API",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "us_fhfa_regulatory",
+    "name": "Federal Housing Finance Agency Regulatory Notices",
+    "market": "US",
+    "language": "en",
+    "source_type": "REGULATOR",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "FINANCE",
+      "REAL_ESTATE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "us_govinfo_legal",
+    "name": "GovInfo Public and Private Laws",
+    "market": "US",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "ENERGY",
+      "TECHNOLOGY",
+      "REAL_ESTATE",
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "REST_API",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "us_sec_regulatory",
+    "name": "SEC Administrative Proceedings",
+    "market": "US",
+    "language": "en",
+    "source_type": "REGULATOR",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "FINANCE",
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "vn_moit_regulatory_docs",
+    "name": "Ministry of Industry and Trade Regulatory Documents",
+    "market": "VN",
+    "language": "vi",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "ENERGY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "vn_mst_news_events",
+    "name": "Vietnam Ministry of Science and Technology — News and Events",
+    "market": "VN",
+    "language": "vi",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "TECHNOLOGY",
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "vn_mst_regulatory_docs",
+    "name": "Ministry of Science and Technology Regulatory Documents",
+    "market": "VN",
+    "language": "vi",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "TECHNOLOGY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "vn_sbv_regulatory_docs",
+    "name": "State Bank of Vietnam Regulatory Documents",
+    "market": "VN",
+    "language": "vi",
+    "source_type": "REGULATOR",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY",
+      "FINANCE"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "HTML",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  }
+]

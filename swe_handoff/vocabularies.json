@@ -1,0 +1,36 @@
+{
+  "$comment": "Generated from the DE enums. Do not hand-edit; regenerate with scripts/export_contracts.py. Both repositories derive their validation from this file so a vocabulary change is a failing build, not a silent no-op.",
+  "markets": [
+    "VN",
+    "US",
+    "EU",
+    "CN"
+  ],
+  "categories": [
+    "LAW_POLICY",
+    "ENERGY",
+    "TECHNOLOGY",
+    "REAL_ESTATE",
+    "FINANCE"
+  ],
+  "topics": [
+    "AI",
+    "BANKING",
+    "INTEREST_RATES",
+    "OIL_GAS",
+    "REAL_ESTATE",
+    "REGULATION",
+    "RENEWABLE_ENERGY",
+    "SEMICONDUCTORS"
+  ],
+  "alert_importance": [
+    "NORMAL",
+    "HIGH"
+  ],
+  "classifier_version_pattern": "^classification-v[1-9][0-9]*$",
+  "limits": {
+    "markets_per_classification": 4,
+    "topics_per_classification": 5,
+    "match_reasons_minimum": 1
+  }
+}

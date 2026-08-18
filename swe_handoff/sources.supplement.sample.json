@@ -1,0 +1,95 @@
+[
+  {
+    "source_id": "synthetic_snippet_approved_source",
+    "name": "Synthetic Source With Approved Snippet Rights",
+    "market": "US",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": true,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "APPROVED"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "REST_API",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "synthetic_source",
+    "name": "Synthetic Source",
+    "market": "US",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  },
+  {
+    "source_id": "synthetic_bad_source",
+    "name": "Synthetic Source With Degraded Health",
+    "market": "US",
+    "language": "en",
+    "source_type": "GOVERNMENT",
+    "authority_level": "PRIMARY",
+    "domains": [
+      "LAW_POLICY"
+    ],
+    "rights": {
+      "can_fetch": true,
+      "can_store_metadata": true,
+      "can_store_full_text": false,
+      "can_ai_process": false,
+      "can_show_snippet": false,
+      "can_redistribute_full_text": false,
+      "rights_review_status": "PENDING"
+    },
+    "cost": {
+      "type": "FREE",
+      "monthly_fixed_usd": 0.0
+    },
+    "priority": 100,
+    "acquisition_method": "RSS",
+    "poll_interval_minutes": 15,
+    "rate_limit": null,
+    "health_status": "UNKNOWN",
+    "last_success_at": null,
+    "last_failure_at": null
+  }
+]

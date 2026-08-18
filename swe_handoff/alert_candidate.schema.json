@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-intelligence.local/contracts/alert_candidate.schema.json",
+  "$defs": {
+    "AlertImportance": {
+      "description": "Current deterministic importance levels for alert candidates.",
+      "enum": [
+        "NORMAL",
+        "HIGH"
+      ],
+      "title": "AlertImportance",
+      "type": "string"
+    },
+    "NonBlankString": {
+      "minLength": 1,
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Minimal shared DE -> SWE candidate contract.",
+  "properties": {
+    "candidate_id": {
+      "$ref": "#/$defs/NonBlankString"
+    },
+    "user_id": {
+      "$ref": "#/$defs/NonBlankString"
+    },
+    "article_id": {
+      "$ref": "#/$defs/NonBlankString"
+    },
+    "matched_at": {
+      "format": "date-time",
+      "title": "Matched At",
+      "type": "string"
+    },
+    "match_reasons": {
+      "items": {
+        "$ref": "#/$defs/NonBlankString"
+      },
+      "minItems": 1,
+      "title": "Match Reasons",
+      "type": "array"
+    },
+    "importance": {
+      "$ref": "#/$defs/AlertImportance"
+    },
+    "relevance_score": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Relevance Score",
+      "type": "number"
+    },
+    "breaking_eligible": {
+      "title": "Breaking Eligible",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "candidate_id",
+    "user_id",
+    "article_id",
+    "matched_at",
+    "match_reasons",
+    "importance",
+    "relevance_score",
+    "breaking_eligible"
+  ],
+  "title": "AlertCandidate",
+  "type": "object"
+}
