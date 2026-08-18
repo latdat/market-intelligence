@@ -175,6 +175,11 @@ exists. `UserPreference` persistence belongs to Product/SWE; DE consumes the sha
 contract and does not create a substitute schema. The missing production matching runner
 blocks real `alert_candidates` population, not SWE Data Ready v1.
 
+Matching Runner v1 core is implemented and offline-tested (`MatchingRunner` plus the
+`MatchingWorkReader` read boundary), but it is not production matching: no production
+`UserPreferenceReader` or `MatchingWorkReader` adapter exists, and the remaining gates are
+listed in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) section 7.10.
+
 The only documented remote migration drift is the two DE-012 alert-candidate migrations:
 
 - `20260818000000_create_alert_candidates.sql`

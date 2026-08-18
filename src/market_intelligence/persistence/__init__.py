@@ -53,6 +53,13 @@ from market_intelligence.persistence.discovery_observations import (
     DiscoveryRecordOutcome,
     DiscoveryRetentionCutoffs,
 )
+from market_intelligence.persistence.matching_work import (
+    MatchingWorkItem,
+    MatchingWorkPage,
+    MatchingWorkReader,
+    MatchingWorkReadError,
+    normalize_cutoff,
+)
 from market_intelligence.persistence.supabase_alert_candidate_repository import (
     SupabaseAlertCandidateRepository,
     create_alert_candidate_repository_from_environment,
@@ -83,6 +90,11 @@ __all__ = [
     "ClassificationWorkReadError",
     "ClassificationWorkReader",
     "DiscoveryScope",
+    "MatchingWorkItem",
+    "MatchingWorkPage",
+    "MatchingWorkReadError",
+    "MatchingWorkReader",
+    "normalize_cutoff",
     "UserPreferencePage",
     "UserPreferenceReadError",
     "UserPreferenceReader",

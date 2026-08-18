@@ -8,6 +8,14 @@ from market_intelligence.pipelines.classification_runner import (
     EnqueueBatchResult,
     ProcessingBatchResult,
 )
+from market_intelligence.pipelines.matching_runner import (
+    MatchingErrorCategory,
+    MatchingRunError,
+    MatchingRunner,
+    MatchingRunnerConfig,
+    MatchingRunResult,
+    MatchingStage,
+)
 from market_intelligence.pipelines.rss_to_supabase import (
     BatchDuplicateMatch,
     IngestionRunResult,
@@ -26,6 +34,12 @@ __all__ = [
     "ClassificationRunnerConfig",
     "EnqueueBatchResult",
     "ProcessingBatchResult",
+    "MatchingErrorCategory",
+    "MatchingRunError",
+    "MatchingRunResult",
+    "MatchingRunner",
+    "MatchingRunnerConfig",
+    "MatchingStage",
     "BatchDuplicateMatch",
     "IngestionRunResult",
     "SourceIngestionResult",

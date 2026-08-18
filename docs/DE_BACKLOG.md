@@ -216,6 +216,35 @@ Goal:
 
 - repeated pipeline runs must not produce duplicate logical alert candidates
 
+### Matching Runner v1 core
+
+Status: implemented and offline-tested. This runner has no separate approved DE task
+identifier; no DE backlog task is renumbered for it. It is independently designed
+orchestration over the approved DE-010, DE-011, and DE-012 contracts and does **not**
+reuse the DE-009B claim/lease/fencing lifecycle.
+
+Delivered:
+
+- `MatchingWorkReader` protocol/models: a minimal backend-neutral DE-internal read
+  boundary for bounded deterministic `CanonicalArticle` + `ClassifiedArticle` discovery;
+- `MatchingRunner`, which loads one preference snapshot, exhausts the `run_cutoff`
+  work-set, and persists candidates through the unchanged DE-012 boundary;
+- offline unit tests with in-memory fakes only. No network, no provider call, no DeepSeek.
+
+Not delivered, and not started:
+
+- production `UserPreferenceReader` adapter (Product/SWE-blocked);
+- production Supabase/PostgreSQL `MatchingWorkReader` adapter;
+- durable cursor/watermark;
+- any user-preference table, migration, write API, or DE-owned preference persistence;
+- any matching claim, lease, heartbeat, lifecycle state, retry table, or quarantine table;
+- any DE-012 list/query extension;
+- any delivery, batching, cooldown, or email behavior.
+
+Production matching is **not** declared ready. See
+[`ARCHITECTURE.md`](ARCHITECTURE.md) section 7.10 for the remaining Product/SWE and
+DE/infrastructure gates, including the no-cursor benchmark gate.
+
 ## Phase 4 — Telemetry and operations
 
 ### DE-013 Pipeline telemetry

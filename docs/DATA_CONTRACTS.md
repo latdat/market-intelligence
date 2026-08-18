@@ -578,7 +578,9 @@ a default of 100, and a valid range of 1 to 1000 inclusive. Boolean limits are i
 Concrete adapters must enforce this range. Pages are ordered by `user_id` ascending and
 use the last `user_id` as a keyset cursor when another page is available. DE-010 does not
 create a preference table, migration, write API, or Supabase adapter because no
-authoritative product/SWE preference persistence contract exists yet.
+authoritative product/SWE preference persistence contract exists yet. Matching Runner v1
+consumes this boundary through offline in-memory fakes only; a production
+`UserPreferenceReader` adapter remains Product/SWE-blocked.
 
 Do not expand this contract without coordinating with SWE.
 
@@ -639,6 +641,53 @@ The two DE-012 migrations exist in the repository and have been verified on isol
 PostgreSQL, but have not been applied to the linked remote Supabase project. A missing
 production matching runner does not block SWE Data Ready v1 contract/mock consumption; it
 does block population of real `alert_candidates` rows.
+
+Matching Runner v1 core reuses this DE-012 boundary unchanged. `CREATED` and
+`ALREADY_EXISTS` are both normal successful outcomes, and no `list_by_user`,
+`list_created_since`, `batch_save`, or delivery query was added for the runner.
+
+---
+
+# 7b. MatchingWorkItem / MatchingWorkPage — DE-internal read boundary
+
+`MatchingWorkReader` is a DE-internal, backend-neutral read contract. It is not a shared
+Product/SWE contract and adds no durable table, migration, or lifecycle state.
+
+```json
+{
+  "items": [
+    {
+      "article": { "...": "CanonicalArticle" },
+      "classification": { "...": "ClassifiedArticle" }
+    }
+  ],
+  "next_cursor": "article-id"
+}
+```
+
+Contract rules:
+
+- one item carries the whole `CanonicalArticle` + `ClassifiedArticle` pair, so the runner
+  never issues ad-hoc persistence queries outside this boundary;
+- `article.article_id` must equal `classification.article_id`;
+- items are ordered by `article_id` ascending, contain no duplicate `article_id`, and use
+  the last `article_id` as the keyset cursor when another page is available;
+- `list_page(classifier_version, run_cutoff, freshness_cutoff, after_article_id, limit)`
+  enforces limit semantics identical to `UserPreferenceReader`: default 100, valid range
+  1 to 1000 inclusive, booleans invalid;
+- selection is `SUCCEEDED` classifications whose `classifier_version` equals the requested
+  value exactly, never a "latest version" heuristic, and never two lineages in one run;
+- `classified_at <= run_cutoff` gives one run a stable discovery snapshot;
+- freshness discovery is a conservative superset,
+  `discovered_at >= freshness_cutoff OR published_at >= freshness_cutoff`, because
+  `CanonicalArticle` does not guarantee `published_at <= discovered_at`. Over-selection is
+  acceptable; under-selection is not. DE-011 `match_article()` stays the semantic
+  authority and its freshness rules must not be duplicated in SQL;
+- both cutoffs must be timezone-aware; `run_cutoff` is a discovery bound only and is never
+  reused as `matched_at`.
+
+Only the protocol, models, and offline in-memory fakes exist. No production
+Supabase/PostgreSQL `MatchingWorkReader` adapter is implemented.
 
 ---
 

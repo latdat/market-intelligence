@@ -381,9 +381,11 @@ migration `20260817000000_add_classification_method.sql` has been applied to and
 on the linked remote Supabase project. The current remote migration drift is limited to
 the two DE-012 alert-candidate migrations.
 
-The arrow to matching shows the approved downstream architecture. DE-011 later implemented
-the pure matching component, but no production runner currently wires classification,
-Product/SWE-owned preferences, matching, and candidate persistence end to end.
+The arrow to matching shows the approved downstream architecture. DE-011 implemented the
+pure matching component and the Matching Runner v1 core now orchestrates it offline
+(section 7.9), but no production runner wires classification, Product/SWE-owned
+preferences, matching, and candidate persistence end to end, because no production
+`UserPreferenceReader` or `MatchingWorkReader` adapter exists.
 
 ### 7.6 DE-010 user preference read boundary
 
@@ -429,6 +431,94 @@ parallel preference schema for matching.
   `20260818000001_grant_alert_candidates_service_role.sql` have not been applied to the
   linked remote Supabase project.
 
+### 7.9 Matching Runner v1 core
+
+Matching Runner v1 core is implemented and offline-tested only. It is independently
+designed orchestration over the approved DE-010, DE-011, and DE-012 contracts; it does
+**not** reuse the DE-009B claim/lease/fencing lifecycle, and it introduces no matching
+queue, lease, heartbeat, `PROCESSING`/`RETRYABLE` state, retry table, or quarantine table.
+`match_article()` is a local deterministic computation with no provider call and no paid
+external I/O, and DE-012 already enforces durable first-write-wins idempotency.
+
+```text
+run_cutoff = clock()                       # discovery snapshot only, never matched_at
+UserPreferenceReader pages -> one validated in-memory preference snapshot
+freshness_cutoff = run_cutoff - NORMAL_FRESHNESS
+MatchingWorkReader pages (exact classifier version, keyset by article_id)
+        for each work item:
+                for each preference:
+                        matched_at = clock()       # per-item read
+                        DE-011 match_article(...)
+                        -> None      : normal NO_MATCH
+                        -> candidate : DE-012 save() -> CREATED | ALREADY_EXISTS
+```
+
+`MatchingWorkReader` is a new minimal backend-neutral DE-internal read boundary. One page
+carries the full `CanonicalArticle` + `ClassifiedArticle` pair so the runner never issues
+ad-hoc persistence queries, and all persistence-specific query logic stays behind the
+boundary. Adapters must select exactly `SUCCEEDED` rows whose `classifier_version` equals
+the requested value, whose `classified_at <= run_cutoff`, and which pass a conservative
+freshness superset:
+
+```text
+article.discovered_at >= freshness_cutoff
+OR
+article.published_at >= freshness_cutoff
+```
+
+`CanonicalArticle` does not guarantee `published_at <= discovered_at`, so a
+`discovered_at`-only prefilter would under-select eligible work. Over-selection is
+acceptable; under-selection is not. DE-011 remains the final semantic authority on
+stale/fresh, and DE-011 freshness rules must not be reimplemented in SQL. `classified_at`
+is a discovery snapshot bound only and is never treated as semantic freshness.
+
+Other enforced invariants:
+
+- the target classifier version is explicit configuration; the runner never auto-selects a
+  "latest" version and never matches one article across more than one lineage in a run;
+- preferences are paginated once per run into a snapshot reused by every work item, so
+  work-item and preference cursors cannot pair page-by-page and silently drop combinations;
+- pagination runs to exhaustion of the `run_cutoff` work-set; page size bounds each query
+  only, and non-advancing keyset cursors stop the run instead of looping;
+- candidate identity stays unversioned `(user_id, article_id)`, so matching-rule or
+  candidate-namespace upgrades do not automatically regenerate historical candidates;
+  changing that requires a separate `AlertCandidate` contract/persistence migration;
+- current-state preference semantics only: the shared `UserPreference` contract has no
+  version, revision, or effective timestamp, so a preference snapshot read at matching
+  time applies to every still-fresh article;
+- dependency failures and contract/identity violations `STOP_RUN` with a sanitized
+  structured error (stage, error category, `article_id`, `classifier_version`, `user_id`)
+  rather than silently skipping an item;
+- a run is not one transaction. Candidates saved before a stop are durable and replay as
+  `ALREADY_EXISTS`; there is no rollback and no run-wide DB transaction;
+- no AI rights gate is re-checked in matching, and no display/redistribution right is
+  inferred. Candidate creation is not delivery: no email, batching, or content send.
+
+V1 has no durable cursor or watermark. That is safe only while one scheduled invocation
+can exhaust the whole eligible work window; see section 7.10 for the production gates.
+
+### 7.10 Matching production gates
+
+Matching Runner v1 core completion is not production readiness. Production matching stays
+blocked on:
+
+Product/SWE-owned blockers:
+
+1. an authoritative Product/SWE preference persistence contract;
+2. a concrete production `UserPreferenceReader` adapter;
+3. Product acceptance of current-state/backfill preference semantics, or a separately
+   approved shared-contract change supporting prospective semantics.
+
+DE/infrastructure blockers:
+
+4. a concrete production `MatchingWorkReader` adapter (none exists; only offline
+   in-memory fakes do);
+5. an explicit production `target_classifier_version`;
+6. the two DE-012 migrations applied and verified on remote Supabase;
+7. a no-cursor benchmark proving one run exhausts the eligible recent work-set within
+   scheduling/SLO limits. If it fails, design a durable cursor/watermark before
+   production; do not silently cap the work-set and accept tail starvation.
+
 ### 7.8 SWE Data Ready v1 boundary
 
 SWE Data Ready v1 uses synthetic, linked shared-contract examples from `swe_handoff/` so
@@ -438,8 +528,9 @@ contract-data handoff; it blocks only real `alert_candidates` population.
 
 Synthetic `UserPreference` examples demonstrate the shared Product/SWE -> DE contract.
 They neither prove nor create a production preference table. Real candidate population
-must wait for Product/SWE-owned preference persistence, a concrete read adapter, the
-production matching runner, and the two DE-012 remote migrations.
+must wait for Product/SWE-owned preference persistence, concrete production read adapters,
+a production-declared matching runner (the v1 core in section 7.9 is offline-tested only),
+and the two DE-012 remote migrations.
 
 DE-013 pipeline telemetry remains `PAUSED` and is not part of SWE Data Ready v1.
 
@@ -490,6 +581,10 @@ Baseline matching is rule-based:
 - `breaking_eligible` additionally requires user opt-in and `discovered_at` within 2 hours.
 
 The output of DE matching is an `AlertCandidate`. DE-011 does not persist candidates. Durable idempotency/concurrency belongs to DE-012.
+
+Matching Runner v1 core (section 7.9) wires DE-010, DE-011, and DE-012 behind injected
+backend-neutral boundaries. It is implemented and offline-tested; it is not production
+matching, and it is not live or remote-verified.
 
 ## 10. Email behavior
 

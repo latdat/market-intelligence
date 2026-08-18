@@ -284,6 +284,40 @@ Test combinations:
 
 Matching output should remain explainable.
 
+### 8.1 Matching Runner v1 core cases
+
+The runner is tested offline with in-memory fakes (`FakeClock`,
+`FakeUserPreferenceReader`, `FakeMatchingWorkReader`, `FakeAlertCandidateRepository`).
+No network access, no production database, and no provider call is involved.
+
+Covered at minimum:
+
+- matching item x matching preference -> `CREATED`; non-matching preference -> no save;
+- replay of the same logical work -> `ALREADY_EXISTS` and exactly one durable
+  `(user_id, article_id)` candidate, with the original snapshot never rewritten;
+- exact classifier-version scoping: `classification-v1` alongside `classification-v2` with
+  the runner targeting v2 processes only v2, and an out-of-lineage item stops the run;
+- `run_cutoff` snapshot: `classified_at <= run_cutoff` is eligible, later work belongs to
+  the next run, and `run_cutoff` is never reused as `matched_at`;
+- conservative freshness superset: `discovered_at` older than the cutoff with a
+  `published_at` inside the window stays selectable, guarding against a future
+  `discovered_at`-only prefilter; an anomalous future `published_at` may be over-selected
+  and is then rejected by `match_article()`, which stays the semantic authority;
+- per-item `matched_at` from the injected clock, proven distinct per evaluation;
+- full preference pagination and full work pagination, including tail pages;
+- full Cartesian coverage: 2 paged work items x 3 paged preferences = 6 evaluations, which
+  page-paired iteration could not produce;
+- empty preference set completes with no saves;
+- article/classification identity mismatch and dependency failures `STOP_RUN` rather than
+  silently skipping, with sanitized structured error context;
+- persistence failure mid-run keeps prior candidates durable, and a healthy replay yields
+  `ALREADY_EXISTS` for prior work and completes the remainder.
+
+The runner does not fake a production persistence adapter. Concrete adapter request
+bounds, SQL-level freshness superset behavior, cursor continuity, and backend failure
+mapping must be tested when production `UserPreferenceReader` and `MatchingWorkReader`
+adapters are introduced.
+
 ## 9. Freshness/telemetry cases
 
 Ensure stage timestamps are not conflated.
