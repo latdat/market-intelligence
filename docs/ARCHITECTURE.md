@@ -563,6 +563,117 @@ Avoid:
 - chatbot
 - semantic search
 
+### 7.11 Secondary discovery boundary (GDELT-002A + GDELT-002B)
+
+GDELT is a **secondary discovery provider**, not a publisher and not a source of truth. There
+is deliberately no `SourceConfig(source_id="gdelt")`, and none is ever created. Publisher
+identity, market authority, and content scope come only from reviewed `PublisherRoute` entries
+and the target `SourceConfig` they point at.
+
+```text
+reviewed GdeltQuerySpec catalog          (GDELT-002B)
+        -> GDELT DOC 2.0 ArticleList client
+        -> bounded adaptive time windows
+        -> DiscoveryCandidate                (ephemeral sighting)
+        -> PublisherRoute resolution         (GDELT-002A)
+        -> admission gate                    (GDELT-002A)
+        -> bounded daily discovery observations
+        -> STOP
+```
+
+The flow stops at the aggregates. GDELT-002B does **not** populate `articles`, produce
+`RawArticle`/`CanonicalArticle`, classify, match, create alert candidates, or send anything.
+
+**Admission (GDELT-002A, unchanged).** Route resolution matches hostname + literal path prefix
+only; zero matches are `UNKNOWN`, more than one is `AMBIGUOUS_ROUTE`, and there is no
+first-match-wins. The gate is exactly `can_fetch and can_store_metadata`; `rights_review_status`
+and `can_ai_process` govern the separate downstream AI gate and are not consulted here. A
+`NATIVE_SOURCE_ITEM_ID_REQUIRED` route is unconditionally `IDENTITY_INCOMPATIBLE` for discovery,
+because a provider sighting carries no publisher-native ID. No native ID is ever synthesized
+from a URL.
+
+**Query catalog (GDELT-002B).** `DiscoveryQuery` stays provider-neutral; `GdeltQuerySpec` pairs
+one logical `(market, domain)` cell with one reviewed GDELT expression. `query_id` is part of
+the durable `discovery_observation_daily` key, so a material semantic change requires a **new**
+versioned `query_id` (`gdelt_v1_...` -> `gdelt_v2_...`) rather than an in-place edit. Nothing
+derives provider syntax from `Market`: the cell `US x FINANCE` does not mean "publisher country
+is US".
+
+**Bounded retrieval.** Requests are explicit `mode=artlist`, `format=json`, `sort=dateasc`,
+`maxrecords`, `startdatetime`/`enddatetime` calls against a fixed HTTPS endpoint. The runner
+owns the window; no implicit "last N minutes from provider now" is used, and no offset/cursor
+pagination is assumed to exist. Because ArticleList is bounded, a window returning exactly
+`maxrecords` is treated as **potentially saturated** and split in time. No provider result limit
+is ever silently reported as a complete window.
+
+Four properties make the split safe:
+
+- saturation is judged on the **physical** provider record count, before record validation and
+  before dedupe, so a 250-entry payload with malformed entries still splits;
+- child windows **overlap** by a bounded margin so a record on the midpoint cannot fall through
+  the boundary, and the resulting duplicates are removed;
+- boundaries are normalized to whole UTC seconds, and a split that cannot produce two strictly
+  smaller windows at that precision returns `SATURATED_INCOMPLETE` instead of recursing;
+- a saturated parent's records are **kept and merged** with its children rather than discarded,
+  because they are real sightings already made. Refinement can never push an article's
+  first-seen time later.
+
+**Deduplication has two scopes.** Within one cell, repeated sightings collapse on canonical URL
+(verbatim fallback when a URL cannot be canonicalized), keeping the earliest `observed_at`.
+Across cells nothing is suppressed: the same URL found by `gdelt_v1_us_finance` and
+`gdelt_v1_us_technology` is two legitimate observations, and `query_id` never participates in
+route resolution.
+
+**Timestamps.** `observed_at` is *our* observation time, read once per accepted physical
+response from an injected clock — never per article, so parsing order cannot manufacture
+latency. GDELT's `seendate` is crawl/index time, not publisher publication time, so it is kept
+only as bounded provider metadata and `published_at_raw` stays `None`. Adding it would require
+verified evidence that a DOC field carries publisher-attributed publication semantics.
+
+**Execution status is a separate axis.** `GdeltCellRunStatus`
+(`COMPLETE`/`SATURATED_INCOMPLETE`/`QUERY_REJECTED`/`PROVIDER_FAILED`) is DE-internal and is
+never merged into `ObservationStatus`, which gains no new members. One rejected query fails its
+own cell and lets the others run; a systemic provider failure stops the run rather than
+hammering the remaining cells; a persistence failure stops the run with earlier aggregates left
+durable. Provider concurrency is 1 and cells run sequentially.
+
+**Storage is unchanged.** GDELT-002B adds no table and no migration. It reuses
+`discovery_observation_daily` and writes locator-only samples; there is no per-sighting GDELT
+table, no parallel article store, no work queue, no claim/lease lifecycle, and no durable
+cursor. Benchmark evidence is not written here and the benchmark is not graded:
+`record_benchmark_evidence`, `evaluate_benchmark_tier`, and `evaluate_direct_path_disposition`
+are GDELT-003 concerns. Direct RSS/REST/HTML acquisition is completely unchanged, and no source
+is retired or reduced to sentinel mode by this work.
+
+**Status: implemented and offline-tested only.** No live DOC 2.0 request has been made from this
+repository. Two provisional behaviours are recorded as open questions for a bounded live
+preflight: whether a bare `{}` body is a legitimate zero-result response (currently treated as a
+wrong-schema provider failure, fail-closed), and whether HTTP 400/422 reliably indicates a
+query-specific rejection (currently treated as cell-scoped `QUERY_REJECTED`).
+
+### 7.12 Secondary discovery production gates
+
+Discovery is not production-active and must not be described as such. Remaining gates:
+
+Authoring gates (configuration, not code):
+
+1. a reviewed production GDELT query catalog. `config/discovery/gdelt_queries.toml.example` is a
+   clearly labelled non-production template; no active `gdelt_queries.toml` is committed, so the
+   loader treats GDELT as intentionally disabled;
+2. a reviewed production `PublisherRoute` catalog. Only synthetic test routes exist, so every
+   real publisher would resolve to `UNKNOWN`. Routes are never learned automatically from GDELT
+   results, and no `SourceConfig` is created because GDELT reported a hostname.
+
+Verification gates:
+
+3. the two discovery migrations applied and verified on the linked remote Supabase project;
+4. a bounded live DOC 2.0 preflight (`scripts/run_gdelt_discovery.py`, dry-run by default);
+5. a multi-cell live discovery run;
+6. the GDELT-003 14-day benchmark campaign.
+
+GDELT-002B core implementation does not satisfy GDELT-003, and nothing here justifies calling
+GDELT a primary source or changing any direct acquisition path.
+
 ## 9. Matching
 
 No recommendation ML in current phase.

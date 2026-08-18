@@ -24,6 +24,27 @@ from market_intelligence.discovery.benchmark import (
     missed_after_24h,
     unknown_publisher_rate,
 )
+from market_intelligence.discovery.gdelt import (
+    GDELT_DOC_ENDPOINT,
+    GDELT_TIMESTAMP_FORMAT,
+    GdeltClientConfig,
+    GdeltDocClient,
+    GdeltProviderError,
+    GdeltQueryRejectedError,
+    GdeltResponseRecords,
+    GdeltWindowOutcome,
+    GdeltWindowStatus,
+    dedupe_candidates,
+    floor_to_utc_second,
+    format_gdelt_timestamp,
+)
+from market_intelligence.discovery.gdelt_queries import (
+    MAX_QUERY_EXPRESSION_LENGTH,
+    GdeltQueryConfigError,
+    GdeltQuerySpec,
+    load_gdelt_query_specs,
+    validate_gdelt_query_specs,
+)
 from market_intelligence.discovery.models import (
     AdmissionDecision,
     BenchmarkTier,
@@ -41,8 +62,25 @@ from market_intelligence.discovery.models import (
 from market_intelligence.discovery.routes import load_publisher_routes
 
 __all__ = [
+    "GDELT_DOC_ENDPOINT",
+    "GDELT_TIMESTAMP_FORMAT",
+    "MAX_QUERY_EXPRESSION_LENGTH",
     "MINIMUM_COMPLETED_DAYS",
     "MINIMUM_ELIGIBLE_SAMPLE_SIZE",
+    "GdeltClientConfig",
+    "GdeltDocClient",
+    "GdeltProviderError",
+    "GdeltQueryConfigError",
+    "GdeltQueryRejectedError",
+    "GdeltQuerySpec",
+    "GdeltResponseRecords",
+    "GdeltWindowOutcome",
+    "GdeltWindowStatus",
+    "dedupe_candidates",
+    "floor_to_utc_second",
+    "format_gdelt_timestamp",
+    "load_gdelt_query_specs",
+    "validate_gdelt_query_specs",
     "AdmissionDecision",
     "BenchmarkTier",
     "DirectPathDisposition",

@@ -23,6 +23,28 @@ It answers:
 - is it healthy?
 - when did it last succeed/fail?
 
+### 1.1 Publisher/source identity vs secondary discovery provider
+
+A **source** is a publisher identity: something with reviewed rights, a market, a content scope,
+and an acquisition method. A **secondary discovery provider** is a service that tells us an
+article may exist somewhere.
+
+GDELT is a discovery provider, not a source. There is deliberately **no** `gdelt` entry in this
+registry and none may be added: it publishes nothing itself, holds no rights we can review, and
+has no content scope of its own. Adding it would let a provider sighting masquerade as publisher
+identity and corrupt `article_id` derivation.
+
+Consequences for onboarding:
+
+- a discovery provider never gets a `SourceConfig`, a `source_id`, or a rights record;
+- a publisher discovered through GDELT is admitted only via a reviewed `PublisherRoute` that
+  points at a `SourceConfig` **already** in this registry;
+- routes are never learned automatically from provider results, and no source is created merely
+  because a discovery provider reported a hostname;
+- an unreviewed publisher stays `UNKNOWN` and discovery-only.
+
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) section 7.11 for the discovery boundary itself.
+
 ## 2. Minimum source record
 
 ```yaml

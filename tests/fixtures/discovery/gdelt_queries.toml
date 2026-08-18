@@ -1,0 +1,19 @@
+# Synthetic GDELT query specs for GDELT-002B tests only.
+#
+# These expressions are illustrative test data. They are NOT real discovery semantics, NOT a
+# reviewed coverage decision, and NOT approved production configuration. The production catalog
+# belongs to a reviewed `config/discovery/gdelt_queries.toml` that intentionally does not exist yet.
+
+[[queries]]
+query_id = "gdelt_v1_us_finance"
+provider = "GDELT_DOC_2_0"
+market = "US"
+domain = "FINANCE"
+query_expression = "fixture-expression-finance"
+
+[[queries]]
+query_id = "gdelt_v1_us_technology"
+provider = "GDELT_DOC_2_0"
+market = "US"
+domain = "TECHNOLOGY"
+query_expression = "fixture-expression-technology"

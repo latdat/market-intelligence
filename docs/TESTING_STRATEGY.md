@@ -318,6 +318,78 @@ bounds, SQL-level freshness superset behavior, cursor continuity, and backend fa
 mapping must be tested when production `UserPreferenceReader` and `MatchingWorkReader`
 adapters are introduced.
 
+## 8.2 Secondary discovery (GDELT) cases
+
+All GDELT tests are offline and deterministic. The DOC 2.0 client is driven through
+`httpx.MockTransport` with an injected clock, injected sleep, and injected jitter; no unit test
+touches the real GDELT API and no live network access is required.
+
+Query catalog and loader:
+
+- valid spec loads; provider must be `GDELT_DOC_2_0`; blank/whitespace and control-character
+  expressions rejected; over-length expression rejected;
+- duplicate `query_id` and duplicate active `(market, domain)` cell rejected;
+- unknown field, unsupported top-level key, and malformed TOML rejected;
+- `catalog_path=None` yields an empty catalog (intentionally disabled), while an explicitly
+  configured missing path or zero-query catalog is a hard configuration error;
+- the shipped non-production `.example` template parses and stays labelled; no active production
+  catalog is committed;
+- constructing the runner with an empty catalog raises, so a disabled deployment cannot emit a
+  result resembling a successful zero-cell run.
+
+DOC client:
+
+- exact HTTPS endpoint, `mode=artlist`, `format=json`, `sort=dateasc`, bounded `maxrecords`, and
+  explicit second-precision `startdatetime`/`enddatetime`; configured timeout applied;
+- retry taxonomy: `408/429/500/502/503/504` retried within budget and `Retry-After` honored and
+  capped; `400`/`422` cell-scoped and never retried; other non-2xx classified conservatively as
+  systemic with no pointless retries; timeouts and network errors retried then reported;
+- payload handling is fail-closed: `{"articles": []}` is a successful zero-result window, while
+  a bare `{}`, a non-object body, a missing or non-list `articles`, and unparseable JSON are all
+  provider failures — a malformed payload is never reported as an empty success;
+- a malformed individual record is skipped and counted while the rest of the response maps;
+- a non-blank but non-canonicalizable URL is a valid candidate, not a malformed record;
+- `published_at_raw` stays `None` and `seendate` appears only as bounded provider metadata;
+- the clock is read exactly once per physical response and shared by every candidate from it.
+
+Adaptive windowing (regression coverage):
+
+- under-limit windows are complete and never split; exactly `maxrecords` triggers a split;
+- split recursion is bounded by depth and by the minimum window; a still-saturated window is
+  reported `SATURATED_INCOMPLETE` and never `COMPLETE`;
+- child windows overlap so the midpoint cannot leak, and the duplicate produced by that overlap
+  is emitted once;
+- **saturated-parent preservation**: a URL returned only by the parent request survives the
+  split, and a URL seen in both parent and child keeps the parent's earlier `observed_at`;
+- **pre-validation saturation**: a payload with exactly `maxrecords` physical entries splits
+  even when malformed entries reduce the valid count, and post-dedupe counts never drive
+  splitting;
+- **second-precision progress**: boundaries normalize to whole UTC seconds, and the split guard
+  returns no boundaries rather than recursing when it cannot produce two strictly smaller
+  formatted windows.
+
+Admission and persistence integration:
+
+- all five `ObservationStatus` outcomes exercised through synthetic fixture routes;
+- query `market` never overrides source identity, `query_id` never participates in route
+  resolution, and no native source item ID is synthesized;
+- observations use the correct four-tuple aggregate key, one call per unique candidate, with
+  locator-only samples;
+- a candidate whose URL cannot be canonicalized still persists an `UNKNOWN` observation with
+  `sample=None` rather than failing the run;
+- persistence failure stops the run with earlier aggregates left durable;
+- invalid configuration fails before any HTTP call; one rejected query fails only its cell; a
+  systemic provider failure stops before the remaining cells are attempted.
+
+An import-order regression test asserts the package graph stays acyclic, since
+`persistence.discovery_observations` depends on `discovery.models` and the runner therefore
+lives in `pipelines`.
+
+Still requiring live verification: whether a bare `{}` is a legitimate zero-result DOC response,
+whether `400`/`422` reliably signals query-specific rejection, the real ArticleList field
+semantics, and end-to-end behaviour against the production query and route catalogs once those
+are authored.
+
 ## 9. Freshness/telemetry cases
 
 Ensure stage timestamps are not conflated.

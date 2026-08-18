@@ -715,6 +715,57 @@ Normal hourly behavior:
 
 ---
 
+# 8b. GDELT discovery models — DE-internal only
+
+These are **DE-internal** contracts. They are not shared Product/SWE contracts, carry no
+durable schema, and must not be consumed by the notification/product side.
+
+`GdeltQuerySpec` pairs one provider-neutral `DiscoveryQuery` with one reviewed GDELT expression:
+
+```json
+{
+  "discovery_query": {
+    "query_id": "gdelt_v1_us_finance",
+    "provider": "GDELT_DOC_2_0",
+    "market": "US",
+    "domain": "FINANCE"
+  },
+  "query_expression": "<reviewed expression>"
+}
+```
+
+Rules:
+
+- `DiscoveryQuery` stays provider-neutral and never carries GDELT syntax;
+- provider must be `GDELT_DOC_2_0`; the expression is non-blank, bounded, and free of control
+  characters;
+- `query_id` values are unique and no two active entries share a `(market, domain)` cell;
+- **`query_id` is part of the durable `discovery_observation_daily` key.** A material change in
+  query meaning requires a new versioned `query_id`, never an in-place edit. No `query_version`
+  column exists or is needed;
+- `market` is a logical cell label, never "publisher country", and no code derives provider
+  syntax from it;
+- authored catalogs are configuration. `catalog_path=None` means discovery is intentionally
+  disabled; an explicitly configured path that is missing, or that parses to zero queries, is a
+  hard configuration error so a disabled deployment can never look like a successful empty run.
+
+`GdeltCellRunResult` / `GdeltDiscoveryRunResult` are returned and logged, never persisted. The
+cell status vocabulary (`COMPLETE`, `SATURATED_INCOMPLETE`, `QUERY_REJECTED`, `PROVIDER_FAILED`)
+is a **separate axis** from `ObservationStatus`; provider execution failures never become
+admission outcomes, and `ObservationStatus` gains no members.
+
+Counters are deliberately distinct: `raw_result_count` is the physical provider record count
+across every request, `valid_record_count` and `invalid_record_count` split that by mapping
+success, and `unique_candidate_count` is post-deduplication. Adaptive window splitting is driven
+only by the physical count.
+
+`DiscoveryCandidate` is unchanged by GDELT-002B. It still carries no `source_id`, `article_id`,
+publisher-native ID, authoritative market, or `content_scope`. `published_at_raw` is `None` for
+GDELT sightings: the provider's `seendate` is crawl/index time and is kept only as bounded
+provider metadata.
+
+---
+
 # 9. TelemetryEvent
 
 Recommended lightweight telemetry shape:

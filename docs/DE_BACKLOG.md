@@ -245,6 +245,48 @@ Production matching is **not** declared ready. See
 [`ARCHITECTURE.md`](ARCHITECTURE.md) section 7.10 for the remaining Product/SWE and
 DE/infrastructure gates, including the no-cursor benchmark gate.
 
+## Secondary discovery (GDELT track)
+
+This track is independent of the DE-00x numbering and renumbers nothing. DE-013 remains
+`PAUSED`.
+
+### GDELT-002A Discovery admission boundary
+
+Status: implemented and offline-tested.
+
+Delivers the candidate/route/admission models, the reviewed-route TOML loader, benchmark
+policy v1, and bounded discovery-observation persistence with two repository-local migrations.
+No network access anywhere in the module.
+
+### GDELT-002B Live DOC 2.0 adapter + bounded runner
+
+Status: implemented and offline-tested. **Not live-verified, not benchmark-proven, and not
+production-active.**
+
+Delivered:
+
+- `GdeltQuerySpec` plus a validating TOML loader with the query-ID versioning invariant;
+- a GDELT DOC 2.0 ArticleList client with explicit bounded time windows, the repository's
+  standard retry/backoff/`Retry-After` conventions, and fail-closed payload schema handling;
+- bounded adaptive time-window splitting that treats an exactly-`maxrecords` window as
+  potentially saturated, preserves saturated-parent sightings, overlaps child boundaries, and
+  refuses to recurse when it cannot make strict progress at one-second provider precision;
+- cell-scoped deduplication preserving the earliest sighting, with cross-cell observations kept
+  independent;
+- a sequential runner reusing `admit_candidate` and `DiscoveryObservationRepository` unchanged;
+- `scripts/run_gdelt_discovery.py`, dry-run by default and never executed in this task.
+
+Deliberately not delivered:
+
+- no GDELT `SourceConfig`, no new table, no migration, no per-sighting storage;
+- no article promotion, classification, matching, alert candidates, or delivery;
+- no benchmark evidence writes and no benchmark grading (GDELT-003 owns those);
+- no direct-connector changes and no source retirement;
+- no claim/lease/heartbeat lifecycle, no durable cursor, no historical backfill;
+- no production query expressions and no production publisher routes invented.
+
+Production gates remain open; see [`ARCHITECTURE.md`](ARCHITECTURE.md) section 7.12.
+
 ## Phase 4 — Telemetry and operations
 
 ### DE-013 Pipeline telemetry

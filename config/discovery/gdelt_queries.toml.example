@@ -1,0 +1,46 @@
+# ---------------------------------------------------------------------------
+# NOT PRODUCTION. NOT REVIEWED. TEMPLATE ONLY.
+# ---------------------------------------------------------------------------
+#
+# This file is an authoring template for the GDELT DOC 2.0 query catalog. The
+# expressions below are illustrative placeholders. They are NOT reviewed
+# discovery semantics, NOT a coverage decision, and MUST NOT be copied into an
+# active `config/discovery/gdelt_queries.toml` as-is.
+#
+# The production catalog does not exist yet. Authoring and reviewing the full
+# 4 markets x 5 domains = 20 cells is an explicit activation gate for GDELT
+# secondary discovery. Until that review happens, the runner is expected to be
+# left disabled (no catalog path configured).
+#
+# Rules the reviewed catalog must satisfy:
+#
+#   * `query_id` is part of the durable discovery_observation_daily aggregate
+#     key. A material change to what a query MEANS requires a NEW versioned
+#     query_id (gdelt_v1_us_finance -> gdelt_v2_us_finance). Never edit the
+#     meaning of an ID that has already produced observations.
+#   * `market` is a LOGICAL discovery cell label. It does NOT mean "publisher
+#     country". Nothing in the loader derives provider syntax such as
+#     `sourcecountry:US` from it, and reviewers must not assume that mapping.
+#   * `provider` must be GDELT_DOC_2_0.
+#   * `query_id` values must be unique, and no two active entries may share the
+#     same (market, domain) cell.
+#   * Publisher identity, market authority, and content scope never come from a
+#     query. They come only from reviewed PublisherRoute entries and the target
+#     SourceConfig.
+#
+# Copy to `config/discovery/gdelt_queries.toml` only after review.
+# ---------------------------------------------------------------------------
+
+[[queries]]
+query_id = "gdelt_v1_us_finance"
+provider = "GDELT_DOC_2_0"
+market = "US"
+domain = "FINANCE"
+query_expression = "PLACEHOLDER - replace with a reviewed expression"
+
+[[queries]]
+query_id = "gdelt_v1_us_energy"
+provider = "GDELT_DOC_2_0"
+market = "US"
+domain = "ENERGY"
+query_expression = "PLACEHOLDER - replace with a reviewed expression"

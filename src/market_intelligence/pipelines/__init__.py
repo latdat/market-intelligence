@@ -8,6 +8,15 @@ from market_intelligence.pipelines.classification_runner import (
     EnqueueBatchResult,
     ProcessingBatchResult,
 )
+from market_intelligence.pipelines.gdelt_discovery_runner import (
+    GdeltCellRunResult,
+    GdeltCellRunStatus,
+    GdeltDiscoveryRunner,
+    GdeltDiscoveryRunResult,
+    GdeltRunnerConfig,
+    GdeltRunStopReason,
+    build_observation_sample,
+)
 from market_intelligence.pipelines.matching_runner import (
     MatchingErrorCategory,
     MatchingRunError,
@@ -34,6 +43,13 @@ __all__ = [
     "ClassificationRunnerConfig",
     "EnqueueBatchResult",
     "ProcessingBatchResult",
+    "GdeltCellRunResult",
+    "GdeltCellRunStatus",
+    "GdeltDiscoveryRunResult",
+    "GdeltDiscoveryRunner",
+    "GdeltRunStopReason",
+    "GdeltRunnerConfig",
+    "build_observation_sample",
     "MatchingErrorCategory",
     "MatchingRunError",
     "MatchingRunResult",
