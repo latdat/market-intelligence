@@ -1,0 +1,305 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-intelligence.local/contracts/source_definition.schema.json",
+  "$defs": {
+    "AcquisitionMethod": {
+      "description": "Approved source acquisition families.",
+      "enum": [
+        "REST_API",
+        "RSS",
+        "ATOM",
+        "HTML",
+        "SITEMAP"
+      ],
+      "title": "AcquisitionMethod",
+      "type": "string"
+    },
+    "AuthorityLevel": {
+      "description": "How authoritative a source is for downstream decisions.",
+      "enum": [
+        "PRIMARY",
+        "SECONDARY",
+        "DISCOVERY"
+      ],
+      "title": "AuthorityLevel",
+      "type": "string"
+    },
+    "CostConfig": {
+      "additionalProperties": false,
+      "description": "Validated fixed monthly acquisition cost metadata.",
+      "properties": {
+        "type": {
+          "$ref": "#/$defs/CostType"
+        },
+        "monthly_fixed_usd": {
+          "minimum": 0,
+          "title": "Monthly Fixed Usd",
+          "type": "number"
+        }
+      },
+      "required": [
+        "type",
+        "monthly_fixed_usd"
+      ],
+      "title": "CostConfig",
+      "type": "object"
+    },
+    "CostType": {
+      "description": "Cost shapes supported by the current source registry.",
+      "enum": [
+        "FREE",
+        "FIXED_MONTHLY"
+      ],
+      "title": "CostType",
+      "type": "string"
+    },
+    "Domain": {
+      "description": "Initial intelligence domains.",
+      "enum": [
+        "LAW_POLICY",
+        "ENERGY",
+        "TECHNOLOGY",
+        "REAL_ESTATE",
+        "FINANCE"
+      ],
+      "title": "Domain",
+      "type": "string"
+    },
+    "HealthStatus": {
+      "description": "Operational health values, including the existing compatibility value.",
+      "enum": [
+        "UNKNOWN",
+        "ACTIVE",
+        "HEALTHY",
+        "DEGRADED",
+        "UNHEALTHY"
+      ],
+      "title": "HealthStatus",
+      "type": "string"
+    },
+    "Market": {
+      "description": "Markets supported in the current product phase.",
+      "enum": [
+        "VN",
+        "US",
+        "EU",
+        "CN"
+      ],
+      "title": "Market",
+      "type": "string"
+    },
+    "NonEmptyString": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "NonNegativeStrictInt": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "PositiveStrictInt": {
+      "exclusiveMinimum": 0,
+      "type": "integer"
+    },
+    "RateLimitConfig": {
+      "additionalProperties": false,
+      "description": "Provisional internal representation for a basic request window.",
+      "properties": {
+        "max_requests": {
+          "$ref": "#/$defs/PositiveStrictInt"
+        },
+        "period_seconds": {
+          "$ref": "#/$defs/PositiveStrictInt"
+        }
+      },
+      "required": [
+        "max_requests",
+        "period_seconds"
+      ],
+      "title": "RateLimitConfig",
+      "type": "object"
+    },
+    "RightsConfig": {
+      "additionalProperties": false,
+      "description": "Explicit source rights decisions without inferred legal policy.",
+      "properties": {
+        "can_fetch": {
+          "title": "Can Fetch",
+          "type": "boolean"
+        },
+        "can_store_metadata": {
+          "title": "Can Store Metadata",
+          "type": "boolean"
+        },
+        "can_store_full_text": {
+          "$ref": "#/$defs/RightsDecision"
+        },
+        "can_ai_process": {
+          "title": "Can Ai Process",
+          "type": "boolean"
+        },
+        "can_show_snippet": {
+          "$ref": "#/$defs/RightsDecision"
+        },
+        "can_redistribute_full_text": {
+          "title": "Can Redistribute Full Text",
+          "type": "boolean"
+        },
+        "rights_review_status": {
+          "$ref": "#/$defs/RightsReviewStatus"
+        }
+      },
+      "required": [
+        "can_fetch",
+        "can_store_metadata",
+        "can_store_full_text",
+        "can_ai_process",
+        "can_show_snippet",
+        "can_redistribute_full_text",
+        "rights_review_status"
+      ],
+      "title": "RightsConfig",
+      "type": "object"
+    },
+    "RightsDecision": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "const": "REVIEWED",
+          "type": "string"
+        }
+      ]
+    },
+    "RightsReviewStatus": {
+      "description": "Explicit status of a source rights review.",
+      "enum": [
+        "PENDING",
+        "APPROVED",
+        "REJECTED"
+      ],
+      "title": "RightsReviewStatus",
+      "type": "string"
+    },
+    "SourceId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "type": "string"
+    },
+    "SourceType": {
+      "description": "Source organization/content types documented by the registry guide.",
+      "enum": [
+        "GOVERNMENT",
+        "REGULATOR",
+        "OFFICIAL_ORGANIZATION",
+        "NEWS",
+        "PUBLIC_DATA"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    },
+    "UtcDateTime": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Flat compatibility model matching the shared SourceDefinition contract.",
+  "properties": {
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    },
+    "name": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "market": {
+      "$ref": "#/$defs/Market"
+    },
+    "language": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "source_type": {
+      "$ref": "#/$defs/SourceType"
+    },
+    "authority_level": {
+      "$ref": "#/$defs/AuthorityLevel"
+    },
+    "domains": {
+      "items": {
+        "$ref": "#/$defs/Domain"
+      },
+      "minItems": 1,
+      "title": "Domains",
+      "type": "array"
+    },
+    "rights": {
+      "$ref": "#/$defs/RightsConfig"
+    },
+    "cost": {
+      "$ref": "#/$defs/CostConfig"
+    },
+    "priority": {
+      "$ref": "#/$defs/NonNegativeStrictInt"
+    },
+    "acquisition_method": {
+      "$ref": "#/$defs/AcquisitionMethod"
+    },
+    "poll_interval_minutes": {
+      "$ref": "#/$defs/PositiveStrictInt"
+    },
+    "rate_limit": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RateLimitConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "health_status": {
+      "$ref": "#/$defs/HealthStatus",
+      "default": "UNKNOWN"
+    },
+    "last_success_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UtcDateTime"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "last_failure_at": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/UtcDateTime"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "source_id",
+    "name",
+    "market",
+    "language",
+    "source_type",
+    "authority_level",
+    "domains",
+    "rights",
+    "cost",
+    "priority",
+    "acquisition_method",
+    "poll_interval_minutes"
+  ],
+  "title": "SourceDefinition",
+  "type": "object"
+}

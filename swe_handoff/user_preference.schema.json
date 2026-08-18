@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-intelligence.local/contracts/user_preference.schema.json",
+  "$defs": {
+    "Domain": {
+      "description": "Initial intelligence domains.",
+      "enum": [
+        "LAW_POLICY",
+        "ENERGY",
+        "TECHNOLOGY",
+        "REAL_ESTATE",
+        "FINANCE"
+      ],
+      "title": "Domain",
+      "type": "string"
+    },
+    "Market": {
+      "description": "Markets supported in the current product phase.",
+      "enum": [
+        "VN",
+        "US",
+        "EU",
+        "CN"
+      ],
+      "title": "Market",
+      "type": "string"
+    },
+    "NonBlankString": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "Topic": {
+      "description": "Controlled topic vocabulary for classification-taxonomy-v1.",
+      "enum": [
+        "AI",
+        "BANKING",
+        "INTEREST_RATES",
+        "OIL_GAS",
+        "REAL_ESTATE",
+        "REGULATION",
+        "RENEWABLE_ENERGY",
+        "SEMICONDUCTORS"
+      ],
+      "title": "Topic",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Minimal shared Product/SWE -> DE preference contract.",
+  "properties": {
+    "user_id": {
+      "$ref": "#/$defs/NonBlankString"
+    },
+    "markets": {
+      "items": {
+        "$ref": "#/$defs/Market"
+      },
+      "title": "Markets",
+      "type": "array"
+    },
+    "categories": {
+      "items": {
+        "$ref": "#/$defs/Domain"
+      },
+      "title": "Categories",
+      "type": "array"
+    },
+    "topics": {
+      "items": {
+        "$ref": "#/$defs/Topic"
+      },
+      "title": "Topics",
+      "type": "array"
+    },
+    "muted_source_ids": {
+      "items": {
+        "$ref": "#/$defs/NonBlankString"
+      },
+      "title": "Muted Source Ids",
+      "type": "array"
+    },
+    "muted_topics": {
+      "items": {
+        "$ref": "#/$defs/Topic"
+      },
+      "title": "Muted Topics",
+      "type": "array"
+    },
+    "breaking_alert_enabled": {
+      "title": "Breaking Alert Enabled",
+      "type": "boolean"
+    },
+    "hourly_update_enabled": {
+      "title": "Hourly Update Enabled",
+      "type": "boolean"
+    },
+    "daily_digest_enabled": {
+      "title": "Daily Digest Enabled",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "user_id",
+    "markets",
+    "categories",
+    "topics",
+    "muted_source_ids",
+    "muted_topics",
+    "breaking_alert_enabled",
+    "hourly_update_enabled",
+    "daily_digest_enabled"
+  ],
+  "title": "UserPreference",
+  "type": "object"
+}

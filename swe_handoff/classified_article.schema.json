@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-intelligence.local/contracts/classified_article.schema.json",
+  "$defs": {
+    "ClassifierVersion": {
+      "maxLength": 64,
+      "pattern": "^classification-v[1-9][0-9]*$",
+      "type": "string"
+    },
+    "Domain": {
+      "description": "Initial intelligence domains.",
+      "enum": [
+        "LAW_POLICY",
+        "ENERGY",
+        "TECHNOLOGY",
+        "REAL_ESTATE",
+        "FINANCE"
+      ],
+      "title": "Domain",
+      "type": "string"
+    },
+    "Market": {
+      "description": "Markets supported in the current product phase.",
+      "enum": [
+        "VN",
+        "US",
+        "EU",
+        "CN"
+      ],
+      "title": "Market",
+      "type": "string"
+    },
+    "NonEmptyString": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "Topic": {
+      "description": "Controlled topic vocabulary for classification-taxonomy-v1.",
+      "enum": [
+        "AI",
+        "BANKING",
+        "INTEREST_RATES",
+        "OIL_GAS",
+        "REAL_ESTATE",
+        "REGULATION",
+        "RENEWABLE_ENERGY",
+        "SEMICONDUCTORS"
+      ],
+      "title": "Topic",
+      "type": "string"
+    },
+    "UtcDateTime": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Minimal shared DE/SWE classification contract.",
+  "properties": {
+    "is_relevant": {
+      "title": "Is Relevant",
+      "type": "boolean"
+    },
+    "markets": {
+      "items": {
+        "$ref": "#/$defs/Market"
+      },
+      "maxItems": 4,
+      "title": "Markets",
+      "type": "array"
+    },
+    "category": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Domain"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "topics": {
+      "items": {
+        "$ref": "#/$defs/Topic"
+      },
+      "maxItems": 5,
+      "title": "Topics",
+      "type": "array"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "article_id": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "classifier_version": {
+      "$ref": "#/$defs/ClassifierVersion"
+    },
+    "classified_at": {
+      "$ref": "#/$defs/UtcDateTime"
+    }
+  },
+  "required": [
+    "is_relevant",
+    "markets",
+    "category",
+    "topics",
+    "confidence",
+    "article_id",
+    "classifier_version",
+    "classified_at"
+  ],
+  "title": "ClassifiedArticle",
+  "type": "object"
+}

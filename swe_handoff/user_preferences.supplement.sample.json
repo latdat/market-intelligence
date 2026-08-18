@@ -1,0 +1,50 @@
+[
+  {
+    "user_id": "user-13-muted-source",
+    "markets": [
+      "US"
+    ],
+    "categories": [
+      "FINANCE"
+    ],
+    "topics": [
+      "REGULATION"
+    ],
+    "muted_source_ids": [
+      "us_sec_regulatory"
+    ],
+    "muted_topics": [],
+    "breaking_alert_enabled": true,
+    "hourly_update_enabled": false,
+    "daily_digest_enabled": true
+  },
+  {
+    "user_id": "user-14-empty",
+    "markets": [],
+    "categories": [],
+    "topics": [],
+    "muted_source_ids": [],
+    "muted_topics": [],
+    "breaking_alert_enabled": false,
+    "hourly_update_enabled": false,
+    "daily_digest_enabled": false
+  },
+  {
+    "user_id": "user-15-vn-banking",
+    "markets": [
+      "VN"
+    ],
+    "categories": [
+      "FINANCE"
+    ],
+    "topics": [
+      "BANKING",
+      "INTEREST_RATES"
+    ],
+    "muted_source_ids": [],
+    "muted_topics": [],
+    "breaking_alert_enabled": true,
+    "hourly_update_enabled": true,
+    "daily_digest_enabled": true
+  }
+]

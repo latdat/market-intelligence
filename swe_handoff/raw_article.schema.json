@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://market-intelligence.local/contracts/raw_article.schema.json",
+  "$defs": {
+    "NonEmptyString": {
+      "minLength": 1,
+      "type": "string"
+    },
+    "SourceId": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "type": "string"
+    },
+    "UtcDateTime": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Connector output that preserves upstream values before normalization.",
+  "properties": {
+    "source_id": {
+      "$ref": "#/$defs/SourceId"
+    },
+    "source_item_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Source Item Id"
+    },
+    "url": {
+      "$ref": "#/$defs/NonEmptyString"
+    },
+    "title": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Title"
+    },
+    "description": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Description"
+    },
+    "published_at_raw": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Published At Raw"
+    },
+    "language_hint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Language Hint"
+    },
+    "retrieved_at": {
+      "$ref": "#/$defs/UtcDateTime"
+    },
+    "raw_metadata": {
+      "additionalProperties": true,
+      "title": "Raw Metadata",
+      "type": "object"
+    }
+  },
+  "required": [
+    "source_id",
+    "url",
+    "retrieved_at"
+  ],
+  "title": "RawArticle",
+  "type": "object"
+}

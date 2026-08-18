@@ -1,0 +1,29 @@
+[
+  {
+    "candidate_id": "30bd3090ea21e5e80f688c6ebd4abd10e7b2a662bb8914eba54cf42e8eb145f5",
+    "user_id": "user-15-vn-banking",
+    "article_id": "24f1a9774a819c7be23e721502d5e0e84d613c4fb1be862657b1262919b60dc5",
+    "matched_at": "2026-08-16T02:30:00Z",
+    "match_reasons": [
+      "market:VN",
+      "category:FINANCE",
+      "topic:BANKING"
+    ],
+    "importance": "HIGH",
+    "relevance_score": 0.91,
+    "breaking_eligible": true
+  },
+  {
+    "candidate_id": "d62e05c5d4638a82cf885aa6880566d63b272f758e8a51311260bcafd756a36e",
+    "user_id": "user-15-vn-banking",
+    "article_id": "8f62d3d2857e663902a1ebf05d24261b47b1ecf5abb546201c09cd5dfe153347",
+    "matched_at": "2026-08-18T01:15:00Z",
+    "match_reasons": [
+      "market:VN",
+      "topic:BANKING"
+    ],
+    "importance": "NORMAL",
+    "relevance_score": 0.435,
+    "breaking_eligible": false
+  }
+]
