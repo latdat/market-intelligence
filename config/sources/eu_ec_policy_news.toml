@@ -13,14 +13,18 @@ method = "RSS"
 endpoint_url = "https://commission.europa.eu/node/2/rss_en"
 poll_interval_minutes = 15
 
+# Rights reviewed 2026-08-18: snippet display approved based on publisher's own
+# published policy (see rationale below). Full-text storage, redistribution, and AI
+# processing remain separately gated and are NOT approved by this review.
+# Basis: European Commission legal notice (commission.europa.eu/legal-notice_en): EU-owned content licensed under CC BY 4.0, reuse allowed "provided appropriate credit is given." Excludes EU logos/trademarks and third-party/personal-data content embedded in articles.
 [rights]
 can_fetch = true
 can_store_metadata = true
 can_store_full_text = false
 can_ai_process = false
-can_show_snippet = false
+can_show_snippet = true
 can_redistribute_full_text = false
-rights_review_status = "PENDING"
+rights_review_status = "APPROVED"
 
 [cost]
 type = "FREE"

@@ -175,10 +175,27 @@ Of the 25 official MUST sources, **18** are currently implemented: `us_fed_press
 `eu_ecb_press`, `us_sec_regulatory`, `eu_ec_policy_news`, `us_federal_register`, `us_govinfo_legal`, `vn_sbv_regulatory_docs`, `vn_moit_regulatory_docs`, `vn_mst_regulatory_docs`, `us_bis_regulatory`, `us_fhfa_regulatory`, `eu_esma_regulatory`, `eu_eurlex_cellar`, `cn_miit_policy_listing`, `cn_state_council_policy_docs`, `cn_pboc_regulatory_docs`, `cn_csrc_regulatory_docs`, and `cn_nea_regulatory_docs`. The
 remaining **7** MUST sources are `SOURCE-LEVEL BLOCKED` or `DEFERRED_PENDING_POST_PILOT`.
 
-All remaining non-live records use conservative metadata-only rights with
+### 2.2a Rights review status (updated 2026-08-18)
+
+8 of the 21 sources have been reviewed against the publisher's own published policy
+(terms of use, copyright/disclaimer page, robots.txt) and moved to
+`rights_review_status = "APPROVED"` with `can_show_snippet = true`:
+`us_federal_register`, `us_govinfo_legal`, `us_sec_regulatory`, `us_fed_press_releases`,
+`us_fhfa_regulatory`, `eu_eurlex_cellar`, `eu_ec_policy_news`, `eu_ecb_press`. The
+per-source legal basis is recorded as a comment directly above the `[rights]` table in
+each source's TOML file. `can_ai_process` and `can_store_full_text` remain `false` for
+all sources -- this review approved snippet/metadata display only, not AI processing or
+full-text storage/redistribution, which require a separate decision.
+
+The remaining 13 records use conservative metadata-only rights with
 `rights_review_status = "PENDING"` and `can_ai_process = false`. This permits fetch and
 metadata persistence but does not approve full-text storage, AI processing, snippet
-display, or redistribution.
+display, or redistribution. VN and CN sources in particular were checked against
+publisher terms and found to require written permission for commercial use (VN) or
+prohibit unauthorized commercial reprinting (CN) -- see rights research notes; do not
+mark these `APPROVED` without either written permission or further per-source legal
+review, since neither jurisdiction has a US-style government-work public-domain
+exemption covering general website content.
 
 Content scope:
 - `EDITORIAL_NEWS`: `vn_mst_news_events`, `us_fed_press_releases`, `eu_ecb_press`,

@@ -13,14 +13,18 @@ method = "RSS"
 endpoint_url = "https://www.sec.gov/enforcement-litigation/administrative-proceedings/rss"
 poll_interval_minutes = 15
 
+# Rights reviewed 2026-08-18: snippet display approved based on publisher's own
+# published policy (see rationale below). Full-text storage, redistribution, and AI
+# processing remain separately gated and are NOT approved by this review.
+# Basis: SEC privacy policy (sec.gov/privacy): "Information presented on sec.gov is considered public information and may be copied or further distributed by users of the web site without the SEC's permission." Do not use SEC seal/logo as thumbnail.
 [rights]
 can_fetch = true
 can_store_metadata = true
 can_store_full_text = false
 can_ai_process = false
-can_show_snippet = false
+can_show_snippet = true
 can_redistribute_full_text = false
-rights_review_status = "PENDING"
+rights_review_status = "APPROVED"
 
 [cost]
 type = "FREE"
